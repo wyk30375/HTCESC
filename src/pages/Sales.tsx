@@ -81,7 +81,27 @@ export default function Sales() {
           console.log('🧪 [测试2] 📋 在库车辆数据:', inStockVehicles);
         }
         
-        // 如果测试成功，直接设置车辆数据
+        // 测试3: 查询所有用户资料（profiles）
+        console.log('🧪 [测试3] 查询所有用户资料（profiles）');
+        const { data: allProfiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*');
+        
+        if (profilesError) {
+          console.error('🧪 [测试3] ❌ 查询失败:', profilesError);
+          console.error('🧪 [测试3] 错误详情:', JSON.stringify(profilesError, null, 2));
+        } else {
+          console.log('🧪 [测试3] ✅ 查询成功，用户数量:', allProfiles?.length || 0);
+          console.log('🧪 [测试3] 📋 用户数据:', allProfiles);
+          
+          // 如果测试成功，直接设置销售员数据
+          if (allProfiles && allProfiles.length > 0) {
+            console.log('🧪 [测试3] ✅ 直接设置销售员数据到状态');
+            setSalespeople(allProfiles);
+          }
+        }
+        
+        // 如果车辆测试成功，直接设置车辆数据
         if (allVehicles && allVehicles.length > 0) {
           const filtered = allVehicles.filter(v => v.status === 'in_stock');
           console.log('🧪 [测试] 🔄 前端过滤结果:', filtered.length, '辆在库车辆');
