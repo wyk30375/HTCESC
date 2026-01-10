@@ -221,6 +221,18 @@ export default function Sales() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 col-span-2">
                   <Label htmlFor="vehicle_id">选择车辆</Label>
+                  
+                  {/* 调试信息 - 显示加载状态 */}
+                  <div className="text-xs bg-blue-50 border border-blue-200 p-2 rounded mb-2">
+                    <div>🔍 调试信息：</div>
+                    <div>• 车辆数组长度: {vehicles.length}</div>
+                    <div>• 加载状态: {loading ? '加载中...' : '已完成'}</div>
+                    <div>• 车辆数据: {vehicles.length > 0 ? '有数据' : '无数据'}</div>
+                    {vehicles.length > 0 && (
+                      <div>• 第一辆车: {vehicles[0].brand} {vehicles[0].model}</div>
+                    )}
+                  </div>
+                  
                   <Select
                     value={formData.vehicle_id}
                     onValueChange={(value) => {
