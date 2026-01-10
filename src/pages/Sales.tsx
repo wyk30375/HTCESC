@@ -59,6 +59,8 @@ export default function Sales() {
         employeesApi.getActive(),
         profilesApi.getAll(), // 获取所有用户作为销售员选项
       ]);
+      console.log('加载的在库车辆数据:', vehiclesData);
+      console.log('在库车辆数量:', vehiclesData.length);
       setSales(salesData);
       setVehicles(vehiclesData);
       setEmployees(employeesData);
@@ -221,20 +223,39 @@ export default function Sales() {
                   <Label htmlFor="vehicle_id">选择车辆</Label>
                   <Select
                     value={formData.vehicle_id}
-                    onValueChange={(value) => setFormData({ ...formData, vehicle_id: value })}
+                    onValueChange={(value) => {
+                      console.log('选择的车辆ID:', value);
+                      setFormData({ ...formData, vehicle_id: value });
+                    }}
                     required
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="选择要销售的车辆" />
                     </SelectTrigger>
                     <SelectContent>
-                      {vehicles.map((vehicle) => (
-                        <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.brand} {vehicle.model} ({vehicle.vin_last_six}) - ¥{Number(vehicle.purchase_price).toLocaleString()}
-                        </SelectItem>
-                      ))}
+                      {vehicles.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          暂无在库车辆
+                        </div>
+                      ) : (
+                        vehicles.map((vehicle) => (
+                          <SelectItem key={vehicle.id} value={vehicle.id}>
+                            {vehicle.brand} {vehicle.model} ({vehicle.vin_last_six}) - ¥{Number(vehicle.purchase_price).toLocaleString()}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {vehicles.length === 0 && (
+                    <p className="text-xs text-amber-600">
+                      ⚠️ 提示：请先在"车辆管理"页面添加车辆
+                    </p>
+                  )}
+                  {vehicles.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      当前有 {vehicles.length} 辆在库车辆可供销售
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
