@@ -79,7 +79,10 @@ export const profilesApi = {
   },
 
   // 创建新用户（管理员添加员工）
-  async createUser(email: string, password: string, username: string, phone?: string) {
+  async createUser(username: string, password: string, phone?: string) {
+    // 自动生成内部邮箱（使用用户名）
+    const email = `${username.toLowerCase().replace(/\s+/g, '')}@yichi.internal`;
+    
     // 1. 使用 Supabase Auth 创建用户
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,

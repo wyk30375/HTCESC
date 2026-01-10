@@ -25,7 +25,6 @@ export default function Employees() {
 
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
     phone: '',
     password: '123456',
   });
@@ -56,15 +55,8 @@ export default function Employees() {
     }
 
     // 验证必填字段
-    if (!formData.username || !formData.email) {
-      toast.error('请填写员工姓名和邮箱');
-      return;
-    }
-
-    // 验证邮箱格式
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast.error('请输入正确的邮箱格式');
+    if (!formData.username) {
+      toast.error('请填写员工姓名');
       return;
     }
 
@@ -88,9 +80,8 @@ export default function Employees() {
       } else {
         // 添加新员工
         await profilesApi.createUser(
-          formData.email,
-          formData.password,
           formData.username,
+          formData.password,
           formData.phone || undefined
         );
         toast.success('员工添加成功，账号密码已派发');
@@ -109,7 +100,6 @@ export default function Employees() {
     setEditingEmployee(employee);
     setFormData({
       username: employee.username,
-      email: employee.email || '',
       phone: employee.phone || '',
       password: '123456',
     });
@@ -136,7 +126,6 @@ export default function Employees() {
   const resetForm = () => {
     setFormData({
       username: '',
-      email: '',
       phone: '',
       password: '123456',
     });
@@ -186,7 +175,6 @@ export default function Employees() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>姓名</TableHead>
-                    <TableHead>邮箱</TableHead>
                     <TableHead>手机号</TableHead>
                     <TableHead>登录密码</TableHead>
                     <TableHead>角色</TableHead>
@@ -199,7 +187,6 @@ export default function Employees() {
                   {employees.map((employee) => (
                     <TableRow key={employee.id}>
                       <TableCell className="font-medium">{employee.username}</TableCell>
-                      <TableCell>{employee.email || '-'}</TableCell>
                       <TableCell>{employee.phone || '-'}</TableCell>
                       <TableCell>
                         {employee.default_password ? (
@@ -250,7 +237,7 @@ export default function Employees() {
                   ))}
                   {employees.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground">
+                      <TableCell colSpan={isAdmin ? 7 : 6} className="text-center text-muted-foreground">
                         暂无员工数据
                       </TableCell>
                     </TableRow>
@@ -278,36 +265,6 @@ export default function Employees() {
                 />
               </div>
               
-              {!editingEmployee && (
-                <>
-                  <div>
-                    <Label htmlFor="email">邮箱 *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="请输入邮箱（用于登录）"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="password">登录密码</Label>
-                    <Input
-                      id="password"
-                      type="text"
-                      value={formData.password}
-                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                      placeholder="默认密码：123456"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      默认密码为 123456，员工首次登录后可自行修改
-                    </p>
-                  </div>
-                </>
-              )}
-              
               <div>
                 <Label htmlFor="phone">手机号</Label>
                 <Input
@@ -317,6 +274,22 @@ export default function Employees() {
                   placeholder="请输入手机号"
                 />
               </div>
+
+              {!editingEmployee && (
+                <div>
+                  <Label htmlFor="password">登录密码</Label>
+                  <Input
+                    id="password"
+                    type="text"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="默认密码：123456"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    默认密码为 123456，员工首次登录后可自行修改
+                  </p>
+                </div>
+              )}
 
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => handleDialogClose(false)}>
