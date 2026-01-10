@@ -175,6 +175,16 @@ export default function Sales() {
       // 计算总利润
       const totalProfit = formData.sale_price - saleTotalCost + (formData.has_loan ? formData.loan_rebate : 0);
 
+      console.log('💰 成本计算详情:');
+      console.log('  - 车辆入库成本:', totalCost);
+      console.log('  - 销售整备费:', formData.sale_preparation_cost);
+      console.log('  - 销售过户费:', formData.sale_transfer_cost);
+      console.log('  - 销售杂费:', formData.sale_misc_cost);
+      console.log('  - 销售总成本:', saleTotalCost);
+      console.log('  - 成交价格:', formData.sale_price);
+      console.log('  - 贷款返利:', formData.has_loan ? formData.loan_rebate : 0);
+      console.log('  - 总利润:', totalProfit);
+
       // 创建销售记录（将 salesperson_id 映射为 sales_employee_id）
       const saleData = {
         vehicle_id: formData.vehicle_id,
@@ -188,6 +198,7 @@ export default function Sales() {
         sale_preparation_cost: formData.sale_preparation_cost,
         sale_transfer_cost: formData.sale_transfer_cost,
         sale_misc_cost: formData.sale_misc_cost,
+        total_cost: saleTotalCost, // 保存总成本
         total_profit: totalProfit,
         sales_employee_id: formData.salesperson_id, // 映射字段名
         notes: formData.notes || null,
