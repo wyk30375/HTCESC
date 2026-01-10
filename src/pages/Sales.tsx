@@ -185,7 +185,7 @@ export default function Sales() {
       console.log('  - 贷款返利:', formData.has_loan ? formData.loan_rebate : 0);
       console.log('  - 总利润:', totalProfit);
 
-      // 创建销售记录（将 salesperson_id 映射为 sales_employee_id）
+      // 创建销售记录
       const saleData = {
         vehicle_id: formData.vehicle_id,
         sale_date: formData.sale_date,
@@ -200,7 +200,8 @@ export default function Sales() {
         sale_misc_cost: formData.sale_misc_cost,
         total_cost: saleTotalCost, // 保存总成本
         total_profit: totalProfit,
-        sales_employee_id: formData.salesperson_id, // 映射字段名
+        sales_employee_id: formData.salesperson_id, // 保留旧字段以兼容
+        salesperson_id: formData.salesperson_id, // 新字段
         notes: formData.notes || null,
       };
 
