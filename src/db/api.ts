@@ -65,6 +65,18 @@ export const profilesApi = {
     if (error) throw error;
     return data;
   },
+
+  // 更新用户资料（通用方法）
+  async update(id: string, updates: Partial<{ username: string; role: string }>) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
 };
 
 // ==================== 员工 API ====================

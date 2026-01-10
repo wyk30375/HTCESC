@@ -107,11 +107,15 @@ export default function Employees() {
     
     try {
       if (editingEmployee) {
-        await employeesApi.update(editingEmployee.id, formData);
+        // 注册用户即为员工，更新 profiles 表的 username 字段
+        await profilesApi.update(editingEmployee.id, {
+          username: formData.name,
+        });
         toast.success('员工信息已更新');
       } else {
-        await employeesApi.create(formData as any);
-        toast.success('员工已添加');
+        // 不支持手动添加员工，员工通过注册创建
+        toast.error('员工通过注册系统自动创建，无需手动添加');
+        return;
       }
       setDialogOpen(false);
       resetForm();
