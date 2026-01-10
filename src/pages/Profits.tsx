@@ -79,20 +79,20 @@ export default function Profits() {
         // 获取相关人员信息
         const salesperson = profilesData.find(p => p.id === sale.salesperson_id);
         
-        // 解析 investor_ids 和 rent_investor_ids
+        // 从 vehicle 表读取 investor_ids 和 rent_investor_ids
         let investorIds: string[] = [];
         let rentInvestorIds: string[] = [];
         
         try {
-          if (sale.investor_ids) {
-            investorIds = typeof sale.investor_ids === 'string' 
-              ? JSON.parse(sale.investor_ids) 
-              : sale.investor_ids;
+          if (vehicle.investor_ids) {
+            investorIds = typeof vehicle.investor_ids === 'string' 
+              ? JSON.parse(vehicle.investor_ids) 
+              : vehicle.investor_ids;
           }
-          if (sale.rent_investor_ids) {
-            rentInvestorIds = typeof sale.rent_investor_ids === 'string'
-              ? JSON.parse(sale.rent_investor_ids)
-              : sale.rent_investor_ids;
+          if (vehicle.rent_investor_ids) {
+            rentInvestorIds = typeof vehicle.rent_investor_ids === 'string'
+              ? JSON.parse(vehicle.rent_investor_ids)
+              : vehicle.rent_investor_ids;
           }
         } catch (error) {
           console.error('解析角色ID失败:', error);

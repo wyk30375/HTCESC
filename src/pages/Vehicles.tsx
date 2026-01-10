@@ -9,8 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { vehiclesApi, vehicleCostsApi } from '@/db/api';
-import type { Vehicle } from '@/types/types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { vehiclesApi, vehicleCostsApi, profilesApi } from '@/db/api';
+import type { Vehicle, Profile } from '@/types/types';
 import { Plus, Edit, Eye, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,6 +23,7 @@ export default function Vehicles() {
   const isAdmin = profile?.role === 'admin';
   
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
@@ -38,6 +40,8 @@ export default function Vehicles() {
     condition_description: '',
     photos: [] as string[],
     purchase_price: 0,
+    investor_ids: [] as string[],
+    rent_investor_ids: [] as string[],
   });
 
   useEffect(() => {
@@ -47,8 +51,12 @@ export default function Vehicles() {
   const loadVehicles = async () => {
     try {
       setLoading(true);
-      const data = await vehiclesApi.getAll();
-      setVehicles(data);
+      const [vehiclesData, profilesData] = await Promise.all([
+        vehiclesApi.getAll(),
+        profilesApi.getAll(),
+      ]);
+      setVehicles(vehiclesData);
+      setProfiles(profilesData);
     } catch (error) {
       console.error('加载车辆数据失败:', error);
       toast.error('加载车辆数据失败');
@@ -106,6 +114,8 @@ export default function Vehicles() {
       condition_description: '',
       photos: [],
       purchase_price: 0,
+      investor_ids: [],
+      rent_investor_ids: [],
     });
     setEditingVehicle(null);
   };
@@ -121,6 +131,25 @@ export default function Vehicles() {
       return;
     }
     
+    // 解析 investor_ids 和 rent_investor_ids
+    let investorIds: string[] = [];
+    let rentInvestorIds: string[] = [];
+    
+    try {
+      if (vehicle.investor_ids) {
+        investorIds = typeof vehicle.investor_ids === 'string' 
+          ? JSON.parse(vehicle.investor_ids) 
+          : vehicle.investor_ids;
+      }
+      if (vehicle.rent_investor_ids) {
+        rentInvestorIds = typeof vehicle.rent_investor_ids === 'string'
+          ? JSON.parse(vehicle.rent_investor_ids)
+          : vehicle.rent_investor_ids;
+      }
+    } catch (error) {
+      console.error('解析出资人ID失败:', error);
+    }
+    
     setEditingVehicle(vehicle);
     setFormData({
       vin_last_six: vehicle.vin_last_six,
@@ -133,6 +162,8 @@ export default function Vehicles() {
       condition_description: vehicle.condition_description || '',
       photos: vehicle.photos || [],
       purchase_price: Number(vehicle.purchase_price),
+      investor_ids: investorIds,
+      rent_investor_ids: rentInvestorIds,
     });
     setDialogOpen(true);
   };
@@ -267,6 +298,90 @@ export default function Vehicles() {
                   onChange={(e) => setFormData({ ...formData, purchase_price: Number(e.target.value) })}
                   required
                 />
+              </div>
+
+              {/* 押车出资人选择 */}
+              <div className="space-y-2">
+                <Label>押车出资人（可多选，平分36%利润）</Label>
+                <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                  {profiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">暂无员工数据</p>
+                  ) : (
+                    profiles.map((person) => (
+                      <div key={person.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`vehicle-investor-${person.id}`}
+                          checked={formData.investor_ids.includes(person.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({
+                                ...formData,
+                                investor_ids: [...formData.investor_ids, person.id],
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                investor_ids: formData.investor_ids.filter((id) => id !== person.id),
+                              });
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`vehicle-investor-${person.id}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {person.username || person.email}
+                          {person.id === profile?.id && ' (我)'}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  已选择 {formData.investor_ids.length} 人
+                </p>
+              </div>
+
+              {/* 地租出资人选择 */}
+              <div className="space-y-2">
+                <Label>地租出资人（可多选，平分18%利润）</Label>
+                <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                  {profiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">暂无员工数据</p>
+                  ) : (
+                    profiles.map((person) => (
+                      <div key={person.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`vehicle-rent-investor-${person.id}`}
+                          checked={formData.rent_investor_ids.includes(person.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({
+                                ...formData,
+                                rent_investor_ids: [...formData.rent_investor_ids, person.id],
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                rent_investor_ids: formData.rent_investor_ids.filter((id) => id !== person.id),
+                              });
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`vehicle-rent-investor-${person.id}`}
+                          className="text-sm font-normal cursor-pointer"
+                        >
+                          {person.username || person.email}
+                          {person.id === profile?.id && ' (我)'}
+                        </Label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  已选择 {formData.rent_investor_ids.length} 人
+                </p>
               </div>
 
               <div className="space-y-2">

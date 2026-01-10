@@ -56,6 +56,8 @@ export interface Vehicle {
   photos: string[]; // 照片URL数组
   status: VehicleStatus;
   purchase_price: number; // 购车款
+  investor_ids: string[]; // 押车出资人ID列表
+  rent_investor_ids: string[]; // 地租出资人ID列表
   created_at: string;
   updated_at: string;
 }
