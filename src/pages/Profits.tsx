@@ -255,10 +255,10 @@ export default function Profits() {
                       <TableHead className="text-right">成交价</TableHead>
                       <TableHead className="text-right">总成本</TableHead>
                       <TableHead className="text-right">总利润</TableHead>
-                      <TableHead>销售员 (36%)</TableHead>
-                      <TableHead>押车出资人 (36%)</TableHead>
-                      <TableHead>地租出资人 (18%)</TableHead>
-                      <TableHead className="text-right">奖金池 (10%)</TableHead>
+                      <TableHead>销售员</TableHead>
+                      <TableHead>押车出资人</TableHead>
+                      <TableHead>地租出资人</TableHead>
+                      <TableHead className="text-right">奖金池</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
