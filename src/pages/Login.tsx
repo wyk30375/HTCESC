@@ -127,14 +127,14 @@ export default function Login() {
                   <Input
                     id="signup-username"
                     type="text"
-                    placeholder="字母、数字、下划线"
+                    placeholder="请输入用户名（支持中文）"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     disabled={loading}
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    用户名只能包含字母、数字和下划线
+                    用户名可以使用中文、字母、数字等任意字符
                   </p>
                 </div>
                 <div className="space-y-2">

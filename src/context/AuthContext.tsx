@@ -78,10 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (username: string, password: string) => {
-    // 验证用户名格式
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      throw new Error('用户名只能包含字母、数字和下划线');
-    }
+    // 移除用户名字符限制，允许中文和其他字符
+    // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
 
     const email = `${username}@miaoda.com`;
     const { error } = await supabase.auth.signUp({
