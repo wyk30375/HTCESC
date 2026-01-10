@@ -185,6 +185,8 @@ export const vehiclesApi = {
   // 获取在售车辆
   async getInStock() {
     console.log('🚗 开始查询在库车辆...');
+    console.log('🔑 当前用户会话:', await supabase.auth.getSession());
+    
     const { data, error } = await supabase
       .from('vehicles')
       .select('*')
@@ -193,11 +195,20 @@ export const vehiclesApi = {
     
     if (error) {
       console.error('❌ 查询在库车辆失败:', error);
+      console.error('错误详情:', JSON.stringify(error, null, 2));
       throw error;
     }
     
     console.log('✅ 查询在库车辆成功:', data);
     console.log('📊 在库车辆数量:', data?.length || 0);
+    
+    if (!data || data.length === 0) {
+      console.warn('⚠️ 警告：查询成功但返回空数组');
+      console.warn('可能原因：');
+      console.warn('1. 数据库中没有 status=in_stock 的车辆');
+      console.warn('2. RLS 策略阻止了查询');
+      console.warn('3. 用户没有查看权限');
+    }
     
     return Array.isArray(data) ? data : [];
   },
