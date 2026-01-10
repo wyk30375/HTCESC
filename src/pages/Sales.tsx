@@ -10,8 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { vehiclesApi, vehicleSalesApi, vehicleCostsApi, employeesApi, profitDistributionsApi } from '@/db/api';
-import type { Vehicle, VehicleSale, Employee } from '@/types/types';
+import { vehiclesApi, vehicleSalesApi, vehicleCostsApi, employeesApi, profitDistributionsApi, profilesApi } from '@/db/api';
+import type { Vehicle, VehicleSale, Employee, Profile } from '@/types/types';
 import { Plus, Eye, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,6 +24,7 @@ export default function Sales() {
   const [sales, setSales] = useState<VehicleSale[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [salespeople, setSalespeople] = useState<Profile[]>([]); // 所有用户作为销售员选项
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
@@ -52,14 +53,16 @@ export default function Sales() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [salesData, vehiclesData, employeesData] = await Promise.all([
+      const [salesData, vehiclesData, employeesData, profilesData] = await Promise.all([
         vehicleSalesApi.getAll(),
         vehiclesApi.getInStock(),
         employeesApi.getActive(),
+        profilesApi.getAll(), // 获取所有用户作为销售员选项
       ]);
       setSales(salesData);
       setVehicles(vehiclesData);
       setEmployees(employeesData);
+      setSalespeople(profilesData); // 设置销售员列表
     } catch (error) {
       console.error('加载销售数据失败:', error);
       toast.error('加载销售数据失败');
@@ -165,9 +168,9 @@ export default function Sales() {
     return allVehicles.find(v => v.id === vehicleId);
   };
 
-  const getEmployeeName = (employeeId: string) => {
-    const employee = employees.find(e => e.id === employeeId);
-    return employee?.name || '-';
+  const getSalespersonName = (salespersonId: string) => {
+    const person = salespeople.find(p => p.id === salespersonId);
+    return person?.username || person?.email || '-';
   };
 
   if (loading) {
@@ -282,9 +285,10 @@ export default function Sales() {
                       <SelectValue placeholder="选择销售员" />
                     </SelectTrigger>
                     <SelectContent>
-                      {employees.map((employee) => (
-                        <SelectItem key={employee.id} value={employee.id}>
-                          {employee.name} - {employee.position}
+                      {salespeople.map((person) => (
+                        <SelectItem key={person.id} value={person.id}>
+                          {person.username || person.email}
+                          {person.id === profile?.id && ' (我)'}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -441,7 +445,7 @@ export default function Sales() {
                         ¥{Number(sale.total_profit).toLocaleString()}
                       </Badge>
                     </TableCell>
-                    <TableCell>{getEmployeeName(sale.salesperson_id)}</TableCell>
+                    <TableCell>{getSalespersonName(sale.salesperson_id)}</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -493,7 +497,7 @@ export default function Sales() {
                 )}
                 <div>
                   <Label className="text-muted-foreground">销售员</Label>
-                  <p className="font-medium">{getEmployeeName(selectedSale.salesperson_id)}</p>
+                  <p className="font-medium">{getSalespersonName(selectedSale.salesperson_id)}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">贷款状态</Label>
