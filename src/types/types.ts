@@ -156,3 +156,15 @@ export interface EmployeePerformance {
   total_profit: number;
   total_commission: number;
 }
+
+// 提成规则
+export interface ProfitRule {
+  id: string;
+  rent_investor_rate: number;
+  bonus_pool_rate: number;
+  salesperson_rate: number;
+  investor_rate: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

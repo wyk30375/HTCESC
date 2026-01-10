@@ -13,6 +13,7 @@ export const Vehicles = lazy(() => import('@/pages/Vehicles'));
 export const Sales = lazy(() => import('@/pages/Sales'));
 export const Expenses = lazy(() => import('@/pages/Expenses'));
 export const Profits = lazy(() => import('@/pages/Profits'));
+export const ProfitRules = lazy(() => import('@/pages/ProfitRules'));
 export const Statistics = lazy(() => import('@/pages/Statistics'));
 export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
@@ -50,6 +51,11 @@ export const routes: RouteConfig[] = [
     path: '/profits',
     component: Profits,
     title: '利润分配',
+  },
+  {
+    path: '/profit-rules',
+    component: ProfitRules,
+    title: '提成规则',
   },
   {
     path: '/statistics',

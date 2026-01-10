@@ -24,6 +24,7 @@ import {
   User,
   Eye,
   FileText,
+  Settings,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -39,6 +40,7 @@ const navItems = [
   { path: '/sales', label: '销售管理', icon: ShoppingCart },
   { path: '/expenses', label: '费用管理', icon: Receipt },
   { path: '/profits', label: '利润分配', icon: PieChart },
+  { path: '/profit-rules', label: '提成规则', icon: Settings },
   { path: '/statistics', label: '统计分析', icon: BarChart3 },
 ];
 

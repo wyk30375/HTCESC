@@ -10,6 +10,7 @@ import type {
   ProfitDistribution,
   MonthlyBonus,
   EmployeeRoleType,
+  ProfitRule,
 } from '@/types/types';
 
 // ==================== 用户资料 API ====================
@@ -594,5 +595,66 @@ export const storageApi = {
       .from('app_8u0242wc45c1_vehicle_images')
       .remove([path]);
     if (error) throw error;
+  },
+};
+
+// ==================== 提成规则 API ====================
+export const profitRulesApi = {
+  // 获取当前生效的规则
+  async getActive() {
+    const { data, error } = await supabase
+      .from('profit_rules')
+      .select('*')
+      .eq('is_active', true)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  // 获取所有规则
+  async getAll() {
+    const { data, error } = await supabase
+      .from('profit_rules')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // 更新规则
+  async update(id: string, updates: Partial<ProfitRule>) {
+    // 先将所有规则设置为非活跃
+    await supabase
+      .from('profit_rules')
+      .update({ is_active: false })
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    // 更新指定规则并设置为活跃
+    const { data, error } = await supabase
+      .from('profit_rules')
+      .update({ ...updates, is_active: true, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  // 创建新规则
+  async create(rule: Omit<ProfitRule, 'id' | 'created_at' | 'updated_at'>) {
+    // 先将所有规则设置为非活跃
+    await supabase
+      .from('profit_rules')
+      .update({ is_active: false })
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+
+    // 创建新规则并设置为活跃
+    const { data, error } = await supabase
+      .from('profit_rules')
+      .insert([{ ...rule, is_active: true }])
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
   },
 };
