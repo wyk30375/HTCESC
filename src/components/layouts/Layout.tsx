@@ -152,8 +152,8 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* 主内容区 */}
       <div className="flex flex-1 flex-col">
-        {/* 顶部导航栏 */}
-        <header className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
+        {/* 顶部导航栏 - 固定定位 */}
+        <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
           {/* 移动端菜单按钮 */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
