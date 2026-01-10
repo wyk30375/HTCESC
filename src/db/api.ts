@@ -187,6 +187,19 @@ export const vehiclesApi = {
     console.log('🚗 开始查询在库车辆...');
     console.log('🔑 当前用户会话:', await supabase.auth.getSession());
     
+    // 先尝试查询所有车辆，看看是否能连接到数据库
+    console.log('🔍 步骤1: 查询所有车辆（测试连接）');
+    const { data: allVehicles, error: allError } = await supabase
+      .from('vehicles')
+      .select('*');
+    
+    console.log('📊 所有车辆数量:', allVehicles?.length || 0);
+    if (allError) {
+      console.error('❌ 查询所有车辆失败:', allError);
+    }
+    
+    // 然后查询在库车辆
+    console.log('🔍 步骤2: 查询在库车辆');
     const { data, error } = await supabase
       .from('vehicles')
       .select('*')
@@ -208,6 +221,14 @@ export const vehiclesApi = {
       console.warn('1. 数据库中没有 status=in_stock 的车辆');
       console.warn('2. RLS 策略阻止了查询');
       console.warn('3. 用户没有查看权限');
+      
+      // 如果查询所有车辆成功，尝试在前端过滤
+      if (allVehicles && allVehicles.length > 0) {
+        console.log('🔄 尝试在前端过滤在库车辆');
+        const inStockVehicles = allVehicles.filter(v => v.status === 'in_stock');
+        console.log('✅ 前端过滤结果:', inStockVehicles.length, '辆在库车辆');
+        return inStockVehicles;
+      }
     }
     
     return Array.isArray(data) ? data : [];
