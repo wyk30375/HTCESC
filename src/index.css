@@ -6,7 +6,7 @@
 @layer base {
   :root {
     /* 汽车行业专业配色 - 深蓝色主色调 */
-    --background: 0 0% 100%;
+    --background: 210 40% 98%;
     --foreground: 215 25% 15%;
 
     --card: 0 0% 100%;
@@ -56,6 +56,22 @@
     --chart-3: 145 65% 45%;
     --chart-4: 280 65% 55%;
     --chart-5: 340 75% 55%;
+    
+    /* 页面背景渐变色 */
+    --page-bg-start: 210 40% 98%;
+    --page-bg-end: 215 30% 96%;
+    
+    /* 成功色 */
+    --success: 145 65% 45%;
+    --success-foreground: 0 0% 100%;
+    
+    /* 警告色 */
+    --warning: 45 95% 55%;
+    --warning-foreground: 0 0% 100%;
+    
+    /* 信息色 */
+    --info: 200 85% 50%;
+    --info-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -101,6 +117,18 @@
     --chart-3: 145 65% 50%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 60%;
+    
+    --page-bg-start: 215 25% 10%;
+    --page-bg-end: 215 30% 8%;
+    
+    --success: 145 65% 50%;
+    --success-foreground: 0 0% 100%;
+    
+    --warning: 45 95% 60%;
+    --warning-foreground: 0 0% 100%;
+    
+    --info: 200 85% 55%;
+    --info-foreground: 0 0% 100%;
   }
 }
 
@@ -110,7 +138,62 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-[hsl(var(--page-bg-start))] to-[hsl(var(--page-bg-end))] text-foreground;
     font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  /* 页面容器背景 */
+  .page-container {
+    @apply min-h-screen bg-gradient-to-br from-[hsl(var(--page-bg-start))] to-[hsl(var(--page-bg-end))];
+  }
+  
+  /* 卡片渐变背景 */
+  .card-gradient {
+    @apply bg-gradient-to-br from-white to-[hsl(var(--muted))];
+  }
+  
+  /* 主色渐变背景 */
+  .primary-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(215_85%_45%)];
+  }
+  
+  /* 强调色渐变背景 */
+  .accent-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(35_95%_58%)];
+  }
+  
+  /* 成功色渐变背景 */
+  .success-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--success))] to-[hsl(155_65%_50%)];
+  }
+  
+  /* 页面标题区域背景 */
+  .page-header-bg {
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(215_75%_40%)] to-[hsl(215_85%_35%)] text-white;
+  }
+  
+  /* 统计卡片背景 */
+  .stat-card-blue {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200;
+  }
+  
+  .stat-card-orange {
+    @apply bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200;
+  }
+  
+  .stat-card-green {
+    @apply bg-gradient-to-br from-green-50 to-green-100 border-green-200;
+  }
+  
+  .stat-card-purple {
+    @apply bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200;
+  }
+  
+  /* 玻璃态效果 */
+  .glass-effect {
+    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg;
   }
 }

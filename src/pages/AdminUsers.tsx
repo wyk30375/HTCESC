@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { PageWrapper } from '@/components/common/PageWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';

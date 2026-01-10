@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/context/AuthContext';
+import { PageWrapper } from '@/components/common/PageWrapper';
 
 const roleTypeLabels: Record<EmployeeRoleType, string> = {
   landlord: '地租',
@@ -234,27 +235,20 @@ export default function Employees() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">员工管理</h1>
-          <p className="text-muted-foreground mt-2">
-            管理员工信息和角色分配
-            {!isAdmin && (
-              <span className="ml-2 text-xs text-amber-600">
-                （员工权限：仅查看，不可修改）
-              </span>
-            )}
-          </p>
-        </div>
-        {isAdmin && (
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={openAddDialog}>
-                <Plus className="mr-2 h-4 w-4" />
-                添加员工
-              </Button>
-            </DialogTrigger>
+    <PageWrapper
+      title="员工管理"
+      description={`管理员工信息和角色分配${!isAdmin ? '（员工权限：仅查看，不可修改）' : ''}`}
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-end">
+          {isAdmin && (
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={openAddDialog} className="primary-gradient">
+                  <Plus className="mr-2 h-4 w-4" />
+                  添加员工
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{editingEmployee ? '编辑员工' : '添加员工'}</DialogTitle>
@@ -472,6 +466,7 @@ export default function Employees() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+      </div>
+    </PageWrapper>
   );
 }
