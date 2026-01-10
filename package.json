@@ -46,8 +46,8 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "input-otp": "^1.2.4",
-    "lucide-react": "^0.462.0",
-    "miaoda-sc-plugin": "1.0.31",
+    "lucide-react": "^0.553.0",
+    "miaoda-sc-plugin": "1.0.51",
     "next-themes": "^0.3.0",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
@@ -63,7 +63,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.3",
+    "@biomejs/biome": "2.3.4",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",

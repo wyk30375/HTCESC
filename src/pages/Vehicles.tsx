@@ -10,12 +10,16 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { vehiclesApi, vehicleCostsApi } from '@/db/api';
 import type { Vehicle } from '@/types/types';
-import { Plus, Edit, Eye } from 'lucide-react';
+import { Plus, Edit, Eye, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import ImageUpload from '@/components/common/ImageUpload';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Vehicles() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+  
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,6 +57,13 @@ export default function Vehicles() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // 如果是编辑模式且不是管理员，阻止操作
+    if (editingVehicle && !isAdmin) {
+      toast.error('只有管理员可以修改已有车辆信息');
+      return;
+    }
+    
     try {
       if (editingVehicle) {
         await vehiclesApi.update(editingVehicle.id, formData);
@@ -102,6 +113,11 @@ export default function Vehicles() {
   };
 
   const openEditDialog = (vehicle: Vehicle) => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以修改已有车辆信息');
+      return;
+    }
+    
     setEditingVehicle(vehicle);
     setFormData({
       vin_last_six: vehicle.vin_last_six,
@@ -133,7 +149,14 @@ export default function Vehicles() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">车辆管理</h1>
-          <p className="text-muted-foreground mt-2">管理车辆入库、在售和已售信息</p>
+          <p className="text-muted-foreground mt-2">
+            管理车辆入库、在售和已售信息
+            {!isAdmin && (
+              <span className="ml-2 text-xs text-amber-600">
+                （员工权限：可录入新车辆，不可修改已有数据）
+              </span>
+            )}
+          </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -144,7 +167,12 @@ export default function Vehicles() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingVehicle ? '编辑车辆' : '车辆入库'}</DialogTitle>
+              <DialogTitle>
+                {editingVehicle ? '编辑车辆' : '车辆入库'}
+                {editingVehicle && !isAdmin && (
+                  <span className="ml-2 text-sm text-destructive">（需要管理员权限）</span>
+                )}
+              </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -249,7 +277,16 @@ export default function Vehicles() {
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                   取消
                 </Button>
-                <Button type="submit">保存</Button>
+                <Button type="submit" disabled={!!(editingVehicle && !isAdmin)}>
+                  {editingVehicle && !isAdmin ? (
+                    <>
+                      <Lock className="mr-2 h-4 w-4" />
+                      需要管理员权限
+                    </>
+                  ) : (
+                    '保存'
+                  )}
+                </Button>
               </div>
             </form>
           </DialogContent>
@@ -296,13 +333,25 @@ export default function Vehicles() {
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openEditDialog(vehicle)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
+                          {isAdmin ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => openEditDialog(vehicle)}
+                              title="编辑车辆"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled
+                              title="只有管理员可以编辑"
+                            >
+                              <Lock className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

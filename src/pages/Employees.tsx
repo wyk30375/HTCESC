@@ -9,10 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { employeesApi, employeeRolesApi, profilesApi } from '@/db/api';
 import type { Employee, EmployeeRole, EmployeeRoleType } from '@/types/types';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useAuth } from '@/context/AuthContext';
 
 const roleTypeLabels: Record<EmployeeRoleType, string> = {
   landlord: '地租',
@@ -22,6 +23,9 @@ const roleTypeLabels: Record<EmployeeRoleType, string> = {
 };
 
 export default function Employees() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+  
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeeRoles, setEmployeeRoles] = useState<Record<string, EmployeeRole[]>>({});
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -79,6 +83,12 @@ export default function Employees() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isAdmin) {
+      toast.error('只有管理员可以管理员工信息');
+      return;
+    }
+    
     try {
       if (editingEmployee) {
         await employeesApi.update(editingEmployee.id, formData);
@@ -97,18 +107,28 @@ export default function Employees() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('确定要删除这个员工吗？')) return;
+    if (!isAdmin) {
+      toast.error('只有管理员可以管理员工信息');
+      return;
+    }
+    
+    if (!confirm('确定要停用这个员工吗？')) return;
     try {
       await employeesApi.update(id, { is_active: false });
       toast.success('员工已停用');
       loadData();
     } catch (error) {
-      console.error('删除员工失败:', error);
-      toast.error('删除员工失败');
+      console.error('停用员工失败:', error);
+      toast.error('停用员工失败');
     }
   };
 
   const handleEditRoles = (employee: Employee) => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以编辑员工角色');
+      return;
+    }
+    
     setSelectedEmployeeId(employee.id);
     const roles = employeeRoles[employee.id] || [];
     
@@ -131,6 +151,11 @@ export default function Employees() {
   };
 
   const handleSaveRoles = async () => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以编辑员工角色');
+      return;
+    }
+    
     try {
       const currentRoles = employeeRoles[selectedEmployeeId] || [];
       
@@ -174,11 +199,20 @@ export default function Employees() {
   };
 
   const openAddDialog = () => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以添加员工');
+      return;
+    }
     resetForm();
     setDialogOpen(true);
   };
 
   const openEditDialog = (employee: Employee) => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以编辑员工信息');
+      return;
+    }
+    
     setEditingEmployee(employee);
     setFormData({
       profile_id: employee.profile_id || '',
@@ -204,86 +238,95 @@ export default function Employees() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">员工管理</h1>
-          <p className="text-muted-foreground mt-2">管理员工信息和角色分配</p>
+          <p className="text-muted-foreground mt-2">
+            管理员工信息和角色分配
+            {!isAdmin && (
+              <span className="ml-2 text-xs text-amber-600">
+                （员工权限：仅查看，不可修改）
+              </span>
+            )}
+          </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openAddDialog}>
-              <Plus className="mr-2 h-4 w-4" />
-              添加员工
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingEmployee ? '编辑员工' : '添加员工'}</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!editingEmployee && (
+        {isAdmin && (
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openAddDialog}>
+                <Plus className="mr-2 h-4 w-4" />
+                添加员工
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>{editingEmployee ? '编辑员工' : '添加员工'}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {!editingEmployee && (
+                  <div className="space-y-2">
+                    <Label htmlFor="profile_id">关联用户</Label>
+                    <Select
+                      value={formData.profile_id}
+                      onValueChange={(value) => setFormData({ ...formData, profile_id: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="选择用户" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {profiles.map((profile) => (
+                          <SelectItem key={profile.id} value={profile.id}>
+                            {profile.username}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div className="space-y-2">
-                  <Label htmlFor="profile_id">关联用户</Label>
-                  <Select
-                    value={formData.profile_id}
-                    onValueChange={(value) => setFormData({ ...formData, profile_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="选择用户" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {profiles.map((profile) => (
-                        <SelectItem key={profile.id} value={profile.id}>
-                          {profile.username}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="name">姓名</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
                 </div>
-              )}
-              <div className="space-y-2">
-                <Label htmlFor="name">姓名</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="position">职位</Label>
-                <Input
-                  id="position"
-                  value={formData.position}
-                  onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact">联系方式</Label>
-                <Input
-                  id="contact"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hire_date">入职日期</Label>
-                <Input
-                  id="hire_date"
-                  type="date"
-                  value={formData.hire_date}
-                  onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                  取消
-                </Button>
-                <Button type="submit">保存</Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <div className="space-y-2">
+                  <Label htmlFor="position">职位</Label>
+                  <Input
+                    id="position"
+                    value={formData.position}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact">联系方式</Label>
+                  <Input
+                    id="contact"
+                    value={formData.contact}
+                    onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="hire_date">入职日期</Label>
+                  <Input
+                    id="hire_date"
+                    type="date"
+                    value={formData.hire_date}
+                    onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                    取消
+                  </Button>
+                  <Button type="submit">保存</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <Card>
@@ -327,27 +370,43 @@ export default function Employees() {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(employee)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditRoles(employee)}
-                      >
-                        <Badge variant="outline">角色</Badge>
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(employee.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {isAdmin ? (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(employee)}
+                            title="编辑员工"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditRoles(employee)}
+                            title="编辑角色"
+                          >
+                            <Badge variant="outline">角色</Badge>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(employee.id)}
+                            title="停用员工"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled
+                          title="只有管理员可以编辑"
+                        >
+                          <Lock className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -357,60 +416,62 @@ export default function Employees() {
         </CardContent>
       </Card>
 
-      <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>编辑员工角色</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {Object.entries(roleTypeLabels).map(([roleType, label]) => (
-              <div key={roleType} className="flex items-center gap-4">
-                <Checkbox
-                  checked={roleFormData[roleType as EmployeeRoleType]?.checked || false}
-                  onCheckedChange={(checked) =>
-                    setRoleFormData({
-                      ...roleFormData,
-                      [roleType]: {
-                        ...roleFormData[roleType as EmployeeRoleType],
-                        checked: !!checked,
-                      },
-                    })
-                  }
-                />
-                <Label className="flex-1">{label}</Label>
-                {roleFormData[roleType as EmployeeRoleType]?.checked && (
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={roleFormData[roleType as EmployeeRoleType]?.share || 100}
-                      onChange={(e) =>
-                        setRoleFormData({
-                          ...roleFormData,
-                          [roleType]: {
-                            ...roleFormData[roleType as EmployeeRoleType],
-                            share: Number(e.target.value),
-                          },
-                        })
-                      }
-                      className="w-24"
-                    />
-                    <span className="text-sm text-muted-foreground">%</span>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setRoleDialogOpen(false)}>
-              取消
-            </Button>
-            <Button onClick={handleSaveRoles}>保存</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {isAdmin && (
+        <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>编辑员工角色</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {Object.entries(roleTypeLabels).map(([roleType, label]) => (
+                <div key={roleType} className="flex items-center gap-4">
+                  <Checkbox
+                    checked={roleFormData[roleType as EmployeeRoleType]?.checked || false}
+                    onCheckedChange={(checked) =>
+                      setRoleFormData({
+                        ...roleFormData,
+                        [roleType]: {
+                          ...roleFormData[roleType as EmployeeRoleType],
+                          checked: !!checked,
+                        },
+                      })
+                    }
+                  />
+                  <Label className="flex-1">{label}</Label>
+                  {roleFormData[roleType as EmployeeRoleType]?.checked && (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        value={roleFormData[roleType as EmployeeRoleType]?.share || 100}
+                        onChange={(e) =>
+                          setRoleFormData({
+                            ...roleFormData,
+                            [roleType]: {
+                              ...roleFormData[roleType as EmployeeRoleType],
+                              share: Number(e.target.value),
+                            },
+                          })
+                        }
+                        className="w-24"
+                      />
+                      <span className="text-sm text-muted-foreground">%</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setRoleDialogOpen(false)}>
+                取消
+              </Button>
+              <Button onClick={handleSaveRoles}>保存</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
