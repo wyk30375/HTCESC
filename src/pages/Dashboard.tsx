@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { vehiclesApi, vehicleSalesApi, employeesApi, monthlyBonusesApi } from '@/db/api';
+import { vehiclesApi, vehicleSalesApi, profilesApi } from '@/db/api';
 import { Car, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -31,8 +31,8 @@ export default function Dashboard() {
         vehiclesApi.getSold(),
       ]);
 
-      // 获取员工统计
-      const employees = await employeesApi.getActive();
+      // 获取员工统计（使用 profiles 表）
+      const profiles = await profilesApi.getAll();
 
       // 获取本月销售统计
       const now = new Date();
@@ -45,7 +45,7 @@ export default function Dashboard() {
         totalVehicles: allVehicles.length,
         inStockVehicles: inStockVehicles.length,
         soldVehicles: soldVehicles.length,
-        totalEmployees: employees.length,
+        totalEmployees: profiles.length,
         monthSales: monthSales.length,
         monthRevenue,
         monthProfit,
