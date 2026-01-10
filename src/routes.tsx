@@ -1,10 +1,11 @@
+import { lazy } from 'react';
+import type React from 'react';
+
 export interface RouteConfig {
   path: string;
   element: React.ReactNode;
   title?: string;
 }
-
-import { lazy } from 'react';
 
 // 懒加载页面组件
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
