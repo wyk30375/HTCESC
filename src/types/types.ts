@@ -51,6 +51,7 @@ export interface Vehicle {
   model: string;
   year: number;
   mileage: number;
+  transfer_count: number; // 过户次数
   condition_description?: string;
   photos: string[]; // 照片URL数组
   status: VehicleStatus;

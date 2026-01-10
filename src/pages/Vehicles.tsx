@@ -34,6 +34,7 @@ export default function Vehicles() {
     model: '',
     year: new Date().getFullYear(),
     mileage: 0,
+    transfer_count: 0,
     condition_description: '',
     photos: [] as string[],
     purchase_price: 0,
@@ -101,6 +102,7 @@ export default function Vehicles() {
       model: '',
       year: new Date().getFullYear(),
       mileage: 0,
+      transfer_count: 0,
       condition_description: '',
       photos: [],
       purchase_price: 0,
@@ -127,6 +129,7 @@ export default function Vehicles() {
       model: vehicle.model,
       year: vehicle.year,
       mileage: vehicle.mileage,
+      transfer_count: vehicle.transfer_count || 0,
       condition_description: vehicle.condition_description || '',
       photos: vehicle.photos || [],
       purchase_price: Number(vehicle.purchase_price),
@@ -241,6 +244,17 @@ export default function Vehicles() {
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="transfer_count">过户次数</Label>
+                  <Input
+                    id="transfer_count"
+                    type="number"
+                    min="0"
+                    value={formData.transfer_count}
+                    onChange={(e) => setFormData({ ...formData, transfer_count: Number(e.target.value) })}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -313,6 +327,7 @@ export default function Vehicles() {
                     <TableHead>品牌型号</TableHead>
                     <TableHead>年份</TableHead>
                     <TableHead>里程</TableHead>
+                    <TableHead>过户次数</TableHead>
                     <TableHead>购车款</TableHead>
                     <TableHead>状态</TableHead>
                     <TableHead>操作</TableHead>
@@ -326,6 +341,7 @@ export default function Vehicles() {
                       <TableCell>{vehicle.brand} {vehicle.model}</TableCell>
                       <TableCell>{vehicle.year}</TableCell>
                       <TableCell>{vehicle.mileage.toLocaleString()} km</TableCell>
+                      <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
                       <TableCell>¥{Number(vehicle.purchase_price).toLocaleString()}</TableCell>
                       <TableCell>
                         <Badge variant={vehicle.status === 'in_stock' ? 'default' : 'secondary'}>

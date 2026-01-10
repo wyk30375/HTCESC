@@ -38,6 +38,8 @@ export default function Sales() {
     customer_contact: '',
     customer_id_number: '',
     salesperson_id: '',
+    investor_ids: [] as string[], // 押车出资人ID列表
+    rent_investor_ids: [] as string[], // 地租出资人ID列表
     has_loan: false,
     loan_rebate: 0,
     sale_preparation_cost: 0,
@@ -271,6 +273,8 @@ export default function Sales() {
       customer_contact: '',
       customer_id_number: '',
       salesperson_id: '',
+      investor_ids: [],
+      rent_investor_ids: [],
       has_loan: false,
       loan_rebate: 0,
       sale_preparation_cost: 0,
@@ -477,6 +481,90 @@ export default function Sales() {
                       当前有 {salespeople.length} 位销售员可选
                     </p>
                   )}
+                </div>
+
+                {/* 押车出资人选择 */}
+                <div className="space-y-2 col-span-2">
+                  <Label>押车出资人（可多选，平分36%利润）</Label>
+                  <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {salespeople.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">暂无员工数据</p>
+                    ) : (
+                      salespeople.map((person) => (
+                        <div key={person.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`investor-${person.id}`}
+                            checked={formData.investor_ids.includes(person.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  investor_ids: [...formData.investor_ids, person.id],
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  investor_ids: formData.investor_ids.filter((id) => id !== person.id),
+                                });
+                              }
+                            }}
+                          />
+                          <Label
+                            htmlFor={`investor-${person.id}`}
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            {person.username || person.email}
+                            {person.id === profile?.id && ' (我)'}
+                          </Label>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    已选择 {formData.investor_ids.length} 人
+                  </p>
+                </div>
+
+                {/* 地租出资人选择 */}
+                <div className="space-y-2 col-span-2">
+                  <Label>地租出资人（可多选，平分18%利润）</Label>
+                  <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {salespeople.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">暂无员工数据</p>
+                    ) : (
+                      salespeople.map((person) => (
+                        <div key={person.id} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`rent-investor-${person.id}`}
+                            checked={formData.rent_investor_ids.includes(person.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setFormData({
+                                  ...formData,
+                                  rent_investor_ids: [...formData.rent_investor_ids, person.id],
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  rent_investor_ids: formData.rent_investor_ids.filter((id) => id !== person.id),
+                                });
+                              }
+                            }}
+                          />
+                          <Label
+                            htmlFor={`rent-investor-${person.id}`}
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            {person.username || person.email}
+                            {person.id === profile?.id && ' (我)'}
+                          </Label>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    已选择 {formData.rent_investor_ids.length} 人
+                  </p>
                 </div>
 
                 <div className="space-y-2">
