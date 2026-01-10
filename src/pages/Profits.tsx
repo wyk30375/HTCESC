@@ -368,20 +368,25 @@ export default function Profits() {
                 salespersonShare: number; // 销售提成
                 investorShare: number; // 押车出资分成
                 rentInvestorShare: number; // 地租分成
+                totalProfit: number; // 实现利润总和
+                bonusPoolReward: number; // 奖金池激励
                 total: number; // 总计
               }>();
 
               profitDetails.forEach((detail) => {
-                // 销售员提成
+                // 销售员提成和实现利润
                 if (detail.salesperson) {
                   const existing = employeeShares.get(detail.salesperson.id) || {
                     profile: detail.salesperson,
                     salespersonShare: 0,
                     investorShare: 0,
                     rentInvestorShare: 0,
+                    totalProfit: 0,
+                    bonusPoolReward: 0,
                     total: 0,
                   };
                   existing.salespersonShare += detail.salespersonShare;
+                  existing.totalProfit += detail.totalProfit; // 累加实现利润
                   existing.total += detail.salespersonShare;
                   employeeShares.set(detail.salesperson.id, existing);
                 }
@@ -393,6 +398,8 @@ export default function Profits() {
                     salespersonShare: 0,
                     investorShare: 0,
                     rentInvestorShare: 0,
+                    totalProfit: 0,
+                    bonusPoolReward: 0,
                     total: 0,
                   };
                   const share = detail.investorShare / detail.investors.length;
@@ -408,6 +415,8 @@ export default function Profits() {
                     salespersonShare: 0,
                     investorShare: 0,
                     rentInvestorShare: 0,
+                    totalProfit: 0,
+                    bonusPoolReward: 0,
                     total: 0,
                   };
                   const share = detail.rentInvestorShare / detail.rentInvestors.length;
@@ -417,8 +426,21 @@ export default function Profits() {
                 });
               });
 
+              // 找出实现利润最高的员工，给予奖金池激励
+              const employeesArray = Array.from(employeeShares.values());
+              const topProfitEmployee = employeesArray.reduce((max, current) => 
+                current.totalProfit > max.totalProfit ? current : max
+              , employeesArray[0]);
+
+              if (topProfitEmployee && topProfitEmployee.totalProfit > 0) {
+                // 计算奖金池余额（月度汇总中的奖金池金额）
+                const bonusPoolAmount = profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0);
+                topProfitEmployee.bonusPoolReward = bonusPoolAmount;
+                topProfitEmployee.total += bonusPoolAmount;
+              }
+
               // 转换为数组并按总计降序排序
-              const sortedEmployees = Array.from(employeeShares.values()).sort(
+              const sortedEmployees = employeesArray.sort(
                 (a, b) => b.total - a.total
               );
 
@@ -435,6 +457,8 @@ export default function Profits() {
                         <TableHead className="text-right">销售提成</TableHead>
                         <TableHead className="text-right">押车出资分成</TableHead>
                         <TableHead className="text-right">地租分成</TableHead>
+                        <TableHead className="text-right">实现利润</TableHead>
+                        <TableHead className="text-right">奖金池激励</TableHead>
                         <TableHead className="text-right">总计</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -443,6 +467,11 @@ export default function Profits() {
                         <TableRow key={employee.profile.id}>
                           <TableCell className="font-medium">
                             {employee.profile.username || employee.profile.email}
+                            {employee.bonusPoolReward > 0 && (
+                              <Badge variant="default" className="ml-2">
+                                月度冠军
+                              </Badge>
+                            )}
                           </TableCell>
                           <TableCell className="text-right">
                             {employee.salespersonShare > 0 ? (
@@ -472,6 +501,24 @@ export default function Profits() {
                             )}
                           </TableCell>
                           <TableCell className="text-right">
+                            {employee.totalProfit > 0 ? (
+                              <span className="font-medium">
+                                ¥{employee.totalProfit.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.bonusPoolReward > 0 ? (
+                              <span className="text-primary font-bold">
+                                ¥{employee.bonusPoolReward.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
                             <span className="font-bold text-lg">
                               ¥{employee.total.toLocaleString()}
                             </span>
@@ -489,6 +536,12 @@ export default function Profits() {
                         </TableCell>
                         <TableCell className="text-right text-accent">
                           ¥{sortedEmployees.reduce((sum, e) => sum + e.rentInvestorShare, 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.totalProfit, 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right text-primary">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.bonusPoolReward, 0).toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right text-lg">
                           ¥{sortedEmployees.reduce((sum, e) => sum + e.total, 0).toLocaleString()}
