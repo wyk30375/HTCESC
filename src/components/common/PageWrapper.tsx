@@ -20,11 +20,11 @@ export function PageWrapper({
   headerClassName 
 }: PageWrapperProps) {
   return (
-    <div className={cn("space-y-6 p-6", className)}>
+    <div className={cn("space-y-4 sm:space-y-6 p-4 sm:p-6", className)}>
       {(title || description) && (
-        <div className={cn("page-header-bg rounded-xl p-6 shadow-lg", headerClassName)}>
-          {title && <h1 className="text-3xl font-bold text-white">{title}</h1>}
-          {description && <p className="text-white/90 mt-2">{description}</p>}
+        <div className={cn("page-header-bg rounded-xl p-4 sm:p-6 shadow-lg", headerClassName)}>
+          {title && <h1 className="text-2xl sm:text-3xl font-bold text-white">{title}</h1>}
+          {description && <p className="text-white/90 mt-2 text-sm sm:text-base">{description}</p>}
         </div>
       )}
       {children}

@@ -152,14 +152,14 @@ export default function Employees() {
 
   return (
     <PageWrapper>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">员工管理</h1>
-            <p className="text-muted-foreground mt-2">管理员工信息和账号权限</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">员工管理</h1>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base">管理员工信息和账号权限</p>
           </div>
           {isAdmin && (
-            <Button onClick={() => setDialogOpen(true)}>
+            <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto h-11 sm:h-10">
               添加员工
             </Button>
           )}
@@ -248,7 +248,7 @@ export default function Employees() {
             </div>
 
             {/* 移动端卡片视图 */}
-            <div className="lg:hidden space-y-4">
+            <div className="lg:hidden space-y-3 sm:space-y-4">
               {employees.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   暂无员工数据
@@ -256,34 +256,34 @@ export default function Employees() {
               ) : (
                 employees.map((employee) => (
                   <Card key={employee.id} className="border-2">
-                    <CardContent className="pt-6">
+                    <CardContent className="pt-5 sm:pt-6">
                       <div className="space-y-3">
                         {/* 姓名和角色 */}
                         <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-bold">{employee.username}</h3>
-                          <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'}>
+                          <h3 className="text-lg sm:text-xl font-bold">{employee.username}</h3>
+                          <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'} className="text-xs sm:text-sm">
                             {employee.role === 'admin' ? '管理员' : '员工'}
                           </Badge>
                         </div>
 
                         {/* 状态 */}
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">状态：</span>
-                          <Badge variant={employee.status === 'active' ? 'default' : 'destructive'}>
+                          <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">状态：</span>
+                          <Badge variant={employee.status === 'active' ? 'default' : 'destructive'} className="text-xs sm:text-sm">
                             {employee.status === 'active' ? '在职' : '离职'}
                           </Badge>
                         </div>
 
                         {/* 手机号 */}
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">手机号：</span>
-                          <span className="text-sm font-medium">{employee.phone || '-'}</span>
+                          <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">手机号：</span>
+                          <span className="text-sm sm:text-base font-medium">{employee.phone || '-'}</span>
                         </div>
 
                         {/* 登录密码 */}
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">登录密码：</span>
-                          <span className="text-sm">
+                          <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">登录密码：</span>
+                          <span className="text-sm sm:text-base">
                             {employee.default_password ? (
                               <span className="text-muted-foreground">123456（默认）</span>
                             ) : (
@@ -294,17 +294,17 @@ export default function Employees() {
 
                         {/* 入职日期 */}
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">入职日期：</span>
-                          <span className="text-sm">{employee.created_at?.split('T')[0] || '-'}</span>
+                          <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">入职日期：</span>
+                          <span className="text-sm sm:text-base">{employee.created_at?.split('T')[0] || '-'}</span>
                         </div>
 
                         {/* 操作按钮 */}
                         {isAdmin && (
-                          <div className="flex gap-2 pt-2 border-t">
+                          <div className="flex gap-2 sm:gap-3 pt-3 border-t">
                             <Button
                               variant="outline"
                               size="sm"
-                              className="flex-1"
+                              className="flex-1 h-11 sm:h-10"
                               onClick={() => handleEdit(employee)}
                             >
                               <Edit className="h-4 w-4 mr-2" />
@@ -314,7 +314,7 @@ export default function Employees() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="flex-1"
+                                className="flex-1 h-11 sm:h-10"
                                 onClick={() => handleToggleStatus(employee)}
                               >
                                 {employee.status === 'active' ? (
@@ -348,35 +348,38 @@ export default function Employees() {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="username">员工姓名 *</Label>
+                <Label htmlFor="username" className="text-sm sm:text-base">员工姓名 *</Label>
                 <Input
                   id="username"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   placeholder="请输入员工姓名"
+                  className="h-11 sm:h-10"
                   required
                 />
               </div>
               
               <div>
-                <Label htmlFor="phone">手机号</Label>
+                <Label htmlFor="phone" className="text-sm sm:text-base">手机号</Label>
                 <Input
                   id="phone"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="请输入手机号"
+                  className="h-11 sm:h-10"
                 />
               </div>
 
               {!editingEmployee && (
                 <div>
-                  <Label htmlFor="password">登录密码</Label>
+                  <Label htmlFor="password" className="text-sm sm:text-base">登录密码</Label>
                   <Input
                     id="password"
                     type="text"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="默认密码：123456"
+                    className="h-11 sm:h-10"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     默认密码为 123456，员工首次登录后可自行修改
@@ -384,11 +387,11 @@ export default function Employees() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => handleDialogClose(false)}>
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-2 pt-2">
+                <Button type="button" variant="outline" onClick={() => handleDialogClose(false)} className="h-11 sm:h-10 w-full sm:w-auto">
                   取消
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="h-11 sm:h-10 w-full sm:w-auto">
                   {editingEmployee ? '保存' : '添加'}
                 </Button>
               </div>

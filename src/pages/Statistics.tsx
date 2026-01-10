@@ -124,15 +124,15 @@ export default function Statistics() {
 
   return (
     <PageWrapper>
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         {/* 页面标题和月份筛选 */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">统计分析</h1>
-            <p className="text-muted-foreground mt-2">查看销售数据和业绩统计</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">统计分析</h1>
+            <p className="text-muted-foreground mt-2 text-sm sm:text-base">查看销售数据和业绩统计</p>
           </div>
           <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full sm:w-40 h-11 sm:h-10">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -146,15 +146,15 @@ export default function Statistics() {
         </div>
 
         {/* 关键指标卡片 */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">月度销售数量</CardTitle>
+              <CardTitle className="text-sm sm:text-base font-medium">月度销售数量</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{monthlyStats.salesCount} 台</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <div className="text-xl sm:text-2xl font-bold">{monthlyStats.salesCount} 台</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 库存周转率 {inventoryStats.total > 0 ? ((monthlyStats.salesCount / inventoryStats.total) * 100).toFixed(1) : 0}%
               </p>
             </CardContent>
@@ -162,12 +162,12 @@ export default function Statistics() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">月度销售额</CardTitle>
+              <CardTitle className="text-sm sm:text-base font-medium">月度销售额</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">¥{monthlyStats.totalRevenue.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <div className="text-xl sm:text-2xl font-bold">¥{monthlyStats.totalRevenue.toLocaleString()}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 平均售价 ¥{Math.round(monthlyStats.averagePrice).toLocaleString()}
               </p>
             </CardContent>
@@ -175,12 +175,12 @@ export default function Statistics() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">月度利润</CardTitle>
+              <CardTitle className="text-sm sm:text-base font-medium">月度利润</CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">¥{monthlyStats.totalProfit.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <div className="text-xl sm:text-2xl font-bold">¥{monthlyStats.totalProfit.toLocaleString()}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 利润率 {monthlyStats.totalRevenue > 0 ? ((monthlyStats.totalProfit / monthlyStats.totalRevenue) * 100).toFixed(1) : 0}%
               </p>
             </CardContent>
@@ -188,12 +188,12 @@ export default function Statistics() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">车辆库存</CardTitle>
+              <CardTitle className="text-sm sm:text-base font-medium">车辆库存</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{inventoryStats.inStock} 台</div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <div className="text-xl sm:text-2xl font-bold">{inventoryStats.inStock} 台</div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                 已售 {inventoryStats.sold} 台 / 总计 {inventoryStats.total} 台
               </p>
             </CardContent>

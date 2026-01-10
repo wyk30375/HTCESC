@@ -74,25 +74,25 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* 页面标题区域 - 使用渐变背景 */}
-      <div className="page-header-bg rounded-xl p-6 shadow-lg">
-        <h1 className="text-3xl font-bold text-white">仪表盘</h1>
-        <p className="text-white/90 mt-2">
+      <div className="page-header-bg rounded-xl p-4 sm:p-6 shadow-lg">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white">仪表盘</h1>
+        <p className="text-white/90 mt-2 text-sm sm:text-base">
           欢迎回来，查看您的业务概况
         </p>
       </div>
 
       {/* 统计卡片 - 使用不同颜色的渐变背景 */}
-      <div className="grid gap-4 @md:grid-cols-2 @xl:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="stat-card-blue border-2 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">在售车辆</CardTitle>
+            <CardTitle className="text-sm sm:text-base font-medium text-blue-700">在售车辆</CardTitle>
             <Car className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-900">{stats.inStockVehicles}</div>
-            <p className="text-xs text-blue-600 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-blue-900">{stats.inStockVehicles}</div>
+            <p className="text-xs sm:text-sm text-blue-600 mt-1">
               总计 {stats.totalVehicles} 辆车
             </p>
           </CardContent>
@@ -100,12 +100,12 @@ export default function Dashboard() {
 
         <Card className="stat-card-orange border-2 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700">本月销售</CardTitle>
+            <CardTitle className="text-sm sm:text-base font-medium text-orange-700">本月销售</CardTitle>
             <TrendingUp className="h-5 w-5 text-orange-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-900">{stats.monthSales}</div>
-            <p className="text-xs text-orange-600 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-orange-900">{stats.monthSales}</div>
+            <p className="text-xs sm:text-sm text-orange-600 mt-1">
               已售 {stats.soldVehicles} 辆车
             </p>
           </CardContent>
@@ -113,14 +113,14 @@ export default function Dashboard() {
 
         <Card className="stat-card-green border-2 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">本月营收</CardTitle>
+            <CardTitle className="text-sm sm:text-base font-medium text-green-700">本月营收</CardTitle>
             <DollarSign className="h-5 w-5 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-900">
+            <div className="text-2xl sm:text-3xl font-bold text-green-900">
               ¥{stats.monthRevenue.toLocaleString()}
             </div>
-            <p className="text-xs text-green-600 mt-1">
+            <p className="text-xs sm:text-sm text-green-600 mt-1">
               利润 ¥{stats.monthProfit.toLocaleString()}
             </p>
           </CardContent>
@@ -128,12 +128,12 @@ export default function Dashboard() {
 
         <Card className="stat-card-purple border-2 shadow-md hover:shadow-xl transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">活跃员工</CardTitle>
+            <CardTitle className="text-sm sm:text-base font-medium text-purple-700">活跃员工</CardTitle>
             <Users className="h-5 w-5 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-900">{stats.totalEmployees}</div>
-            <p className="text-xs text-purple-600 mt-1">
+            <div className="text-2xl sm:text-3xl font-bold text-purple-900">{stats.totalEmployees}</div>
+            <p className="text-xs sm:text-sm text-purple-600 mt-1">
               在职员工数量
             </p>
           </CardContent>
