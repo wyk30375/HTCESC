@@ -180,26 +180,19 @@ export default function Sales() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">销售管理</h1>
-          <p className="text-muted-foreground mt-2">
-            管理车辆销售记录和客户信息
-            {!isAdmin && (
-              <span className="ml-2 text-xs text-amber-600">
-                （员工权限：可创建销售记录，不可修改）
-              </span>
-            )}
-          </p>
-        </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              记录销售
-            </Button>
-          </DialogTrigger>
+    <PageWrapper
+      title="销售管理"
+      description={`管理车辆销售记录和客户信息${!isAdmin ? '（员工权限：可创建销售记录，不可修改）' : ''}`}
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-end">
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => setDialogOpen(true)} className="primary-gradient">
+                <Plus className="mr-2 h-4 w-4" />
+                记录销售
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>记录车辆销售</DialogTitle>
@@ -332,26 +325,43 @@ export default function Sales() {
                 </div>
 
                 <div className="space-y-2 col-span-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-200">
                     <Checkbox
                       id="has_loan"
                       checked={formData.has_loan}
-                      onCheckedChange={(checked) => setFormData({ ...formData, has_loan: !!checked })}
+                      onCheckedChange={(checked) => {
+                        setFormData({ 
+                          ...formData, 
+                          has_loan: !!checked,
+                          loan_rebate: checked ? formData.loan_rebate : 0
+                        });
+                      }}
                     />
-                    <Label htmlFor="has_loan">有贷款返利</Label>
+                    <Label htmlFor="has_loan" className="cursor-pointer text-blue-900 font-medium">
+                      有贷款返利
+                    </Label>
                   </div>
                 </div>
 
                 {formData.has_loan && (
-                  <div className="space-y-2 col-span-2">
-                    <Label htmlFor="loan_rebate">贷款返利金额（元）</Label>
+                  <div className="space-y-2 col-span-2 animate-in slide-in-from-top-2">
+                    <Label htmlFor="loan_rebate" className="text-blue-900 font-medium">
+                      贷款返利金额（元）<span className="text-red-500 ml-1">*</span>
+                    </Label>
                     <Input
                       id="loan_rebate"
                       type="number"
                       step="0.01"
+                      min="0"
                       value={formData.loan_rebate}
                       onChange={(e) => setFormData({ ...formData, loan_rebate: Number(e.target.value) })}
+                      placeholder="请输入贷款返利金额"
+                      className="border-blue-300 focus:border-blue-500"
+                      required
                     />
+                    <p className="text-xs text-blue-600">
+                      💡 提示：贷款返利将计入总利润
+                    </p>
                   </div>
                 )}
 
@@ -389,6 +399,7 @@ export default function Sales() {
                 <TableHead>车辆信息</TableHead>
                 <TableHead>客户姓名</TableHead>
                 <TableHead>成交价格</TableHead>
+                <TableHead>贷款状态</TableHead>
                 <TableHead>总利润</TableHead>
                 <TableHead>销售员</TableHead>
                 <TableHead>操作</TableHead>
@@ -410,6 +421,20 @@ export default function Sales() {
                     <TableCell>{sale.customer_name}</TableCell>
                     <TableCell className="font-medium">
                       ¥{Number(sale.sale_price).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {sale.has_loan ? (
+                        <div className="flex flex-col gap-1">
+                          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 w-fit">
+                            有贷款
+                          </Badge>
+                          <span className="text-xs text-blue-600">
+                            +¥{Number(sale.loan_rebate).toLocaleString()}
+                          </span>
+                        </div>
+                      ) : (
+                        <Badge variant="outline" className="w-fit">无贷款</Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant={Number(sale.total_profit) > 0 ? 'default' : 'secondary'}>
@@ -471,10 +496,19 @@ export default function Sales() {
                   <p className="font-medium">{getEmployeeName(selectedSale.salesperson_id)}</p>
                 </div>
                 <div>
-                  <Label className="text-muted-foreground">贷款返利</Label>
-                  <p className="font-medium">
-                    {selectedSale.has_loan ? `¥${Number(selectedSale.loan_rebate).toLocaleString()}` : '无'}
-                  </p>
+                  <Label className="text-muted-foreground">贷款状态</Label>
+                  <div className="flex items-center gap-2">
+                    {selectedSale.has_loan ? (
+                      <>
+                        <Badge className="bg-gradient-to-r from-blue-500 to-blue-600">有贷款</Badge>
+                        <span className="text-sm font-medium text-blue-700">
+                          返利 ¥{Number(selectedSale.loan_rebate).toLocaleString()}
+                        </span>
+                      </>
+                    ) : (
+                      <Badge variant="outline">无贷款</Badge>
+                    )}
+                  </div>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">总成本</Label>
@@ -495,6 +529,7 @@ export default function Sales() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+      </div>
+    </PageWrapper>
   );
 }
