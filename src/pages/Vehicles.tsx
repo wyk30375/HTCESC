@@ -444,12 +444,29 @@ export default function Vehicles() {
                     <TableHead>里程</TableHead>
                     <TableHead>过户次数</TableHead>
                     <TableHead>购车款</TableHead>
+                    <TableHead>押车出资人</TableHead>
                     <TableHead>状态</TableHead>
                     <TableHead>操作</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredVehicles.map((vehicle) => (
+                  {filteredVehicles.map((vehicle) => {
+                    // 解析押车出资人ID
+                    let investorIds: string[] = [];
+                    try {
+                      if (vehicle.investor_ids) {
+                        investorIds = typeof vehicle.investor_ids === 'string' 
+                          ? JSON.parse(vehicle.investor_ids) 
+                          : vehicle.investor_ids;
+                      }
+                    } catch (error) {
+                      console.error('解析押车出资人ID失败:', error);
+                    }
+                    
+                    // 获取押车出资人信息
+                    const investors = profiles.filter(p => investorIds.includes(p.id));
+                    
+                    return (
                     <TableRow key={vehicle.id}>
                       <TableCell className="font-medium">{vehicle.vin_last_six}</TableCell>
                       <TableCell>{vehicle.plate_number}</TableCell>
@@ -458,6 +475,19 @@ export default function Vehicles() {
                       <TableCell>{vehicle.mileage.toLocaleString()} km</TableCell>
                       <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
                       <TableCell>¥{Number(vehicle.purchase_price).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {investors.length > 0 ? (
+                          <div className="space-y-1">
+                            {investors.map((investor) => (
+                              <div key={investor.id} className="text-sm">
+                                {investor.username || investor.email}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">未指定</span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={vehicle.status === 'in_stock' ? 'default' : 'secondary'}>
                           {vehicle.status === 'in_stock' ? '在售' : '已售'}
@@ -487,7 +517,8 @@ export default function Vehicles() {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </TabsContent>
