@@ -47,6 +47,55 @@ export default function Sales() {
   });
 
   useEffect(() => {
+    // 直接测试 Supabase 连接
+    const testSupabaseConnection = async () => {
+      console.log('🧪 [测试] 开始测试 Supabase 连接...');
+      try {
+        const { supabase } = await import('@/db/supabase');
+        console.log('🧪 [测试] Supabase 客户端已导入');
+        
+        // 测试1: 查询所有车辆
+        console.log('🧪 [测试1] 查询所有车辆（无条件）');
+        const { data: allVehicles, error: allError } = await supabase
+          .from('vehicles')
+          .select('*');
+        
+        if (allError) {
+          console.error('🧪 [测试1] ❌ 查询失败:', allError);
+        } else {
+          console.log('🧪 [测试1] ✅ 查询成功，总车辆数:', allVehicles?.length || 0);
+          console.log('🧪 [测试1] 📋 车辆数据:', allVehicles);
+        }
+        
+        // 测试2: 查询在库车辆
+        console.log('🧪 [测试2] 查询在库车辆（status=in_stock）');
+        const { data: inStockVehicles, error: inStockError } = await supabase
+          .from('vehicles')
+          .select('*')
+          .eq('status', 'in_stock');
+        
+        if (inStockError) {
+          console.error('🧪 [测试2] ❌ 查询失败:', inStockError);
+        } else {
+          console.log('🧪 [测试2] ✅ 查询成功，在库车辆数:', inStockVehicles?.length || 0);
+          console.log('🧪 [测试2] 📋 在库车辆数据:', inStockVehicles);
+        }
+        
+        // 如果测试成功，直接设置车辆数据
+        if (allVehicles && allVehicles.length > 0) {
+          const filtered = allVehicles.filter(v => v.status === 'in_stock');
+          console.log('🧪 [测试] 🔄 前端过滤结果:', filtered.length, '辆在库车辆');
+          if (filtered.length > 0) {
+            console.log('🧪 [测试] ✅ 直接设置车辆数据到状态');
+            setVehicles(filtered);
+          }
+        }
+      } catch (err) {
+        console.error('🧪 [测试] ❌ 测试失败:', err);
+      }
+    };
+    
+    testSupabaseConnection();
     loadData();
   }, []);
 
