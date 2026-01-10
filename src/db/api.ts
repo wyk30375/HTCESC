@@ -184,12 +184,21 @@ export const vehiclesApi = {
 
   // 获取在售车辆
   async getInStock() {
+    console.log('🚗 开始查询在库车辆...');
     const { data, error } = await supabase
       .from('vehicles')
       .select('*')
       .eq('status', 'in_stock')
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    
+    if (error) {
+      console.error('❌ 查询在库车辆失败:', error);
+      throw error;
+    }
+    
+    console.log('✅ 查询在库车辆成功:', data);
+    console.log('📊 在库车辆数量:', data?.length || 0);
+    
     return Array.isArray(data) ? data : [];
   },
 
