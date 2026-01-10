@@ -94,12 +94,27 @@ export default function Sales() {
       // 计算总利润
       const totalProfit = formData.sale_price - saleTotalCost + (formData.has_loan ? formData.loan_rebate : 0);
 
-      // 创建销售记录
-      await vehicleSalesApi.create({
-        ...formData,
-        total_cost: saleTotalCost,
+      // 创建销售记录（将 salesperson_id 映射为 sales_employee_id）
+      const saleData = {
+        vehicle_id: formData.vehicle_id,
+        sale_date: formData.sale_date,
+        sale_price: formData.sale_price,
+        customer_name: formData.customer_name,
+        customer_contact: formData.customer_contact,
+        customer_id_number: formData.customer_id_number || null,
+        has_loan: formData.has_loan,
+        loan_rebate: formData.loan_rebate,
+        sale_preparation_cost: formData.sale_preparation_cost,
+        sale_transfer_cost: formData.sale_transfer_cost,
+        sale_misc_cost: formData.sale_misc_cost,
         total_profit: totalProfit,
-      } as any);
+        sales_employee_id: formData.salesperson_id, // 映射字段名
+        notes: formData.notes || null,
+      };
+
+      console.log('准备保存的销售数据:', saleData);
+
+      await vehicleSalesApi.create(saleData as any);
 
       // 添加销售相关成本
       if (formData.sale_preparation_cost > 0) {
