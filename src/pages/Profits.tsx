@@ -79,6 +79,14 @@ export default function Profits() {
         // 获取相关人员信息
         const salesperson = profilesData.find(p => p.id === sale.salesperson_id);
         
+        // 调试信息
+        if (!salesperson && sale.salesperson_id) {
+          console.warn('未找到销售员:', {
+            salesperson_id: sale.salesperson_id,
+            available_profiles: profilesData.map(p => ({ id: p.id, name: p.username || p.email })),
+          });
+        }
+        
         // 从 vehicle 表读取 investor_ids 和 rent_investor_ids
         let investorIds: string[] = [];
         let rentInvestorIds: string[] = [];
@@ -292,6 +300,11 @@ export default function Profits() {
                             <div className="text-xs text-muted-foreground">
                               ¥{detail.salespersonShare.toLocaleString()}
                             </div>
+                            {!detail.salesperson && detail.sale.salesperson_id && (
+                              <div className="text-xs text-amber-600 mt-1">
+                                ⚠️ ID: {detail.sale.salesperson_id.slice(0, 8)}...
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
