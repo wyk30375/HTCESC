@@ -195,10 +195,13 @@ export default function Sales() {
 
       console.log('准备保存的销售数据:', saleData);
 
-      await vehicleSalesApi.create(saleData as any);
+      console.log('🚀 开始创建销售记录...');
+      const createdSale = await vehicleSalesApi.create(saleData as any);
+      console.log('✅ 销售记录创建成功:', createdSale);
 
       // 添加销售相关成本
       if (formData.sale_preparation_cost > 0) {
+        console.log('💰 添加销售整备费:', formData.sale_preparation_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
           cost_type: 'preparation',
@@ -207,6 +210,7 @@ export default function Sales() {
         });
       }
       if (formData.sale_transfer_cost > 0) {
+        console.log('💰 添加销售过户费:', formData.sale_transfer_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
           cost_type: 'transfer',
@@ -215,6 +219,7 @@ export default function Sales() {
         });
       }
       if (formData.sale_misc_cost > 0) {
+        console.log('💰 添加销售杂费:', formData.sale_misc_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
           cost_type: 'misc',
@@ -224,15 +229,25 @@ export default function Sales() {
       }
 
       // 更新车辆状态为已售
+      console.log('🚗 更新车辆状态为已售...');
       await vehiclesApi.update(formData.vehicle_id, { status: 'sold' });
+      console.log('✅ 车辆状态更新成功');
 
       toast.success('销售记录已创建');
       setDialogOpen(false);
       resetForm();
       loadData();
-    } catch (error) {
-      console.error('创建销售记录失败:', error);
-      toast.error('创建销售记录失败');
+    } catch (error: any) {
+      console.error('❌ 创建销售记录失败:', error);
+      console.error('❌ 错误详情:', JSON.stringify(error, null, 2));
+      console.error('❌ 错误消息:', error?.message);
+      console.error('❌ 错误代码:', error?.code);
+      console.error('❌ 错误提示:', error?.hint);
+      console.error('❌ 错误详细信息:', error?.details);
+      
+      // 显示更详细的错误信息
+      const errorMessage = error?.message || error?.hint || '创建销售记录失败';
+      toast.error(errorMessage);
     }
   };
 
