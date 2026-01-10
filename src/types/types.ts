@@ -14,6 +14,8 @@ export interface Profile {
   email?: string;
   phone?: string;
   role: UserRole;
+  status?: 'active' | 'inactive';
+  default_password?: string;
   created_at: string;
   updated_at: string;
 }

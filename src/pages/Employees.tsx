@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { profilesApi } from '@/db/api';
-import type { Employee } from '@/types/types';
-import { Edit } from 'lucide-react';
+import type { Profile } from '@/types/types';
+import { Edit, UserX, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -18,14 +18,16 @@ export default function Employees() {
   const { profile } = useAuth();
   const isAdmin = profile?.role === 'admin';
   
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Profile | null>(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    contact: '',
+    username: '',
+    email: '',
+    phone: '',
+    password: '123456',
   });
 
   useEffect(() => {
@@ -35,22 +37,8 @@ export default function Employees() {
   const loadData = async () => {
     try {
       setLoading(true);
-      // 注册用户即为员工，直接从 profiles 表加载所有用户
       const profilesData = await profilesApi.getAll();
-      
-      // 将 profiles 转换为 employees 格式
-      const employeesData: Employee[] = profilesData.map((profile: any) => ({
-        id: profile.id,
-        profile_id: profile.id,
-        name: profile.username || profile.email?.split('@')[0] || '未命名',
-        position: profile.role === 'admin' ? '管理员' : '员工',
-        contact: profile.phone || '未填写',
-        hire_date: profile.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-        is_active: true,
-        created_at: profile.created_at,
-        updated_at: profile.updated_at || profile.created_at,
-      }));
-      setEmployees(employeesData);
+      setEmployees(profilesData);
     } catch (error) {
       console.error('加载员工数据失败:', error);
       toast.error('加载员工数据失败');
@@ -67,10 +55,23 @@ export default function Employees() {
       return;
     }
 
+    // 验证必填字段
+    if (!formData.username || !formData.email) {
+      toast.error('请填写员工姓名和邮箱');
+      return;
+    }
+
+    // 验证邮箱格式
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error('请输入正确的邮箱格式');
+      return;
+    }
+
     // 验证手机号码格式
-    if (formData.contact && formData.contact !== '未填写') {
+    if (formData.phone) {
       const phoneRegex = /^1[3-9]\d{9}$/;
-      if (!phoneRegex.test(formData.contact)) {
+      if (!phoneRegex.test(formData.phone)) {
         toast.error('请输入正确的手机号码（11位，1开头）');
         return;
       }
@@ -78,167 +79,256 @@ export default function Employees() {
     
     try {
       if (editingEmployee) {
-        // 更新 profiles 表的 username 和 phone 字段
+        // 编辑员工
         await profilesApi.update(editingEmployee.id, {
-          username: formData.name,
-          phone: formData.contact === '未填写' ? '' : formData.contact,
+          username: formData.username,
+          phone: formData.phone || undefined,
         });
-        toast.success('员工信息已更新');
+        toast.success('员工信息更新成功');
       } else {
-        // 不支持手动添加员工，员工通过注册创建
-        toast.error('员工通过注册系统自动创建，无需手动添加');
-        return;
+        // 添加新员工
+        await profilesApi.createUser(
+          formData.email,
+          formData.password,
+          formData.username,
+          formData.phone || undefined
+        );
+        toast.success('员工添加成功，账号密码已派发');
       }
+      
       setDialogOpen(false);
       resetForm();
       loadData();
+    } catch (error: any) {
+      console.error('操作失败:', error);
+      toast.error(error.message || '操作失败');
+    }
+  };
+
+  const handleEdit = (employee: Profile) => {
+    setEditingEmployee(employee);
+    setFormData({
+      username: employee.username,
+      email: employee.email || '',
+      phone: employee.phone || '',
+      password: '123456',
+    });
+    setDialogOpen(true);
+  };
+
+  const handleToggleStatus = async (employee: Profile) => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以管理员工状态');
+      return;
+    }
+
+    try {
+      const newStatus = employee.status === 'active' ? 'inactive' : 'active';
+      await profilesApi.updateStatus(employee.id, newStatus);
+      toast.success(newStatus === 'active' ? '员工已启用' : '员工已禁用');
+      loadData();
     } catch (error) {
-      console.error('保存员工失败:', error);
-      toast.error('保存员工失败');
+      console.error('更新员工状态失败:', error);
+      toast.error('更新员工状态失败');
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      contact: '',
+      username: '',
+      email: '',
+      phone: '',
+      password: '123456',
     });
     setEditingEmployee(null);
   };
 
-  const openEditDialog = (employee: Employee) => {
-    if (!isAdmin) {
-      toast.error('只有管理员可以编辑员工信息');
-      return;
+  const handleDialogClose = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      resetForm();
     }
-    
-    setEditingEmployee(employee);
-    setFormData({
-      name: employee.name,
-      contact: employee.contact,
-    });
-    setDialogOpen(true);
   };
 
   if (loading) {
     return (
-      <PageWrapper title="员工管理" description="管理员工基本信息">
+      <PageWrapper>
         <div className="space-y-6">
-          <Skeleton className="h-8 w-48 bg-muted" />
-          <Skeleton className="h-96 bg-muted" />
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-96" />
         </div>
       </PageWrapper>
     );
   }
 
   return (
-    <PageWrapper
-      title="员工管理"
-      description={`管理员工基本信息${!isAdmin ? '（员工权限：仅查看，不可修改）' : ''}。员工角色在每台车交易时动态分配。`}
-    >
+    <PageWrapper>
       <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">员工管理</h1>
+            <p className="text-muted-foreground mt-2">管理员工信息和账号权限</p>
+          </div>
+          {isAdmin && (
+            <Button onClick={() => setDialogOpen(true)}>
+              添加员工
+            </Button>
+          )}
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle>员工列表</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>姓名</TableHead>
-                  <TableHead>职位</TableHead>
-                  <TableHead>手机号码</TableHead>
-                  <TableHead>入职日期</TableHead>
-                  <TableHead>状态</TableHead>
-                  {isAdmin && <TableHead>操作</TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {employees.map((employee) => (
-                  <TableRow key={employee.id}>
-                    <TableCell className="font-medium">{employee.name}</TableCell>
-                    <TableCell>{employee.position}</TableCell>
-                    <TableCell>{employee.contact}</TableCell>
-                    <TableCell>{employee.hire_date}</TableCell>
-                    <TableCell>
-                      <Badge variant={employee.is_active ? 'default' : 'secondary'}>
-                        {employee.is_active ? '在职' : '离职'}
-                      </Badge>
-                    </TableCell>
-                    {isAdmin && (
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEditDialog(employee)}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    )}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>姓名</TableHead>
+                    <TableHead>邮箱</TableHead>
+                    <TableHead>手机号</TableHead>
+                    <TableHead>登录密码</TableHead>
+                    <TableHead>角色</TableHead>
+                    <TableHead>状态</TableHead>
+                    <TableHead>入职日期</TableHead>
+                    {isAdmin && <TableHead className="text-right">操作</TableHead>}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {employees.map((employee) => (
+                    <TableRow key={employee.id}>
+                      <TableCell className="font-medium">{employee.username}</TableCell>
+                      <TableCell>{employee.email || '-'}</TableCell>
+                      <TableCell>{employee.phone || '-'}</TableCell>
+                      <TableCell>
+                        {employee.default_password ? (
+                          <span className="text-muted-foreground">123456（默认）</span>
+                        ) : (
+                          <span className="text-muted-foreground">已修改</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'}>
+                          {employee.role === 'admin' ? '管理员' : '员工'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={employee.status === 'active' ? 'default' : 'destructive'}>
+                          {employee.status === 'active' ? '在职' : '离职'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{employee.created_at?.split('T')[0] || '-'}</TableCell>
+                      {isAdmin && (
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(employee)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            {employee.id !== profile?.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleToggleStatus(employee)}
+                                title={employee.status === 'active' ? '禁用账号' : '启用账号'}
+                              >
+                                {employee.status === 'active' ? (
+                                  <UserX className="h-4 w-4 text-destructive" />
+                                ) : (
+                                  <UserCheck className="h-4 w-4 text-primary" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                  {employees.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={isAdmin ? 8 : 7} className="text-center text-muted-foreground">
+                        暂无员工数据
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
-        {/* 编辑对话框 */}
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>编辑员工信息</DialogTitle>
+              <DialogTitle>{editingEmployee ? '编辑员工' : '添加员工'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">姓名</Label>
+              <div>
+                <Label htmlFor="username">员工姓名 *</Label>
                 <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  id="username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="请输入员工姓名"
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact">手机号码</Label>
+              
+              {!editingEmployee && (
+                <>
+                  <div>
+                    <Label htmlFor="email">邮箱 *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="请输入邮箱（用于登录）"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="password">登录密码</Label>
+                    <Input
+                      id="password"
+                      type="text"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder="默认密码：123456"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      默认密码为 123456，员工首次登录后可自行修改
+                    </p>
+                  </div>
+                </>
+              )}
+              
+              <div>
+                <Label htmlFor="phone">手机号</Label>
                 <Input
-                  id="contact"
-                  type="tel"
-                  placeholder="请输入手机号码"
-                  value={formData.contact}
-                  onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  required
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="请输入手机号"
                 />
               </div>
+
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => handleDialogClose(false)}>
                   取消
                 </Button>
-                <Button type="submit">保存</Button>
+                <Button type="submit">
+                  {editingEmployee ? '保存' : '添加'}
+                </Button>
               </div>
             </form>
           </DialogContent>
         </Dialog>
-
-        {/* 说明卡片 */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="pt-6">
-            <div className="space-y-2 text-sm">
-              <p className="font-medium text-primary">💡 关于员工角色</p>
-              <p className="text-muted-foreground">
-                员工角色（销售员、押车出资人、地租出资人）不是固定的，而是在每台车交易时动态分配。
-              </p>
-              <p className="text-muted-foreground">
-                同一个员工可以在不同的车辆交易中扮演不同的角色，利润分配基于每台车的实际角色分配。
-              </p>
-              <p className="text-muted-foreground">
-                请在"销售管理"页面录入车辆销售信息时，为每台车指定相应的角色人员。
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </PageWrapper>
   );

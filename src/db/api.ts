@@ -67,10 +67,57 @@ export const profilesApi = {
   },
 
   // 更新用户资料（通用方法）
-  async update(id: string, updates: Partial<{ username: string; role: string; phone: string }>) {
+  async update(id: string, updates: Partial<{ username: string; role: string; phone: string; status: string; default_password: string }>) {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  // 创建新用户（管理员添加员工）
+  async createUser(email: string, password: string, username: string, phone?: string) {
+    // 1. 使用 Supabase Auth 创建用户
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          phone,
+        },
+      },
+    });
+
+    if (authError) throw authError;
+    if (!authData.user) throw new Error('创建用户失败');
+
+    // 2. 更新 profiles 表，添加默认密码标记
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .update({
+        username,
+        phone: phone || null,
+        role: 'employee',
+        status: 'active',
+        default_password: password === '123456' ? '123456' : null,
+      })
+      .eq('id', authData.user.id)
+      .select()
+      .maybeSingle();
+
+    if (profileError) throw profileError;
+    return profileData;
+  },
+
+  // 更新用户状态（在职/离职）
+  async updateStatus(id: string, status: 'active' | 'inactive') {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ status })
       .eq('id', id)
       .select()
       .maybeSingle();
