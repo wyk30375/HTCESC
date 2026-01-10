@@ -1,0 +1,133 @@
+import { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { vehiclesApi } from '@/db/api';
+import type { Vehicle } from '@/types/types';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Car, Calendar, Gauge } from 'lucide-react';
+
+export default function CustomerView() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadVehicles();
+  }, []);
+
+  const loadVehicles = async () => {
+    try {
+      setLoading(true);
+      const data = await vehiclesApi.getInStock();
+      setVehicles(data);
+    } catch (error) {
+      console.error('加载车辆数据失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <Skeleton className="h-16 bg-muted" />
+          <div className="grid gap-4 @md:grid-cols-2 @lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-96 bg-muted" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* 头部 */}
+      <header className="border-b bg-card">
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          <div className="flex items-center gap-3">
+            <Car className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-2xl font-bold">二手车展示</h1>
+              <p className="text-sm text-muted-foreground">优质车源，诚信经营</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 车辆列表 */}
+      <main className="mx-auto max-w-6xl p-4">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold">在售车辆</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            共 {vehicles.length} 辆车
+          </p>
+        </div>
+
+        <div className="grid gap-6 @md:grid-cols-2 @lg:grid-cols-3">
+          {vehicles.map((vehicle) => (
+            <Card key={vehicle.id} className="overflow-hidden">
+              {/* 车辆图片 */}
+              <div className="aspect-video bg-muted relative">
+                {vehicle.photos && vehicle.photos.length > 0 ? (
+                  <img
+                    src={vehicle.photos[0]}
+                    alt={`${vehicle.brand} ${vehicle.model}`}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center">
+                    <Car className="h-12 w-12 text-muted-foreground" />
+                  </div>
+                )}
+                <Badge className="absolute right-2 top-2">在售</Badge>
+              </div>
+
+              {/* 车辆信息 */}
+              <CardContent className="p-4 space-y-3">
+                <div>
+                  <h3 className="font-semibold text-lg">
+                    {vehicle.brand} {vehicle.model}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    车架号：{vehicle.vin_last_six}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{vehicle.year}年</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Gauge className="h-4 w-4" />
+                    <span>{vehicle.mileage.toLocaleString()}km</span>
+                  </div>
+                </div>
+
+                {vehicle.condition_description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {vehicle.condition_description}
+                  </p>
+                )}
+
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-muted-foreground">价格面议</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {vehicles.length === 0 && (
+          <div className="rounded-lg border bg-card p-12 text-center">
+            <Car className="mx-auto h-12 w-12 text-muted-foreground" />
+            <p className="mt-4 text-muted-foreground">暂无在售车辆</p>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
