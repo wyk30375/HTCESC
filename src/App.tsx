@@ -33,44 +33,61 @@ function LoadingFallback() {
   );
 }
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <RouteGuard>
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  {/* 登录页面和客户展示页面不需要布局 */}
-                  <Route path="/login" element={routes.find(r => r.path === '/login')?.element} />
-                  <Route path="/customer-view" element={routes.find(r => r.path === '/customer-view')?.element} />
-                  
-                  {/* 其他页面使用布局 */}
-                  <Route
-                    path="/*"
-                    element={
-                      <Layout>
-                        <Routes>
-                          {routes
-                            .filter(r => r.path !== '/login' && r.path !== '/customer-view')
-                            .map((route) => (
-                              <Route key={route.path} path={route.path} element={route.element} />
-                            ))}
-                        </Routes>
-                      </Layout>
-                    }
-                  />
-                </Routes>
-              </Suspense>
-            </RouteGuard>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+const App = () => {
+  // 获取特殊路由的组件
+  const LoginComponent = routes.find(r => r.path === '/login')?.component;
+  const CustomerViewComponent = routes.find(r => r.path === '/customer-view')?.component;
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AuthProvider>
+              <RouteGuard>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    {/* 登录页面和客户展示页面不需要布局 */}
+                    {LoginComponent && (
+                      <Route path="/login" element={<LoginComponent />} />
+                    )}
+                    {CustomerViewComponent && (
+                      <Route path="/customer-view" element={<CustomerViewComponent />} />
+                    )}
+                    
+                    {/* 其他页面使用布局 */}
+                    <Route
+                      path="/*"
+                      element={
+                        <Layout>
+                          <Routes>
+                            {routes
+                              .filter(r => r.path !== '/login' && r.path !== '/customer-view')
+                              .map((route) => {
+                                const Component = route.component;
+                                return (
+                                  <Route 
+                                    key={route.path} 
+                                    path={route.path} 
+                                    element={<Component />} 
+                                  />
+                                );
+                              })}
+                          </Routes>
+                        </Layout>
+                      }
+                    />
+                  </Routes>
+                </Suspense>
+              </RouteGuard>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
+};
 
 export default App;

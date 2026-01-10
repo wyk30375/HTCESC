@@ -1,85 +1,84 @@
-import { lazy } from 'react';
-import type React from 'react';
+import { lazy, type ComponentType } from 'react';
 
 export interface RouteConfig {
   path: string;
-  element: React.ReactNode;
+  component: ComponentType;
   title?: string;
 }
 
 // 懒加载页面组件
-const Dashboard = lazy(() => import('@/pages/Dashboard'));
-const Employees = lazy(() => import('@/pages/Employees'));
-const Vehicles = lazy(() => import('@/pages/Vehicles'));
-const Sales = lazy(() => import('@/pages/Sales'));
-const Expenses = lazy(() => import('@/pages/Expenses'));
-const Profits = lazy(() => import('@/pages/Profits'));
-const Statistics = lazy(() => import('@/pages/Statistics'));
-const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
-const CustomerView = lazy(() => import('@/pages/CustomerView'));
-const InternalReport = lazy(() => import('@/pages/InternalReport'));
-const Login = lazy(() => import('@/pages/Login'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
+export const Dashboard = lazy(() => import('@/pages/Dashboard'));
+export const Employees = lazy(() => import('@/pages/Employees'));
+export const Vehicles = lazy(() => import('@/pages/Vehicles'));
+export const Sales = lazy(() => import('@/pages/Sales'));
+export const Expenses = lazy(() => import('@/pages/Expenses'));
+export const Profits = lazy(() => import('@/pages/Profits'));
+export const Statistics = lazy(() => import('@/pages/Statistics'));
+export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
+export const CustomerView = lazy(() => import('@/pages/CustomerView'));
+export const InternalReport = lazy(() => import('@/pages/InternalReport'));
+export const Login = lazy(() => import('@/pages/Login'));
+export const NotFound = lazy(() => import('@/pages/NotFound'));
 
 export const routes: RouteConfig[] = [
   {
     path: '/',
-    element: <Dashboard />,
+    component: Dashboard,
     title: '仪表盘',
   },
   {
     path: '/employees',
-    element: <Employees />,
+    component: Employees,
     title: '员工管理',
   },
   {
     path: '/vehicles',
-    element: <Vehicles />,
+    component: Vehicles,
     title: '车辆管理',
   },
   {
     path: '/sales',
-    element: <Sales />,
+    component: Sales,
     title: '销售管理',
   },
   {
     path: '/expenses',
-    element: <Expenses />,
+    component: Expenses,
     title: '费用管理',
   },
   {
     path: '/profits',
-    element: <Profits />,
+    component: Profits,
     title: '利润分配',
   },
   {
     path: '/statistics',
-    element: <Statistics />,
+    component: Statistics,
     title: '统计分析',
   },
   {
     path: '/admin',
-    element: <AdminUsers />,
+    component: AdminUsers,
     title: '用户管理',
   },
   {
     path: '/customer-view',
-    element: <CustomerView />,
+    component: CustomerView,
     title: '客户展示',
   },
   {
     path: '/internal-report',
-    element: <InternalReport />,
+    component: InternalReport,
     title: '内部通报',
   },
   {
     path: '/login',
-    element: <Login />,
+    component: Login,
     title: '登录',
   },
   {
     path: '*',
-    element: <NotFound />,
+    component: NotFound,
     title: '页面未找到',
   },
 ];
