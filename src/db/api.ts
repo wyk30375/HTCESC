@@ -340,7 +340,7 @@ export const vehicleSalesApi = {
   async getAll() {
     const { data, error } = await supabase
       .from('vehicle_sales')
-      .select('*, vehicle:vehicles(*), sales_employee:employees(*, profile:profiles(*))')
+      .select('*, vehicle:vehicles(*), sales_employee:profiles!sales_employee_id(*)')
       .order('sale_date', { ascending: false });
     if (error) throw error;
     return Array.isArray(data) ? data : [];
@@ -355,7 +355,7 @@ export const vehicleSalesApi = {
 
     const { data, error } = await supabase
       .from('vehicle_sales')
-      .select('*, vehicle:vehicles(*), sales_employee:employees(*, profile:profiles(*))')
+      .select('*, vehicle:vehicles(*), sales_employee:profiles!sales_employee_id(*)')
       .gte('sale_date', startDate)
       .lt('sale_date', endDate)
       .order('sale_date', { ascending: false });
@@ -367,7 +367,7 @@ export const vehicleSalesApi = {
   async getById(id: string) {
     const { data, error } = await supabase
       .from('vehicle_sales')
-      .select('*, vehicle:vehicles(*), sales_employee:employees(*, profile:profiles(*))')
+      .select('*, vehicle:vehicles(*), sales_employee:profiles!sales_employee_id(*)')
       .eq('id', id)
       .maybeSingle();
     if (error) throw error;
