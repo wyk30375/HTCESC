@@ -355,6 +355,153 @@ export default function Profits() {
           </CardContent>
         </Card>
 
+        {/* 员工分成汇总 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>员工分成汇总</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              // 计算每个员工的分成明细
+              const employeeShares = new Map<string, {
+                profile: Profile;
+                salespersonShare: number; // 销售提成
+                investorShare: number; // 押车出资分成
+                rentInvestorShare: number; // 地租分成
+                total: number; // 总计
+              }>();
+
+              profitDetails.forEach((detail) => {
+                // 销售员提成
+                if (detail.salesperson) {
+                  const existing = employeeShares.get(detail.salesperson.id) || {
+                    profile: detail.salesperson,
+                    salespersonShare: 0,
+                    investorShare: 0,
+                    rentInvestorShare: 0,
+                    total: 0,
+                  };
+                  existing.salespersonShare += detail.salespersonShare;
+                  existing.total += detail.salespersonShare;
+                  employeeShares.set(detail.salesperson.id, existing);
+                }
+
+                // 押车出资人分成
+                detail.investors.forEach((investor) => {
+                  const existing = employeeShares.get(investor.id) || {
+                    profile: investor,
+                    salespersonShare: 0,
+                    investorShare: 0,
+                    rentInvestorShare: 0,
+                    total: 0,
+                  };
+                  const share = detail.investorShare / detail.investors.length;
+                  existing.investorShare += share;
+                  existing.total += share;
+                  employeeShares.set(investor.id, existing);
+                });
+
+                // 地租出资人分成
+                detail.rentInvestors.forEach((rentInvestor) => {
+                  const existing = employeeShares.get(rentInvestor.id) || {
+                    profile: rentInvestor,
+                    salespersonShare: 0,
+                    investorShare: 0,
+                    rentInvestorShare: 0,
+                    total: 0,
+                  };
+                  const share = detail.rentInvestorShare / detail.rentInvestors.length;
+                  existing.rentInvestorShare += share;
+                  existing.total += share;
+                  employeeShares.set(rentInvestor.id, existing);
+                });
+              });
+
+              // 转换为数组并按总计降序排序
+              const sortedEmployees = Array.from(employeeShares.values()).sort(
+                (a, b) => b.total - a.total
+              );
+
+              return sortedEmployees.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  本月暂无员工分成记录
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>员工姓名</TableHead>
+                        <TableHead className="text-right">销售提成</TableHead>
+                        <TableHead className="text-right">押车出资分成</TableHead>
+                        <TableHead className="text-right">地租分成</TableHead>
+                        <TableHead className="text-right">总计</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {sortedEmployees.map((employee) => (
+                        <TableRow key={employee.profile.id}>
+                          <TableCell className="font-medium">
+                            {employee.profile.username || employee.profile.email}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.salespersonShare > 0 ? (
+                              <span className="text-primary font-medium">
+                                ¥{employee.salespersonShare.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.investorShare > 0 ? (
+                              <span className="text-secondary font-medium">
+                                ¥{employee.investorShare.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {employee.rentInvestorShare > 0 ? (
+                              <span className="text-accent font-medium">
+                                ¥{employee.rentInvestorShare.toLocaleString()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <span className="font-bold text-lg">
+                              ¥{employee.total.toLocaleString()}
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {/* 总计行 */}
+                      <TableRow className="bg-muted/50 font-bold">
+                        <TableCell>总计</TableCell>
+                        <TableCell className="text-right text-primary">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.salespersonShare, 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right text-secondary">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.investorShare, 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right text-accent">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.rentInvestorShare, 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right text-lg">
+                          ¥{sortedEmployees.reduce((sum, e) => sum + e.total, 0).toLocaleString()}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
+
         {/* 说明卡片 */}
         <Card className="bg-muted/50">
           <CardHeader>
