@@ -240,7 +240,7 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* 中间标题 */}
           <div className="flex-1 flex justify-center">
-            <h1 className="text-xl font-bold text-primary-foreground">销售管理系统</h1>
+            <h1 className="text-xl font-bold text-primary-foreground">易驰汽车销售管理系统</h1>
           </div>
 
           {/* 用户菜单 */}
