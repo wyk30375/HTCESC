@@ -146,60 +146,6 @@ export const employeesApi = {
   },
 };
 
-// ==================== 员工角色 API ====================
-export const employeeRolesApi = {
-  // 获取员工的所有角色
-  async getByEmployeeId(employeeId: string) {
-    const { data, error } = await supabase
-      .from('employee_roles')
-      .select('*')
-      .eq('employee_id', employeeId);
-    if (error) throw error;
-    return Array.isArray(data) ? data : [];
-  },
-
-  // 获取特定角色类型的所有员工
-  async getByRoleType(roleType: EmployeeRoleType) {
-    const { data, error } = await supabase
-      .from('employee_roles')
-      .select('*, employee:employees(*, profile:profiles(*))')
-      .eq('role_type', roleType);
-    if (error) throw error;
-    return Array.isArray(data) ? data : [];
-  },
-
-  // 添加员工角色
-  async add(employeeId: string, roleType: EmployeeRoleType, sharePercentage: number = 100) {
-    const { data, error } = await supabase
-      .from('employee_roles')
-      .insert({ employee_id: employeeId, role_type: roleType, share_percentage: sharePercentage })
-      .select()
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-
-  // 更新员工角色分配比例
-  async updateSharePercentage(id: string, sharePercentage: number) {
-    const { data, error } = await supabase
-      .from('employee_roles')
-      .update({ share_percentage: sharePercentage })
-      .eq('id', id)
-      .select()
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-
-  // 删除员工角色
-  async delete(id: string) {
-    const { error } = await supabase
-      .from('employee_roles')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
-  },
-};
 
 // ==================== 车辆 API ====================
 export const vehiclesApi = {
