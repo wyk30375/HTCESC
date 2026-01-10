@@ -60,18 +60,33 @@ export default function Employees() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [employeesData, profilesData] = await Promise.all([
-        employeesApi.getAll(),
-        profilesApi.getAll(),
-      ]);
-      setEmployees(employeesData);
+      // 注册用户即为员工，直接从 profiles 表加载所有用户
+      const profilesData = await profilesApi.getAll();
       setProfiles(profilesData);
+      
+      // 将 profiles 转换为 employees 格式以兼容现有代码
+      const employeesData: Employee[] = profilesData.map((profile: any) => ({
+        id: profile.id,
+        profile_id: profile.id,
+        name: profile.username || profile.email?.split('@')[0] || '未命名',
+        position: profile.role === 'admin' ? '管理员' : '员工',
+        contact: profile.email || '',
+        hire_date: profile.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+        is_active: true,
+        created_at: profile.created_at,
+      }));
+      setEmployees(employeesData);
 
-      // 加载每个员工的角色
+      // 加载每个员工的角色（如果有 employees 表的记录）
       const rolesMap: Record<string, EmployeeRole[]> = {};
       for (const emp of employeesData) {
-        const roles = await employeeRolesApi.getByEmployeeId(emp.id);
-        rolesMap[emp.id] = roles;
+        try {
+          const roles = await employeeRolesApi.getByEmployeeId(emp.id);
+          rolesMap[emp.id] = roles;
+        } catch (error) {
+          // 如果没有角色记录，设置为空数组
+          rolesMap[emp.id] = [];
+        }
       }
       setEmployeeRoles(rolesMap);
     } catch (error) {
