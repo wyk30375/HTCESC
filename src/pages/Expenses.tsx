@@ -66,15 +66,27 @@ export default function Expenses() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!profile?.id) {
+      toast.error('用户信息未加载，请刷新页面重试');
+      return;
+    }
+    
     try {
-      await expensesApi.create(formData as any);
+      // 添加 created_by 字段
+      const expenseData = {
+        ...formData,
+        created_by: profile.id,
+      };
+      
+      await expensesApi.create(expenseData as any);
       toast.success('费用记录已创建');
       setDialogOpen(false);
       resetForm();
       loadExpenses();
     } catch (error) {
       console.error('创建费用记录失败:', error);
-      toast.error('创建费用记录失败');
+      toast.error('创建记录失败');
     }
   };
 
