@@ -635,7 +635,7 @@ export default function Sales() {
                         ¥{Number(sale.total_profit).toLocaleString()}
                       </Badge>
                     </TableCell>
-                    <TableCell>{getSalespersonName(sale.salesperson_id)}</TableCell>
+                    <TableCell>{getSalespersonName(sale.sales_employee_id)}</TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
@@ -687,7 +687,7 @@ export default function Sales() {
                 )}
                 <div>
                   <Label className="text-muted-foreground">销售员</Label>
-                  <p className="font-medium">{getSalespersonName(selectedSale.salesperson_id)}</p>
+                  <p className="font-medium">{getSalespersonName(selectedSale.sales_employee_id)}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground">贷款状态</Label>
