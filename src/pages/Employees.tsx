@@ -104,12 +104,22 @@ export default function Employees() {
       toast.error('只有管理员可以管理员工信息');
       return;
     }
+
+    // 验证手机号码格式
+    if (formData.contact && formData.contact !== '未填写') {
+      const phoneRegex = /^1[3-9]\d{9}$/;
+      if (!phoneRegex.test(formData.contact)) {
+        toast.error('请输入正确的手机号码（11位，1开头）');
+        return;
+      }
+    }
     
     try {
       if (editingEmployee) {
-        // 注册用户即为员工，更新 profiles 表的 username 字段
+        // 注册用户即为员工，更新 profiles 表的 username 和 phone 字段
         await profilesApi.update(editingEmployee.id, {
           username: formData.name,
+          phone: formData.contact === '未填写' ? '' : formData.contact,
         });
         toast.success('员工信息已更新');
       } else {
@@ -312,9 +322,11 @@ export default function Employees() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contact">联系方式</Label>
+                  <Label htmlFor="contact">手机号码</Label>
                   <Input
                     id="contact"
+                    type="tel"
+                    placeholder="请输入手机号码"
                     value={formData.contact}
                     onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                     required
