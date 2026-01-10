@@ -17,11 +17,8 @@ export default function ImageUpload({ images, onImagesChange, maxImages = 10 }: 
   const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const validateFileName = (fileName: string): boolean => {
-    // 只允许英文字母和数字
-    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
-    return /^[a-zA-Z0-9_-]+$/.test(nameWithoutExt);
-  };
+  // 移除文件名字符限制，允许任何字符（包括中文、特殊字符等）
+  // 因为上传时会自动生成新的文件名（时间戳 + 随机字符串）
 
   const compressImage = async (file: File): Promise<File> => {
     const options = {
@@ -88,11 +85,7 @@ export default function ImageUpload({ images, onImagesChange, maxImages = 10 }: 
           continue;
         }
 
-        // 验证文件名
-        if (!validateFileName(file.name)) {
-          toast.error(`${file.name} 文件名只能包含英文字母和数字`);
-          continue;
-        }
+        // 文件名不做限制，因为上传时会自动生成新的文件名
 
         try {
           // 压缩图片
