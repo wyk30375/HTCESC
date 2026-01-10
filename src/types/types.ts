@@ -101,7 +101,6 @@ export interface Expense {
   expense_type: string;
   amount: number;
   description?: string;
-  notes?: string; // 备注
   created_by: string;
   created_at: string;
   creator?: Profile;

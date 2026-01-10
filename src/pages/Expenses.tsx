@@ -40,7 +40,6 @@ export default function Expenses() {
     amount: 0,
     expense_date: new Date().toISOString().split('T')[0],
     description: '',
-    notes: '',
   });
 
   useEffect(() => {
@@ -96,7 +95,6 @@ export default function Expenses() {
       amount: 0,
       expense_date: new Date().toISOString().split('T')[0],
       description: '',
-      notes: '',
     });
   };
 
@@ -186,21 +184,12 @@ export default function Expenses() {
 
               <div className="space-y-2">
                 <Label htmlFor="description">费用说明</Label>
-                <Input
+                <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">备注</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
+                  required
                 />
               </div>
 
