@@ -78,13 +78,17 @@ export interface VehicleSale {
   sale_price: number;
   customer_name: string;
   customer_contact: string;
+  customer_id_number?: string; // 客户身份证号
   has_loan: boolean; // 是否有贷款
   loan_rebate: number; // 贷款返利
   sale_preparation_cost: number; // 销售整备费
   sale_transfer_cost: number; // 销售过户费
   sale_misc_cost: number; // 销售杂费
+  total_cost: number; // 总成本
   total_profit: number; // 总利润
-  sales_employee_id: string; // 销售员工ID
+  salesperson_id: string; // 销售员ID
+  sales_employee_id: string; // 销售员工ID（兼容旧字段）
+  notes?: string; // 备注
   created_at: string;
   vehicle?: Vehicle;
   sales_employee?: Employee;
@@ -97,6 +101,7 @@ export interface Expense {
   expense_type: string;
   amount: number;
   description?: string;
+  notes?: string; // 备注
   created_by: string;
   created_at: string;
   creator?: Profile;
