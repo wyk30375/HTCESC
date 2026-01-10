@@ -153,11 +153,11 @@ export default function Layout({ children }: LayoutProps) {
       {/* 主内容区 */}
       <div className="flex flex-1 flex-col">
         {/* 顶部导航栏 - 固定定位 */}
-        <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
+        <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-primary px-4 lg:px-6">
           {/* 移动端菜单按钮 */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden text-primary-foreground hover:bg-primary-foreground/10">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -238,13 +238,16 @@ export default function Layout({ children }: LayoutProps) {
             </SheetContent>
           </Sheet>
 
-          <div className="flex-1" />
+          {/* 中间标题 */}
+          <div className="flex-1 flex justify-center">
+            <h1 className="text-xl font-bold text-primary-foreground">销售管理系统</h1>
+          </div>
 
           {/* 用户菜单 */}
           {user && profile && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full text-primary-foreground hover:bg-primary-foreground/10">
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
