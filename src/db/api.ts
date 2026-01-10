@@ -16,12 +16,31 @@ import type {
 export const profilesApi = {
   // 获取所有用户资料
   async getAll() {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return Array.isArray(data) ? data : [];
+    console.log('👥 [profilesApi] 开始查询所有用户资料...');
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('👥 [profilesApi] ❌ 查询失败:', error);
+        console.error('错误详情:', JSON.stringify(error, null, 2));
+        throw error;
+      }
+      
+      console.log('👥 [profilesApi] ✅ 查询成功，用户数量:', data?.length || 0);
+      console.log('👥 [profilesApi] 📋 用户数据:', data);
+      
+      if (!data || data.length === 0) {
+        console.warn('👥 [profilesApi] ⚠️ 警告：查询成功但返回空数组');
+      }
+      
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.error('👥 [profilesApi] ❌ 发生异常:', err);
+      return [];
+    }
   },
 
   // 获取单个用户资料

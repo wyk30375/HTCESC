@@ -102,20 +102,30 @@ export default function Sales() {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('📊 开始加载销售管理数据...');
+      
       const [salesData, vehiclesData, employeesData, profilesData] = await Promise.all([
         vehicleSalesApi.getAll(),
         vehiclesApi.getInStock(),
         employeesApi.getActive(),
         profilesApi.getAll(), // 获取所有用户作为销售员选项
       ]);
-      console.log('加载的在库车辆数据:', vehiclesData);
-      console.log('在库车辆数量:', vehiclesData.length);
+      
+      console.log('✅ 加载的在库车辆数据:', vehiclesData);
+      console.log('📊 在库车辆数量:', vehiclesData.length);
+      console.log('✅ 加载的销售员数据:', profilesData);
+      console.log('📊 销售员数量:', profilesData.length);
+      console.log('✅ 加载的销售记录数据:', salesData);
+      console.log('📊 销售记录数量:', salesData.length);
+      
       setSales(salesData);
       setVehicles(vehiclesData);
       setEmployees(employeesData);
       setSalespeople(profilesData); // 设置销售员列表
+      
+      console.log('✅ 所有数据已设置到状态');
     } catch (error) {
-      console.error('加载销售数据失败:', error);
+      console.error('❌ 加载销售数据失败:', error);
       toast.error('加载销售数据失败');
     } finally {
       setLoading(false);
@@ -373,6 +383,21 @@ export default function Sales() {
 
                 <div className="space-y-2 col-span-2">
                   <Label htmlFor="salesperson_id">销售员</Label>
+                  
+                  {/* 调试信息 - 显示销售员加载状态 */}
+                  <div className="text-xs bg-green-50 border border-green-200 p-2 rounded mb-2">
+                    <div>🔍 销售员调试信息：</div>
+                    <div>• 销售员数组长度: {salespeople.length}</div>
+                    <div>• 加载状态: {loading ? '加载中...' : '已完成'}</div>
+                    <div>• 销售员数据: {salespeople.length > 0 ? '有数据' : '无数据'}</div>
+                    {salespeople.length > 0 && (
+                      <div>• 第一个销售员: {salespeople[0].username || salespeople[0].email}</div>
+                    )}
+                    {profile && (
+                      <div>• 当前用户: {profile.username || profile.email} (ID: {profile.id})</div>
+                    )}
+                  </div>
+                  
                   <Select
                     value={formData.salesperson_id}
                     onValueChange={(value) => setFormData({ ...formData, salesperson_id: value })}
@@ -382,14 +407,30 @@ export default function Sales() {
                       <SelectValue placeholder="选择销售员" />
                     </SelectTrigger>
                     <SelectContent>
-                      {salespeople.map((person) => (
-                        <SelectItem key={person.id} value={person.id}>
-                          {person.username || person.email}
-                          {person.id === profile?.id && ' (我)'}
-                        </SelectItem>
-                      ))}
+                      {salespeople.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground text-center">
+                          暂无销售员数据
+                        </div>
+                      ) : (
+                        salespeople.map((person) => (
+                          <SelectItem key={person.id} value={person.id}>
+                            {person.username || person.email}
+                            {person.id === profile?.id && ' (我)'}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
+                  {salespeople.length === 0 && (
+                    <p className="text-xs text-amber-600">
+                      ⚠️ 提示：系统中暂无销售员数据
+                    </p>
+                  )}
+                  {salespeople.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      当前有 {salespeople.length} 位销售员可选
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
