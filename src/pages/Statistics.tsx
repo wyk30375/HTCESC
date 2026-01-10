@@ -146,7 +146,7 @@ export default function Statistics() {
         </div>
 
         {/* 关键指标卡片 */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">月度销售数量</CardTitle>
@@ -201,10 +201,10 @@ export default function Statistics() {
         </div>
 
         {/* 销售趋势图表 */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>销售趋势（最近6个月）</CardTitle>
+              <CardTitle className="text-base sm:text-lg">销售趋势（最近6个月）</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -222,7 +222,7 @@ export default function Statistics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>销售额与利润趋势（万元）</CardTitle>
+              <CardTitle className="text-base sm:text-lg">销售额与利润趋势（万元）</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -241,7 +241,7 @@ export default function Statistics() {
         </div>
 
         {/* 车辆品牌分布和员工排行 */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 xl:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle>车辆品牌分布</CardTitle>

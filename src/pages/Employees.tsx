@@ -170,7 +170,8 @@ export default function Employees() {
             <CardTitle>员工列表</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            {/* 桌面端表格视图 */}
+            <div className="hidden lg:block overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -244,6 +245,98 @@ export default function Employees() {
                   )}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* 移动端卡片视图 */}
+            <div className="lg:hidden space-y-4">
+              {employees.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  暂无员工数据
+                </div>
+              ) : (
+                employees.map((employee) => (
+                  <Card key={employee.id} className="border-2">
+                    <CardContent className="pt-6">
+                      <div className="space-y-3">
+                        {/* 姓名和角色 */}
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-bold">{employee.username}</h3>
+                          <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'}>
+                            {employee.role === 'admin' ? '管理员' : '员工'}
+                          </Badge>
+                        </div>
+
+                        {/* 状态 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">状态：</span>
+                          <Badge variant={employee.status === 'active' ? 'default' : 'destructive'}>
+                            {employee.status === 'active' ? '在职' : '离职'}
+                          </Badge>
+                        </div>
+
+                        {/* 手机号 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">手机号：</span>
+                          <span className="text-sm font-medium">{employee.phone || '-'}</span>
+                        </div>
+
+                        {/* 登录密码 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">登录密码：</span>
+                          <span className="text-sm">
+                            {employee.default_password ? (
+                              <span className="text-muted-foreground">123456（默认）</span>
+                            ) : (
+                              <span className="text-muted-foreground">已修改</span>
+                            )}
+                          </span>
+                        </div>
+
+                        {/* 入职日期 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">入职日期：</span>
+                          <span className="text-sm">{employee.created_at?.split('T')[0] || '-'}</span>
+                        </div>
+
+                        {/* 操作按钮 */}
+                        {isAdmin && (
+                          <div className="flex gap-2 pt-2 border-t">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => handleEdit(employee)}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              编辑
+                            </Button>
+                            {employee.id !== profile?.id && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                                onClick={() => handleToggleStatus(employee)}
+                              >
+                                {employee.status === 'active' ? (
+                                  <>
+                                    <UserX className="h-4 w-4 mr-2" />
+                                    禁用
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserCheck className="h-4 w-4 mr-2" />
+                                    启用
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
