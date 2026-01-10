@@ -184,54 +184,46 @@ export const vehiclesApi = {
 
   // 获取在售车辆
   async getInStock() {
-    console.log('🚗 开始查询在库车辆...');
+    console.log('🚗 [简化版] 开始查询在库车辆...');
     console.log('🔑 当前用户会话:', await supabase.auth.getSession());
     
-    // 先尝试查询所有车辆，看看是否能连接到数据库
-    console.log('🔍 步骤1: 查询所有车辆（测试连接）');
-    const { data: allVehicles, error: allError } = await supabase
-      .from('vehicles')
-      .select('*');
-    
-    console.log('📊 所有车辆数量:', allVehicles?.length || 0);
-    if (allError) {
-      console.error('❌ 查询所有车辆失败:', allError);
-    }
-    
-    // 然后查询在库车辆
-    console.log('🔍 步骤2: 查询在库车辆');
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('status', 'in_stock')
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('❌ 查询在库车辆失败:', error);
-      console.error('错误详情:', JSON.stringify(error, null, 2));
-      throw error;
-    }
-    
-    console.log('✅ 查询在库车辆成功:', data);
-    console.log('📊 在库车辆数量:', data?.length || 0);
-    
-    if (!data || data.length === 0) {
-      console.warn('⚠️ 警告：查询成功但返回空数组');
-      console.warn('可能原因：');
-      console.warn('1. 数据库中没有 status=in_stock 的车辆');
-      console.warn('2. RLS 策略阻止了查询');
-      console.warn('3. 用户没有查看权限');
+    try {
+      // 直接查询所有车辆，不使用任何条件
+      console.log('🔍 查询所有车辆（无条件）');
+      const { data: allVehicles, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .order('created_at', { ascending: false });
       
-      // 如果查询所有车辆成功，尝试在前端过滤
-      if (allVehicles && allVehicles.length > 0) {
-        console.log('🔄 尝试在前端过滤在库车辆');
-        const inStockVehicles = allVehicles.filter(v => v.status === 'in_stock');
-        console.log('✅ 前端过滤结果:', inStockVehicles.length, '辆在库车辆');
-        return inStockVehicles;
+      if (error) {
+        console.error('❌ 查询失败:', error);
+        console.error('错误详情:', JSON.stringify(error, null, 2));
+        throw error;
       }
+      
+      console.log('✅ 查询成功，总车辆数:', allVehicles?.length || 0);
+      console.log('📋 所有车辆数据:', allVehicles);
+      
+      if (!allVehicles || allVehicles.length === 0) {
+        console.warn('⚠️ 数据库中没有任何车辆数据');
+        return [];
+      }
+      
+      // 在前端过滤在库车辆
+      console.log('🔄 在前端过滤 status=in_stock 的车辆');
+      const inStockVehicles = allVehicles.filter(v => {
+        console.log(`  - 车辆 ${v.brand} ${v.model}: status=${v.status}`);
+        return v.status === 'in_stock';
+      });
+      
+      console.log('✅ 过滤完成，在库车辆数:', inStockVehicles.length);
+      console.log('📋 在库车辆列表:', inStockVehicles);
+      
+      return inStockVehicles;
+    } catch (err) {
+      console.error('❌ 发生异常:', err);
+      return [];
     }
-    
-    return Array.isArray(data) ? data : [];
   },
 
   // 获取已售车辆
