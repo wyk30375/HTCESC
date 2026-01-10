@@ -67,7 +67,7 @@ export const profilesApi = {
   },
 
   // 更新用户资料（通用方法）
-  async update(id: string, updates: Partial<{ username: string; role: string }>) {
+  async update(id: string, updates: Partial<{ username: string; role: string; phone: string }>) {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)

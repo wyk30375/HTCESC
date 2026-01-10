@@ -8,7 +8,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<void>;
-  signUp: (username: string, password: string) => Promise<void>;
+  signUp: (username: string, password: string, phone: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -77,21 +77,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (username: string, password: string) => {
+  const signUp = async (username: string, password: string, phone: string) => {
     // 移除用户名字符限制，允许中文和其他字符
     // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
 
     const email = `${username}@miaoda.com`;
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           username,
+          phone,
         },
       },
     });
     if (error) throw error;
+
+    // 注册成功后，更新 profiles 表的 phone 字段
+    if (data.user) {
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ phone })
+        .eq('id', data.user.id);
+      
+      if (updateError) {
+        console.error('更新手机号码失败:', updateError);
+      }
+    }
   };
 
   const signOut = async () => {

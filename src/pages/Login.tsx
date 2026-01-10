@@ -12,6 +12,7 @@ import { Car } from 'lucide-react';
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
@@ -41,8 +42,8 @@ export default function Login() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password) {
-      toast.error('请输入用户名和密码');
+    if (!username || !password || !phone) {
+      toast.error('请输入用户名、密码和手机号码');
       return;
     }
 
@@ -51,9 +52,16 @@ export default function Login() {
       return;
     }
 
+    // 验证手机号码格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      toast.error('请输入正确的手机号码');
+      return;
+    }
+
     setLoading(true);
     try {
-      await signUp(username, password);
+      await signUp(username, password, phone);
       toast.success('注册成功，正在登录...');
       // 注册成功后自动登录
       await signIn(username, password);
@@ -148,6 +156,21 @@ export default function Login() {
                     disabled={loading}
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-phone">手机号码</Label>
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="请输入手机号码"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    用于联系和身份验证
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? '注册中...' : '注册'}

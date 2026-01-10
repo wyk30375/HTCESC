@@ -70,7 +70,7 @@ export default function Employees() {
         profile_id: profile.id,
         name: profile.username || profile.email?.split('@')[0] || '未命名',
         position: profile.role === 'admin' ? '管理员' : '员工',
-        contact: profile.email || '',
+        contact: profile.phone || '未填写',
         hire_date: profile.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
         is_active: true,
         created_at: profile.created_at,
@@ -352,7 +352,7 @@ export default function Employees() {
               <TableRow>
                 <TableHead>姓名</TableHead>
                 <TableHead>职位</TableHead>
-                <TableHead>联系方式</TableHead>
+                <TableHead>手机号码</TableHead>
                 <TableHead>入职日期</TableHead>
                 <TableHead>角色</TableHead>
                 <TableHead>状态</TableHead>
