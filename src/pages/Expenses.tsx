@@ -257,7 +257,7 @@ export default function Expenses() {
                     ¥{Number(expense.amount).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {expense.notes || '-'}
+                    {expense.description || '-'}
                   </TableCell>
                 </TableRow>
               ))}
