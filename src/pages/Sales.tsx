@@ -334,17 +334,23 @@ export default function Sales() {
                       id="has_loan"
                       checked={formData.has_loan}
                       onCheckedChange={(checked) => {
-                        setFormData({ 
+                        console.log('贷款复选框状态变化:', checked);
+                        const newFormData = { 
                           ...formData, 
                           has_loan: !!checked,
                           loan_rebate: checked ? formData.loan_rebate : 0
-                        });
+                        };
+                        console.log('新的表单数据:', newFormData);
+                        setFormData(newFormData);
                       }}
                     />
                     <Label htmlFor="has_loan" className="cursor-pointer text-blue-900 font-medium">
                       有贷款返利
                     </Label>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    当前状态: {formData.has_loan ? '已勾选' : '未勾选'}
+                  </p>
                 </div>
 
                 {formData.has_loan && (
