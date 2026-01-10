@@ -26,6 +26,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -50,6 +51,7 @@ export default function Layout({ children }: LayoutProps) {
   const { user, profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -63,6 +65,11 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  // 关闭移动端菜单
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
 
   return (
     <div className="flex min-h-screen w-full">
@@ -148,7 +155,7 @@ export default function Layout({ children }: LayoutProps) {
         {/* 顶部导航栏 */}
         <header className="flex h-16 items-center gap-4 border-b bg-background px-4 lg:px-6">
           {/* 移动端菜单按钮 */}
-          <Sheet>
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden">
                 <Menu className="h-5 w-5" />
@@ -157,7 +164,7 @@ export default function Layout({ children }: LayoutProps) {
             <SheetContent side="left" className="w-64 p-0">
               <div className="flex h-full flex-col">
                 <div className="flex h-16 items-center border-b px-6">
-                  <Link to="/" className="flex items-center gap-2 font-semibold">
+                  <Link to="/" className="flex items-center gap-2 font-semibold" onClick={closeMobileMenu}>
                     <Car className="h-6 w-6 text-primary" />
                     <span className="text-lg">车行管理</span>
                   </Link>
@@ -171,6 +178,7 @@ export default function Layout({ children }: LayoutProps) {
                         <Link
                           key={item.path}
                           to={item.path}
+                          onClick={closeMobileMenu}
                           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                             active
                               ? 'bg-accent text-accent-foreground'
@@ -188,6 +196,7 @@ export default function Layout({ children }: LayoutProps) {
                         <div className="my-4 border-t" />
                         <Link
                           to="/admin"
+                          onClick={closeMobileMenu}
                           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                             isActive('/admin')
                               ? 'bg-accent text-accent-foreground'
@@ -211,6 +220,7 @@ export default function Layout({ children }: LayoutProps) {
                         <Link
                           key={item.path}
                           to={item.path}
+                          onClick={closeMobileMenu}
                           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
                             active
                               ? 'bg-accent text-accent-foreground'
