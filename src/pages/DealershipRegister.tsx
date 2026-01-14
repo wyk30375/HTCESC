@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,12 +12,16 @@ import { supabase } from '@/db/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Car, Building2, UserPlus, AlertCircle, Home, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
+import type { Dealership } from '@/types/types';
 
 export default function DealershipRegister() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, profile, dealership, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
+  const [targetDealership, setTargetDealership] = useState<Dealership | null>(null);
+  const [loadingDealership, setLoadingDealership] = useState(false);
 
   // 如果用户已登录，显示提示
   const isLoggedIn = !!user;
@@ -45,6 +49,48 @@ export default function DealershipRegister() {
     confirmPassword: '',
     phone: '',
   });
+
+  // 从 URL 参数中读取车行代码并查询车行信息
+  useEffect(() => {
+    const dealershipCode = searchParams.get('dealership');
+    if (dealershipCode) {
+      // 自动切换到"加入车行"标签
+      setActiveTab('join');
+      
+      // 填充车行代码到表单
+      setJoinForm(prev => ({ ...prev, dealershipCode }));
+      
+      // 查询车行信息
+      const fetchDealership = async () => {
+        try {
+          setLoadingDealership(true);
+          const { data, error } = await supabase
+            .from('dealerships')
+            .select('*')
+            .eq('code', dealershipCode)
+            .eq('status', 'active')
+            .single();
+          
+          if (error) {
+            console.error('查询车行失败:', error);
+            toast.error('车行代码不存在或已停用');
+            return;
+          }
+          
+          if (data) {
+            setTargetDealership(data);
+            console.log('找到目标车行:', data.name);
+          }
+        } catch (error) {
+          console.error('查询车行失败:', error);
+        } finally {
+          setLoadingDealership(false);
+        }
+      };
+      
+      fetchDealership();
+    }
+  }, [searchParams]);
 
   // 创建新车行并注册为管理员
   const handleCreateDealership = async (e: React.FormEvent) => {
@@ -282,7 +328,13 @@ export default function DealershipRegister() {
           <div className="text-center space-y-2">
             <CardTitle className="text-2xl sm:text-3xl">易驰汽车销售管理平台</CardTitle>
             <CardDescription className="text-sm sm:text-base">
-              创建新车行或加入现有车行开始使用
+              {targetDealership ? (
+                <span className="font-medium text-foreground">
+                  加入车行：{targetDealership.name}
+                </span>
+              ) : (
+                '创建新车行或加入现有车行开始使用'
+              )}
             </CardDescription>
           </div>
         </CardHeader>
@@ -523,6 +575,28 @@ export default function DealershipRegister() {
                 <div className="space-y-4 p-4 bg-muted/50 rounded-lg">
                   <h3 className="font-semibold text-sm text-muted-foreground">车行信息</h3>
                   
+                  {/* 显示目标车行信息 */}
+                  {targetDealership && (
+                    <Alert className="border-primary/50 bg-primary/5">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <AlertDescription>
+                        <div className="space-y-1">
+                          <p className="font-medium text-foreground">
+                            {targetDealership.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            车行代码：{targetDealership.code}
+                          </p>
+                          {targetDealership.contact_person && (
+                            <p className="text-xs text-muted-foreground">
+                              联系人：{targetDealership.contact_person}
+                            </p>
+                          )}
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="space-y-2">
                     <Label htmlFor="join-dealershipCode" className="text-sm sm:text-base">
                       车行代码 *
@@ -532,12 +606,14 @@ export default function DealershipRegister() {
                       placeholder="请输入车行代码"
                       value={joinForm.dealershipCode}
                       onChange={(e) => setJoinForm({ ...joinForm, dealershipCode: e.target.value })}
-                      disabled={loading}
+                      disabled={loading || loadingDealership || !!targetDealership}
                       className="h-11 sm:h-10"
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      请向车行管理员获取车行代码
+                      {targetDealership 
+                        ? '车行代码已自动填充' 
+                        : '请向车行管理员获取车行代码或扫描二维码'}
                     </p>
                   </div>
                 </div>
