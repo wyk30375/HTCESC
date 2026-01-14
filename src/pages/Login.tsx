@@ -137,19 +137,19 @@ export default function Login() {
           </div>
           <div className="text-white">
             <h1 className="text-xl font-bold">易驰汽车</h1>
-            <p className="text-sm text-white/80">二手车交易平台</p>
+            <p className="text-sm text-white/80">二手车车行经营销售管理</p>
           </div>
         </div>
 
         <div className="space-y-8">
           <div>
             <h2 className="text-4xl font-bold text-white mb-4">
-              专业的车行管理
+              专业的车行
               <br />
-              解决方案
+              经营销售管理系统
             </h2>
             <p className="text-lg text-white/90">
-              让二手车交易更简单、更透明、更高效
+              让车行管理更简单、更高效、更智能
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function Login() {
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1">高效便捷</h3>
-                <p className="text-sm text-white/80">一站式管理，提升运营效率</p>
+                <p className="text-sm text-white/80">车辆、员工、销售一站式管理</p>
               </div>
             </div>
 
@@ -180,14 +180,14 @@ export default function Login() {
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-1">数据分析</h3>
-                <p className="text-sm text-white/80">实时统计，助力科学决策</p>
+                <p className="text-sm text-white/80">销售统计、利润分析、业绩追踪</p>
               </div>
             </div>
           </div>
         </div>
 
         <div className="text-white/60 text-sm">
-          © 2026 易驰汽车平台. All rights reserved.
+          © 2026 易驰汽车车行管理系统. All rights reserved.
         </div>
       </div>
 
