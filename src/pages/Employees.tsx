@@ -480,16 +480,17 @@ export default function Employees() {
         <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
+                  size="sm"
+                  className="h-9 w-9 p-0 hover:bg-accent"
                   onClick={() => setQrDialogOpen(false)}
+                  aria-label="返回"
                 >
-                  <ArrowLeft className="h-4 w-4" />
+                  <ArrowLeft className="h-5 w-5" />
                 </Button>
-                <DialogTitle>员工注册二维码</DialogTitle>
+                <DialogTitle className="text-xl">员工注册二维码</DialogTitle>
               </div>
             </DialogHeader>
             <div className="space-y-4">
