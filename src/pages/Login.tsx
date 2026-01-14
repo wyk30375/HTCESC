@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Car, KeyRound } from 'lucide-react';
+import { Car, KeyRound, Shield, Zap, TrendingUp } from 'lucide-react';
 import { supabase } from '@/db/supabase';
 
 export default function Login() {
@@ -128,21 +128,84 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-primary/5 via-background to-accent/5">
-      <Card className="w-full max-w-md mx-4">
-        <CardHeader className="space-y-4">
-          <div className="flex items-center justify-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary">
-              <Car className="h-8 w-8 text-primary-foreground" />
+    <div className="flex min-h-screen w-full">
+      {/* 左侧：品牌展示区 */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+            <Car className="h-6 w-6 text-white" />
+          </div>
+          <div className="text-white">
+            <h1 className="text-xl font-bold">易驰汽车</h1>
+            <p className="text-sm text-white/80">二手车交易平台</p>
+          </div>
+        </div>
+
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-4xl font-bold text-white mb-4">
+              专业的车行管理
+              <br />
+              解决方案
+            </h2>
+            <p className="text-lg text-white/90">
+              让二手车交易更简单、更透明、更高效
+            </p>
+          </div>
+
+          <div className="grid gap-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shrink-0">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">安全可靠</h3>
+                <p className="text-sm text-white/80">数据加密存储，权限严格管控</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shrink-0">
+                <Zap className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">高效便捷</h3>
+                <p className="text-sm text-white/80">一站式管理，提升运营效率</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm shrink-0">
+                <TrendingUp className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">数据分析</h3>
+                <p className="text-sm text-white/80">实时统计，助力科学决策</p>
+              </div>
             </div>
           </div>
-          <div className="text-center">
-            <CardTitle className="text-2xl">二手车销售管理系统</CardTitle>
-            <CardDescription className="mt-2">
-              专业的车行管理解决方案
+        </div>
+
+        <div className="text-white/60 text-sm">
+          © 2026 易驰汽车平台. All rights reserved.
+        </div>
+      </div>
+
+      {/* 右侧：登录表单区 */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-background">
+        <Card className="w-full max-w-md border-0 shadow-none">
+          <CardHeader className="space-y-2 pb-6">
+            {/* 移动端 Logo */}
+            <div className="flex lg:hidden items-center justify-center mb-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
+                <Car className="h-6 w-6 text-primary-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl text-center lg:text-left">欢迎回来</CardTitle>
+            <CardDescription className="text-center lg:text-left">
+              登录您的账号以继续使用系统
             </CardDescription>
-          </div>
-        </CardHeader>
+          </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -236,31 +299,41 @@ export default function Login() {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
 
-      {/* 底部按钮组 */}
-      <div className="flex flex-col gap-3 mt-4">
-        <Button
-          variant="default"
-          size="lg"
-          className="w-full"
-          onClick={() => navigate('/register')}
-        >
-          <Car className="h-5 w-5 mr-2" />
-          访问平台主页 - 浏览在售车辆
-        </Button>
-        
-        <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary"
-            >
-              <KeyRound className="h-4 w-4 mr-2" />
-              管理员密码重置
-            </Button>
-          </DialogTrigger>
+        {/* 底部按钮组 */}
+        <div className="px-6 pb-6">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                或者
+              </span>
+            </div>
+          </div>
+          
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full mb-2"
+            onClick={() => navigate('/register')}
+          >
+            <Car className="h-5 w-5 mr-2" />
+            访问平台主页
+          </Button>
+          
+          <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full text-muted-foreground hover:text-primary"
+              >
+                <KeyRound className="h-4 w-4 mr-2" />
+                管理员密码重置
+              </Button>
+            </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>管理员密码重置</DialogTitle>
@@ -323,6 +396,8 @@ export default function Login() {
           </form>
         </DialogContent>
       </Dialog>
+        </div>
+      </Card>
       </div>
     </div>
   );
