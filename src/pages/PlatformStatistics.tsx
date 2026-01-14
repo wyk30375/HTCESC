@@ -66,7 +66,7 @@ export default function PlatformStatistics() {
 
       // 查询销售总数和总金额
       const { data: salesData, error: salesError } = await supabase
-        .from('sales')
+        .from('vehicle_sales')
         .select('sale_price, total_profit');
 
       if (salesError) throw salesError;
@@ -87,7 +87,7 @@ export default function PlatformStatistics() {
 
         // 查询该车行的销售数据
         const { data: dealershipSales } = await supabase
-          .from('sales')
+          .from('vehicle_sales')
           .select('sale_price, total_profit')
           .eq('dealership_id', dealership.id);
 
