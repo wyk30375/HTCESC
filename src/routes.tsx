@@ -16,6 +16,7 @@ export const Profits = lazy(() => import('@/pages/Profits'));
 export const ProfitRules = lazy(() => import('@/pages/ProfitRules'));
 export const Statistics = lazy(() => import('@/pages/Statistics'));
 export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
+export const UserDebug = lazy(() => import('@/pages/UserDebug'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
 export const Login = lazy(() => import('@/pages/Login'));
@@ -66,6 +67,11 @@ export const routes: RouteConfig[] = [
     path: '/admin',
     component: AdminUsers,
     title: '用户管理',
+  },
+  {
+    path: '/user-debug',
+    component: UserDebug,
+    title: '用户调试',
   },
   {
     path: '/customer-view',
