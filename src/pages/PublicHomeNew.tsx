@@ -346,7 +346,7 @@ export default function PublicHomeNew() {
             </div>
             <div>
               <span className="text-xl font-bold">易驰汽车</span>
-              <p className="text-xs text-muted-foreground">二手车交易平台</p>
+              <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
             </div>
           </div>
           
@@ -695,14 +695,14 @@ export default function PublicHomeNew() {
           <div className="max-w-3xl mx-auto text-center space-y-6">
             <Badge variant="secondary" className="mb-4">
               <Zap className="h-3 w-3 mr-1" />
-              专业二手车交易平台
+              专业二手车经营管理平台
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
               优质二手车
-              <span className="block text-primary mt-2">一站式交易平台</span>
+              <span className="block text-primary mt-2">一站式经营管理平台</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              汇聚多家优质车行，精选在售车辆，为您提供安全、便捷、透明的二手车交易服务
+              汇聚多家优质车行，精选在售车辆，为您提供安全、便捷、透明的二手车经营管理服务
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
               <Dialog open={registerDialogOpen} onOpenChange={(open) => {
@@ -1023,7 +1023,7 @@ export default function PublicHomeNew() {
                 <span className="text-xl font-bold">易驰汽车</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                专业的二手车交易平台，为车行和客户提供安全、便捷的交易服务。
+                专业的二手车经营管理平台，为车行提供安全、便捷的管理服务。
               </p>
             </div>
             
@@ -1059,7 +1059,7 @@ export default function PublicHomeNew() {
           <Separator className="my-8" />
           
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2026 易驰汽车平台 · 优质二手车交易平台</p>
+            <p>© 2026 易驰汽车平台 · 优质二手车经营管理平台</p>
           </div>
         </div>
       </footer>
