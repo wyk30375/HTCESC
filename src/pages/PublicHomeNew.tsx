@@ -378,14 +378,15 @@ export default function PublicHomeNew() {
                 </Badge>
                 <Button 
                   onClick={() => {
-                    // 如果是车行员工（admin或employee角色），进入管理系统
-                    // 超级管理员进入平台管理后台
-                    // 其他用户进入客户展示页面
+                    // 判断用户角色和权限
                     if (profile?.role === 'super_admin') {
+                      // 超级管理员进入平台管理后台
                       navigate('/platform/dealerships');
-                    } else if (profile?.role === 'admin' || profile?.role === 'employee') {
+                    } else if ((profile?.role === 'admin' || profile?.role === 'employee') && profile?.dealership_id) {
+                      // 车行管理员或员工（且已关联车行）进入管理系统
                       navigate('/');
                     } else {
+                      // 其他用户（包括未关联车行的用户）进入客户展示页面
                       navigate('/customer-view');
                     }
                   }} 
@@ -393,7 +394,7 @@ export default function PublicHomeNew() {
                 >
                   <HomeIcon className="h-4 w-4" />
                   {profile?.role === 'super_admin' ? '平台管理' : 
-                   (profile?.role === 'admin' || profile?.role === 'employee') ? '进入系统' : '查看车辆'}
+                   ((profile?.role === 'admin' || profile?.role === 'employee') && profile?.dealership_id) ? '进入系统' : '查看车辆'}
                 </Button>
               </>
             ) : (
