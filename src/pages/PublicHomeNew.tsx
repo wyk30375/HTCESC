@@ -977,11 +977,42 @@ export default function PublicHomeNew() {
                         {vehicle.condition_description}
                       </p>
                     )}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
-                      <Building2 className="h-3 w-3" />
-                      <span className="line-clamp-1">
-                        {vehicle.dealership?.name || '未知车行'}
-                      </span>
+                    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground pt-2 border-t">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-3 w-3" />
+                        <span className="line-clamp-1">
+                          {vehicle.dealership?.name || '未知车行'}
+                        </span>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs gap-1 shrink-0"
+                        onClick={() => {
+                          if (vehicle.dealership?.contact_phone) {
+                            toast.success(
+                              <div className="space-y-1">
+                                <div className="font-semibold">{vehicle.dealership.name}</div>
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-3 w-3" />
+                                  <span>{vehicle.dealership.contact_phone}</span>
+                                </div>
+                                {vehicle.dealership.contact_person && (
+                                  <div className="text-xs text-muted-foreground">
+                                    联系人：{vehicle.dealership.contact_person}
+                                  </div>
+                                )}
+                              </div>,
+                              { duration: 5000 }
+                            );
+                          } else {
+                            toast.error('暂无联系方式');
+                          }
+                        }}
+                      >
+                        <Phone className="h-3 w-3" />
+                        联系方式
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
