@@ -407,14 +407,6 @@ export default function PublicHomeNew() {
                   <LogIn className="h-4 w-4" />
                   登录
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setQrDialogOpen(true)} 
-                  className="gap-2"
-                >
-                  <QrCode className="h-4 w-4" />
-                  <span className="hidden sm:inline">生成二维码</span>
-                </Button>
                 <Dialog open={registerDialogOpen} onOpenChange={(open) => {
                   setRegisterDialogOpen(open);
                   if (!open) setRegisterStep(1);
@@ -768,6 +760,15 @@ export default function PublicHomeNew() {
               }}>
                 <Car className="h-5 w-5" />
                 浏览在售车辆
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2 text-lg h-12" 
+                onClick={() => setQrDialogOpen(true)}
+              >
+                <QrCode className="h-5 w-5" />
+                生成二维码
               </Button>
             </div>
           </div>
