@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 import { RouteGuard } from './components/common/RouteGuard';
 import { PlatformGuard } from './components/common/PlatformGuard';
+import { DealershipGuard } from './components/common/DealershipGuard';
 import Layout from './components/layouts/Layout';
 import PlatformLayout from './components/layouts/PlatformLayout';
 import { routes, Dealerships, PlatformStatistics, PlatformSettings, PlatformEmployees } from './routes';
@@ -80,27 +81,29 @@ const App = () => {
                     <Route
                       path="/*"
                       element={
-                        <Layout>
-                          <Routes>
-                            {routes
-                              .filter(r => 
-                                r.path !== '/login' && 
-                                r.path !== '/register' && 
-                                r.path !== '/customer-view' &&
-                                r.path !== '/dealerships' // 车行管理页面移到平台后台
-                              )
-                              .map((route) => {
-                                const Component = route.component;
-                                return (
-                                  <Route 
-                                    key={route.path} 
-                                    path={route.path} 
-                                    element={<Component />} 
-                                  />
-                                );
-                              })}
-                          </Routes>
-                        </Layout>
+                        <DealershipGuard>
+                          <Layout>
+                            <Routes>
+                              {routes
+                                .filter(r => 
+                                  r.path !== '/login' && 
+                                  r.path !== '/register' && 
+                                  r.path !== '/customer-view' &&
+                                  r.path !== '/dealerships' // 车行管理页面移到平台后台
+                                )
+                                .map((route) => {
+                                  const Component = route.component;
+                                  return (
+                                    <Route 
+                                      key={route.path} 
+                                      path={route.path} 
+                                      element={<Component />} 
+                                    />
+                                  );
+                                })}
+                            </Routes>
+                          </Layout>
+                        </DealershipGuard>
                       }
                     />
                   </Routes>
