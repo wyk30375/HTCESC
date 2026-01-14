@@ -18,6 +18,8 @@ export const Statistics = lazy(() => import('@/pages/Statistics'));
 export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 export const UserDebug = lazy(() => import('@/pages/UserDebug'));
 export const Dealerships = lazy(() => import('@/pages/Dealerships'));
+export const PlatformStatistics = lazy(() => import('@/pages/PlatformStatistics'));
+export const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'));
 export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));

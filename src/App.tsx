@@ -8,7 +8,8 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 import { RouteGuard } from './components/common/RouteGuard';
 import Layout from './components/layouts/Layout';
-import { routes } from './routes';
+import PlatformLayout from './components/layouts/PlatformLayout';
+import { routes, Dealerships, PlatformStatistics, PlatformSettings } from './routes';
 import { Skeleton } from './components/ui/skeleton';
 
 const queryClient = new QueryClient({
@@ -61,14 +62,27 @@ const App = () => {
                       <Route path="/customer-view" element={<CustomerViewComponent />} />
                     )}
                     
-                    {/* 其他页面使用布局 */}
+                    {/* 平台管理后台（超级管理员专用） */}
+                    <Route path="/platform" element={<PlatformLayout />}>
+                      <Route path="dealerships" element={<Dealerships />} />
+                      <Route path="statistics" element={<PlatformStatistics />} />
+                      <Route path="settings" element={<PlatformSettings />} />
+                      <Route index element={<Navigate to="/platform/dealerships" replace />} />
+                    </Route>
+                    
+                    {/* 车行管理系统（车行管理员/员工） */}
                     <Route
                       path="/*"
                       element={
                         <Layout>
                           <Routes>
                             {routes
-                              .filter(r => r.path !== '/login' && r.path !== '/register' && r.path !== '/customer-view')
+                              .filter(r => 
+                                r.path !== '/login' && 
+                                r.path !== '/register' && 
+                                r.path !== '/customer-view' &&
+                                r.path !== '/dealerships' // 车行管理页面移到平台后台
+                              )
                               .map((route) => {
                                 const Component = route.component;
                                 return (

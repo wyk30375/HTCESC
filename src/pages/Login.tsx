@@ -69,11 +69,29 @@ export default function Login() {
     setLoading(true);
     try {
       await signIn(username, password);
-      toast.success('登录成功');
-      navigate(from, { replace: true });
+      
+      // 登录成功后，获取用户信息并根据角色跳转
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profileData?.role === 'super_admin') {
+          // 超级管理员跳转到平台管理后台
+          toast.success('欢迎回来，超级管理员');
+          navigate('/platform/dealerships', { replace: true });
+        } else {
+          // 车行管理员/员工跳转到车行管理系统
+          toast.success('登录成功');
+          navigate(from, { replace: true });
+        }
+      }
     } catch (error) {
       console.error('登录失败:', error);
-      toast.error('登录失败，请检查用户名和密码');
+      toast.error(error instanceof Error ? error.message : '登录失败，请检查用户名和密码');
     } finally {
       setLoading(false);
     }

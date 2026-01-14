@@ -130,20 +130,6 @@ export default function Layout({ children }: LayoutProps) {
                     <UserCog className="h-4 w-4" />
                     用户管理
                   </Link>
-                  
-                  {profile?.role === 'super_admin' && (
-                    <Link
-                      to="/dealerships"
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                        isActive('/dealerships')
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                      }`}
-                    >
-                      <Building2 className="h-4 w-4" />
-                      车行管理
-                    </Link>
-                  )}
                 </>
               )}
 
