@@ -19,6 +19,8 @@ interface PlatformEmployee {
   role: string;
   status: 'active' | 'inactive';
   created_at: string;
+  dealership_id?: string;
+  dealership_name?: string;
 }
 
 export default function PlatformEmployees() {
@@ -32,7 +34,7 @@ export default function PlatformEmployees() {
     email: '',
     phone: '',
     password: '',
-    role: 'platform_operator',
+    role: 'super_admin',
   });
 
   useEffect(() => {
@@ -42,19 +44,39 @@ export default function PlatformEmployees() {
   const loadEmployees = async () => {
     try {
       setLoading(true);
-      // 查询所有平台员工（super_admin 和 platform_operator）
+      // 查询所有平台员工（super_admin）
+      // 注意：super_admin 可能有 dealership_id（如吴韩属于易驰汽车）
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, email, phone, role, created_at')
-        .in('role', ['super_admin', 'platform_operator'])
-        .is('dealership_id', null)
+        .select(`
+          id, 
+          username, 
+          email, 
+          phone, 
+          role, 
+          status,
+          created_at,
+          dealership_id,
+          dealership:dealerships!profiles_dealership_id_fkey(name)
+        `)
+        .eq('role', 'super_admin')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      setEmployees(data?.map(item => ({
-        ...item,
-        status: 'active' as const,
+      console.log('📊 平台员工列表数据:', data);
+      console.log('📊 平台员工数量:', data?.length || 0);
+
+      setEmployees(data?.map((item: any) => ({
+        id: item.id,
+        username: item.username,
+        email: item.email,
+        phone: item.phone,
+        role: item.role,
+        status: item.status || 'active',
+        created_at: item.created_at,
+        dealership_id: item.dealership_id,
+        dealership_name: item.dealership?.name,
       })) || []);
     } catch (error) {
       console.error('加载员工列表失败:', error);
@@ -284,7 +306,6 @@ export default function PlatformEmployees() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="super_admin">超级管理员</SelectItem>
-                    <SelectItem value="platform_operator">平台运营</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -323,6 +344,7 @@ export default function PlatformEmployees() {
                   <TableHead>邮箱</TableHead>
                   <TableHead>手机号</TableHead>
                   <TableHead>角色</TableHead>
+                  <TableHead>所属车行</TableHead>
                   <TableHead>创建时间</TableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
@@ -337,6 +359,13 @@ export default function PlatformEmployees() {
                       <Badge variant={getRoleBadgeVariant(employee.role)}>
                         {getRoleName(employee.role)}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {employee.dealership_name ? (
+                        <span className="text-sm">{employee.dealership_name}</span>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">平台直属</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {new Date(employee.created_at).toLocaleDateString('zh-CN')}
