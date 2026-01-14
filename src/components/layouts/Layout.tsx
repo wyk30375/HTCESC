@@ -268,7 +268,11 @@ export default function Layout({ children }: LayoutProps) {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium">{profile.username}</p>
                     <p className="text-xs text-muted-foreground">
-                      {profile.role === 'admin' ? '管理员' : '员工'}
+                      {profile.role === 'super_admin' 
+                        ? '平台超级管理员' 
+                        : profile.role === 'admin' 
+                        ? '车行管理员' 
+                        : '员工'}
                     </p>
                   </div>
                 </DropdownMenuLabel>
