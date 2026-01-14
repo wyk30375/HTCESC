@@ -732,82 +732,49 @@ export default function PublicHomeNew() {
         <div className="container px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">如何注册使用</h2>
-            <p className="text-muted-foreground">三步完成注册，开启您的线上展厅</p>
+            <p className="text-muted-foreground">简单三步，快速开启车行管理</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Card className="text-center">
               <CardHeader>
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                  <FileText className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
+                  <FileText className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle>1. 准备资料</CardTitle>
+                <CardTitle className="text-xl">提交资料</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>营业执照扫描件</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>车行基本信息（名称、地址、联系方式）</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>管理员手机号和登录密码</span>
-                  </li>
-                </ul>
+                <p className="text-sm text-muted-foreground">
+                  填写车行信息，上传营业执照
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="relative">
+            <Card className="text-center">
               <CardHeader>
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                  <Upload className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
+                  <Upload className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle>2. 提交审核</CardTitle>
+                <CardTitle className="text-xl">等待审核</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>填写车行注册表单</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>上传营业执照照片</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>阅读并同意服务协议</span>
-                  </li>
-                </ul>
+                <p className="text-sm text-muted-foreground">
+                  平台审核资质，1-2个工作日
+                </p>
               </CardContent>
             </Card>
 
-            <Card className="relative">
+            <Card className="text-center">
               <CardHeader>
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                  <CheckCircle2 className="h-6 w-6 text-primary" />
+                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
+                  <CheckCircle2 className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle>3. 开始使用</CardTitle>
+                <CardTitle className="text-xl">开始使用</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>等待平台审核（1-2个工作日）</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>审核通过后登录系统</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>开始发布和管理车辆信息</span>
-                  </li>
-                </ul>
+                <p className="text-sm text-muted-foreground">
+                  审核通过后即可登录管理系统
+                </p>
               </CardContent>
             </Card>
           </div>
