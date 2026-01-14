@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Building2, TrendingUp, Users, DollarSign, Car, ShoppingCart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, TrendingUp, Users, DollarSign, Car, ShoppingCart, TrendingDown, Minus } from 'lucide-react';
 import { supabase } from '@/db/supabase';
 import { toast } from 'sonner';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ComposedChart } from 'recharts';
 
 interface DealershipStats {
   id: string;
@@ -17,8 +19,20 @@ interface DealershipStats {
   total_profit: number;
 }
 
+interface MonthlyTrend {
+  month: string;
+  sales_count: number;
+  sales_amount: number;
+  profit: number;
+}
+
+type TimeRange = '3' | '6' | '12';
+
 export default function PlatformStatistics() {
   const [loading, setLoading] = useState(true);
+  const [trendLoading, setTrendLoading] = useState(false);
+  const [timeRange, setTimeRange] = useState<TimeRange>('6');
+  const [monthlyTrend, setMonthlyTrend] = useState<MonthlyTrend[]>([]);
   const [stats, setStats] = useState({
     totalDealerships: 0,
     activeDealerships: 0,
@@ -33,7 +47,12 @@ export default function PlatformStatistics() {
 
   useEffect(() => {
     loadStatistics();
+    loadSalesTrend();
   }, []);
+
+  useEffect(() => {
+    loadSalesTrend();
+  }, [timeRange]);
 
   const loadStatistics = async () => {
     try {
@@ -130,8 +149,100 @@ export default function PlatformStatistics() {
     }
   };
 
+  const loadSalesTrend = async () => {
+    try {
+      setTrendLoading(true);
+
+      // 计算开始日期（N个月前）
+      const monthsAgo = parseInt(timeRange);
+      const startDate = new Date();
+      startDate.setMonth(startDate.getMonth() - monthsAgo);
+      startDate.setDate(1); // 设置为月初
+      startDate.setHours(0, 0, 0, 0);
+
+      // 查询销售数据
+      const { data: salesData, error } = await supabase
+        .from('vehicle_sales')
+        .select('sale_date, sale_price, total_profit')
+        .gte('sale_date', startDate.toISOString())
+        .order('sale_date', { ascending: true });
+
+      if (error) throw error;
+
+      // 按月份分组统计
+      const monthlyData: { [key: string]: MonthlyTrend } = {};
+      
+      // 初始化所有月份
+      for (let i = 0; i < monthsAgo; i++) {
+        const date = new Date();
+        date.setMonth(date.getMonth() - (monthsAgo - 1 - i));
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthLabel = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+        
+        monthlyData[monthKey] = {
+          month: monthLabel,
+          sales_count: 0,
+          sales_amount: 0,
+          profit: 0,
+        };
+      }
+
+      // 统计销售数据
+      salesData?.forEach((sale) => {
+        const saleDate = new Date(sale.sale_date);
+        const monthKey = `${saleDate.getFullYear()}-${String(saleDate.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (monthlyData[monthKey]) {
+          monthlyData[monthKey].sales_count += 1;
+          monthlyData[monthKey].sales_amount += sale.sale_price || 0;
+          monthlyData[monthKey].profit += sale.total_profit || 0;
+        }
+      });
+
+      // 转换为数组并排序
+      const trendData = Object.values(monthlyData).sort((a, b) => {
+        const monthA = a.month.replace(/年|月/g, '-').replace(/-$/, '');
+        const monthB = b.month.replace(/年|月/g, '-').replace(/-$/, '');
+        return monthA.localeCompare(monthB);
+      });
+
+      setMonthlyTrend(trendData);
+    } catch (error) {
+      console.error('加载销售趋势失败:', error);
+      toast.error('加载销售趋势失败');
+    } finally {
+      setTrendLoading(false);
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return `¥${amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const calculateGrowthRate = () => {
+    if (monthlyTrend.length < 2) return null;
+    
+    const lastMonth = monthlyTrend[monthlyTrend.length - 1];
+    const previousMonth = monthlyTrend[monthlyTrend.length - 2];
+    
+    if (previousMonth.sales_amount === 0) return null;
+    
+    const rate = ((lastMonth.sales_amount - previousMonth.sales_amount) / previousMonth.sales_amount) * 100;
+    return rate;
+  };
+
+  const getGrowthIcon = (rate: number | null) => {
+    if (rate === null) return <Minus className="h-4 w-4" />;
+    if (rate > 0) return <TrendingUp className="h-4 w-4 text-green-600" />;
+    if (rate < 0) return <TrendingDown className="h-4 w-4 text-red-600" />;
+    return <Minus className="h-4 w-4" />;
+  };
+
+  const getGrowthColor = (rate: number | null) => {
+    if (rate === null) return 'text-muted-foreground';
+    if (rate > 0) return 'text-green-600';
+    if (rate < 0) return 'text-red-600';
+    return 'text-muted-foreground';
   };
 
   const getStatusBadge = (status: string) => {
@@ -273,17 +384,204 @@ export default function PlatformStatistics() {
         </CardContent>
       </Card>
 
-      {/* 销售趋势（占位符） */}
+      {/* 平台销售趋势 */}
       <Card>
         <CardHeader>
-          <CardTitle>平台销售趋势</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>平台销售趋势</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                variant={timeRange === '3' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('3')}
+              >
+                最近3个月
+              </Button>
+              <Button
+                variant={timeRange === '6' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('6')}
+              >
+                最近6个月
+              </Button>
+              <Button
+                variant={timeRange === '12' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimeRange('12')}
+              >
+                最近12个月
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-12 text-muted-foreground">
-            <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>销售趋势图表功能开发中...</p>
-            <p className="text-sm mt-2">将展示月度销售趋势、同比增长等数据</p>
-          </div>
+          {trendLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-muted-foreground">加载中...</div>
+            </div>
+          ) : monthlyTrend.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>暂无销售数据</p>
+              <p className="text-sm mt-2">当前时间范围内没有销售记录</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* 趋势汇总 */}
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">总销售额</p>
+                  <p className="text-2xl font-bold">
+                    {formatCurrency(monthlyTrend.reduce((sum, m) => sum + m.sales_amount, 0))}
+                  </p>
+                  <div className="flex items-center gap-1 text-sm">
+                    {getGrowthIcon(calculateGrowthRate())}
+                    <span className={getGrowthColor(calculateGrowthRate())}>
+                      {calculateGrowthRate() !== null
+                        ? `${calculateGrowthRate()! > 0 ? '+' : ''}${calculateGrowthRate()!.toFixed(1)}%`
+                        : '无数据'}
+                    </span>
+                    <span className="text-muted-foreground">环比上月</span>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">总销售数</p>
+                  <p className="text-2xl font-bold">
+                    {monthlyTrend.reduce((sum, m) => sum + m.sales_count, 0)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    平均 {(monthlyTrend.reduce((sum, m) => sum + m.sales_count, 0) / monthlyTrend.length).toFixed(1)} 辆/月
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">总利润</p>
+                  <p className="text-2xl font-bold text-green-600">
+                    {formatCurrency(monthlyTrend.reduce((sum, m) => sum + m.profit, 0))}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    利润率 {monthlyTrend.reduce((sum, m) => sum + m.sales_amount, 0) > 0
+                      ? ((monthlyTrend.reduce((sum, m) => sum + m.profit, 0) / monthlyTrend.reduce((sum, m) => sum + m.sales_amount, 0)) * 100).toFixed(1)
+                      : '0.0'}%
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">平均单价</p>
+                  <p className="text-2xl font-bold">
+                    {monthlyTrend.reduce((sum, m) => sum + m.sales_count, 0) > 0
+                      ? formatCurrency(monthlyTrend.reduce((sum, m) => sum + m.sales_amount, 0) / monthlyTrend.reduce((sum, m) => sum + m.sales_count, 0))
+                      : formatCurrency(0)}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    每辆车平均售价
+                  </p>
+                </div>
+              </div>
+
+              {/* 趋势图表 */}
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart data={monthlyTrend}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="month" 
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis 
+                      yAxisId="left"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `¥${(value / 10000).toFixed(0)}万`}
+                    />
+                    <YAxis 
+                      yAxisId="right"
+                      orientation="right"
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--popover))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px',
+                      }}
+                      formatter={(value: number, name: string) => {
+                        if (name === '销售额' || name === '利润') {
+                          return [formatCurrency(value), name];
+                        }
+                        return [value, name];
+                      }}
+                    />
+                    <Legend />
+                    <Bar 
+                      yAxisId="right"
+                      dataKey="sales_count" 
+                      name="销售数" 
+                      fill="hsl(var(--primary))"
+                      opacity={0.8}
+                    />
+                    <Line 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="sales_amount" 
+                      name="销售额" 
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-1))' }}
+                    />
+                    <Line 
+                      yAxisId="left"
+                      type="monotone" 
+                      dataKey="profit" 
+                      name="利润" 
+                      stroke="hsl(var(--chart-2))"
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--chart-2))' }}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* 月度数据表格 */}
+              <div>
+                <h3 className="text-sm font-medium mb-3">月度详细数据</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>月份</TableHead>
+                      <TableHead className="text-right">销售数</TableHead>
+                      <TableHead className="text-right">销售额</TableHead>
+                      <TableHead className="text-right">利润</TableHead>
+                      <TableHead className="text-right">平均单价</TableHead>
+                      <TableHead className="text-right">利润率</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {monthlyTrend.map((month) => (
+                      <TableRow key={month.month}>
+                        <TableCell className="font-medium">{month.month}</TableCell>
+                        <TableCell className="text-right">{month.sales_count}</TableCell>
+                        <TableCell className="text-right">{formatCurrency(month.sales_amount)}</TableCell>
+                        <TableCell className="text-right text-green-600">
+                          {formatCurrency(month.profit)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {month.sales_count > 0
+                            ? formatCurrency(month.sales_amount / month.sales_count)
+                            : formatCurrency(0)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {month.sales_amount > 0
+                            ? `${((month.profit / month.sales_amount) * 100).toFixed(1)}%`
+                            : '0.0%'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
