@@ -376,9 +376,24 @@ export default function PublicHomeNew() {
                   <Building2 className="h-3 w-3" />
                   {dealership?.name || '未知车行'}
                 </Badge>
-                <Button onClick={() => navigate('/')} className="gap-2">
+                <Button 
+                  onClick={() => {
+                    // 如果是车行员工（admin或employee角色），进入管理系统
+                    // 超级管理员进入平台管理后台
+                    // 其他用户进入客户展示页面
+                    if (profile?.role === 'super_admin') {
+                      navigate('/platform/dealerships');
+                    } else if (profile?.role === 'admin' || profile?.role === 'employee') {
+                      navigate('/');
+                    } else {
+                      navigate('/customer-view');
+                    }
+                  }} 
+                  className="gap-2"
+                >
                   <HomeIcon className="h-4 w-4" />
-                  进入系统
+                  {profile?.role === 'super_admin' ? '平台管理' : 
+                   (profile?.role === 'admin' || profile?.role === 'employee') ? '进入系统' : '查看车辆'}
                 </Button>
               </>
             ) : (
