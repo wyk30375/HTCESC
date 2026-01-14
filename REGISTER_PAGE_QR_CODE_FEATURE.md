@@ -12,8 +12,9 @@
 - 方便车商分享给其他车商，扩大平台影响力
 
 ### 设计优化
-- **第一版**：将按钮放在顶部导航栏，导致界面拥挤
-- **第二版（最终版）**：将按钮移到页面主要内容区域（Hero Section），与"立即注册车行"和"浏览在售车辆"按钮并列，布局更清爽美观
+- **第一版**：将按钮放在顶部导航栏单行，导致界面拥挤
+- **第二版**：将按钮移到页面主要内容区域（Hero Section），与"立即注册车行"和"浏览在售车辆"按钮并列，布局更清爽美观
+- **第三版（最终版）**：采用两行布局设计，第一行展示品牌logo和"生成二维码"按钮，第二行展示"登录"和"注册车行"按钮，层次清晰，品牌突出
 
 ---
 
@@ -43,51 +44,81 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 二维码对话框
 
 ### 3. 添加"生成二维码"按钮
 
-在页面主要内容区域（Hero Section），与其他主要操作按钮并列：
+采用两行布局设计，将顶部导航栏分为两行：
+
+**第一行**：品牌logo + 生成二维码按钮
 
 ```tsx
-<div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-  {/* 立即注册车行 */}
-  <Dialog open={registerDialogOpen} onOpenChange={(open) => {
-    setRegisterDialogOpen(open);
-    if (!open) setRegisterStep(1);
-  }}>
-    <DialogTrigger asChild>
-      <Button size="lg" className="gap-2 text-lg h-12">
-        <Building2 className="h-5 w-5" />
-        立即注册车行
+{/* 第一行：品牌logo + 生成二维码按钮 */}
+<div className="flex items-center justify-between mb-3">
+  <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+      <Car className="h-6 w-6 text-primary" />
+    </div>
+    <div>
+      <span className="text-xl font-bold">恏淘车</span>
+      <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
+    </div>
+  </div>
+  
+  {!user && (
+    <Button 
+      variant="outline" 
+      onClick={() => setQrDialogOpen(true)} 
+      className="gap-2"
+    >
+      <QrCode className="h-4 w-4" />
+      生成二维码
+    </Button>
+  )}
+</div>
+```
+
+**第二行**：登录 + 注册车行按钮
+
+```tsx
+{/* 第二行：登录和注册按钮 */}
+<div className="flex items-center justify-end gap-3">
+  {user ? (
+    <>
+      <Badge variant="outline" className="gap-1">
+        <Building2 className="h-3 w-3" />
+        {dealership?.name || '未知车行'}
+      </Badge>
+      <Button onClick={() => navigate('/')} className="gap-2">
+        <HomeIcon className="h-4 w-4" />
+        进入系统
       </Button>
-    </DialogTrigger>
-  </Dialog>
-  
-  {/* 浏览在售车辆 */}
-  <Button size="lg" variant="outline" className="gap-2 text-lg h-12" onClick={() => {
-    document.getElementById('vehicles-section')?.scrollIntoView({ behavior: 'smooth' });
-  }}>
-    <Car className="h-5 w-5" />
-    浏览在售车辆
-  </Button>
-  
-  {/* 生成二维码 */}
-  <Button 
-    size="lg" 
-    variant="outline" 
-    className="gap-2 text-lg h-12" 
-    onClick={() => setQrDialogOpen(true)}
-  >
-    <QrCode className="h-5 w-5" />
-    生成二维码
-  </Button>
+    </>
+  ) : (
+    <>
+      <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
+        <LogIn className="h-4 w-4" />
+        登录
+      </Button>
+      <Dialog open={registerDialogOpen} onOpenChange={(open) => {
+        setRegisterDialogOpen(open);
+        if (!open) setRegisterStep(1);
+      }}>
+        <DialogTrigger asChild>
+          <Button className="gap-2">
+            <UserPlus className="h-4 w-4" />
+            注册车行
+          </Button>
+        </DialogTrigger>
+      </Dialog>
+    </>
+  )}
 </div>
 ```
 
 **设计优势**：
-- ✅ 使用 `size="lg"` 大尺寸按钮，与其他主要操作按钮保持一致
-- ✅ 使用 `variant="outline"` 变体，与"浏览在售车辆"按钮风格一致
-- ✅ 使用 `text-lg h-12` 保持统一的视觉风格
-- ✅ 三个按钮并列显示，布局均衡美观
-- ✅ 移动端自动垂直堆叠（`flex-col sm:flex-row`）
-- ✅ 按钮间距统一（`gap-4`）
+- ✅ 两行布局，层次清晰
+- ✅ 第一行突出品牌logo，"生成二维码"按钮在右侧，不干扰品牌展示
+- ✅ 第二行集中展示用户操作按钮（登录、注册）
+- ✅ 只在未登录状态显示"生成二维码"按钮（`{!user && ...}`）
+- ✅ 使用 `mb-3` 分隔两行，视觉舒适
+- ✅ 使用 `py-3` 替代固定高度 `h-16`，适应两行布局
 
 ### 4. 实现二维码对话框
 
@@ -165,7 +196,24 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 二维码对话框
 
 ## 🎨 UI 设计
 
-### 1. 车行注册页面主要内容区域（优化后）
+### 1. 顶部导航栏（最终版 - 两行布局）
+
+```
+┌─────────────────────────────────────────────────┐
+│  🚗 恏淘车                      [📱 生成二维码]  │
+│     二手车经营管理平台                           │
+│                                                  │
+│                              [登录] [➕注册车行]  │
+└─────────────────────────────────────────────────┘
+```
+
+**设计优势**：
+- ✅ 第一行：品牌logo占据主要视觉空间，"生成二维码"按钮在右侧
+- ✅ 第二行：用户操作按钮（登录、注册）右对齐
+- ✅ 两行布局，层次分明，不拥挤
+- ✅ 品牌突出，功能清晰
+
+### 2. 车行注册页面主要内容区域
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -176,35 +224,19 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 二维码对话框
 │  汇聚多家优质车行，精选在售车辆，               │
 │  为您提供安全、便捷、透明的二手车经营管理服务   │
 │                                                  │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────┐│
-│  │🏢 立即注册车行│ │🚗 浏览在售车辆│ │📱 生成二维码││
-│  └──────────────┘ └──────────────┘ └──────────┘│
+│  ┌──────────────┐ ┌──────────────┐             │
+│  │🏢 立即注册车行│ │🚗 浏览在售车辆│             │
+│  └──────────────┘ └──────────────┘             │
 │                                                  │
 └─────────────────────────────────────────────────┘
 ```
 
 **设计优势**：
-- ✅ 三个按钮并列显示，视觉平衡
+- ✅ 两个主要操作按钮并列显示，视觉平衡
 - ✅ 按钮尺寸统一（lg），视觉一致
 - ✅ 主要操作（注册车行）使用 primary 样式突出
-- ✅ 次要操作（浏览车辆、生成二维码）使用 outline 样式
+- ✅ 次要操作（浏览车辆）使用 outline 样式
 - ✅ 移动端自动垂直堆叠，适配小屏幕
-
-### 2. 顶部导航栏（优化后）
-
-```
-┌─────────────────────────────────────────────────┐
-│  🚗 恏淘车                                        │
-│     二手车经营管理平台                           │
-│                                                  │
-│                              [登录] [➕注册车行]  │
-└─────────────────────────────────────────────────┘
-```
-
-**设计优势**：
-- ✅ 只保留两个按钮，布局清爽
-- ✅ 按钮间距合理，不拥挤
-- ✅ 视觉焦点集中在主要操作上
 
 ### 3. 二维码对话框
 

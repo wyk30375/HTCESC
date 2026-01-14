@@ -362,18 +362,33 @@ export default function PublicHomeNew() {
     <div className="min-h-screen bg-background">
       {/* 顶部导航栏 */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <Car className="h-6 w-6 text-primary" />
+        <div className="container px-4 py-3">
+          {/* 第一行：品牌logo + 生成二维码按钮 */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Car className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <span className="text-xl font-bold">恏淘车</span>
+                <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
+              </div>
             </div>
-            <div>
-              <span className="text-xl font-bold">恏淘车</span>
-              <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
-            </div>
+            
+            {!user && (
+              <Button 
+                variant="outline" 
+                onClick={() => setQrDialogOpen(true)} 
+                className="gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                生成二维码
+              </Button>
+            )}
           </div>
           
-          <div className="flex items-center gap-3">
+          {/* 第二行：登录和注册按钮 */}
+          <div className="flex items-center justify-end gap-3">
             {user ? (
               <>
                 <Badge variant="outline" className="gap-1">
@@ -760,15 +775,6 @@ export default function PublicHomeNew() {
               }}>
                 <Car className="h-5 w-5" />
                 浏览在售车辆
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="gap-2 text-lg h-12" 
-                onClick={() => setQrDialogOpen(true)}
-              >
-                <QrCode className="h-5 w-5" />
-                生成二维码
               </Button>
             </div>
           </div>
