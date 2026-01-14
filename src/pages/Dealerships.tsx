@@ -11,12 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dealershipsApi } from '@/db/api';
 import type { Dealership } from '@/types/types';
-import { Building2, Plus, Edit, Power, PowerOff, Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Building2, Plus, Edit, Power, PowerOff, Eye, CheckCircle, XCircle, QrCode, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 
 export default function Dealerships() {
   const { profile } = useAuth();
@@ -25,6 +26,7 @@ export default function Dealerships() {
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对话框
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [editingDealership, setEditingDealership] = useState<Dealership | null>(null);
@@ -243,13 +245,22 @@ export default function Dealerships() {
                 管理平台上的所有车行，审核新车行注册申请
               </CardDescription>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-              <DialogTrigger asChild>
-                <Button className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  创建车行
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setQrDialogOpen(true)} 
+                className="gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                平台二维码
+              </Button>
+              <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
+                <DialogTrigger asChild>
+                  <Button className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    创建车行
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
@@ -353,6 +364,7 @@ export default function Dealerships() {
               </DialogContent>
             </Dialog>
           </div>
+        </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -802,6 +814,56 @@ export default function Dealerships() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 平台二维码对话框 */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              平台注册二维码
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-4 p-6 bg-muted/50 rounded-lg">
+              <QRCodeDataUrl 
+                data={`${window.location.origin}/register`}
+                size={200}
+              />
+              <p className="text-sm text-muted-foreground text-center">
+                扫描二维码或分享链接给车商，方便快速注册车行
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>注册链接</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${window.location.origin}/register`}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/register`);
+                    toast.success('链接已复制到剪贴板');
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => setQrDialogOpen(false)}>
+                关闭
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </PageWrapper>
