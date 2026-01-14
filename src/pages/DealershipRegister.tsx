@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,15 +6,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { dealershipsApi } from '@/db/api';
 import { supabase } from '@/db/supabase';
-import { Car, Building2, UserPlus } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Car, Building2, UserPlus, AlertCircle, Home, LogOut } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DealershipRegister() {
   const navigate = useNavigate();
+  const { user, profile, dealership, signOut } = useAuth();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'create' | 'join'>('create');
+
+  // 如果用户已登录，显示提示
+  const isLoggedIn = !!user;
 
   // 创建新车行的表单
   const [createForm, setCreateForm] = useState({
@@ -281,13 +287,57 @@ export default function DealershipRegister() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* 已登录提示 */}
+          {isLoggedIn && (
+            <Alert className="mb-6 border-primary/50 bg-primary/5">
+              <AlertCircle className="h-4 w-4 text-primary" />
+              <AlertDescription className="flex flex-col gap-3">
+                <div>
+                  <p className="font-medium">您已登录</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    当前账号：{profile?.username} | 车行：{dealership?.name || '未知'}
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="gap-2"
+                  >
+                    <Home className="h-4 w-4" />
+                    返回首页
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                        toast.success('已退出登录');
+                        window.location.reload();
+                      } catch (error) {
+                        console.error('退出登录失败:', error);
+                        toast.error('退出登录失败');
+                      }
+                    }}
+                    className="gap-2"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    退出登录后注册新车行
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'create' | 'join')}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="create" className="gap-2">
+              <TabsTrigger value="create" className="gap-2" disabled={isLoggedIn}>
                 <Car className="h-4 w-4" />
                 创建新车行
               </TabsTrigger>
-              <TabsTrigger value="join" className="gap-2">
+              <TabsTrigger value="join" className="gap-2" disabled={isLoggedIn}>
                 <UserPlus className="h-4 w-4" />
                 加入车行
               </TabsTrigger>
