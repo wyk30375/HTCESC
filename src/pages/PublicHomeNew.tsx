@@ -136,6 +136,21 @@ export default function PublicHomeNew() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 验证文件大小（1MB = 1024 * 1024 bytes）
+    if (file.size > 1024 * 1024) {
+      toast.error('文件大小不能超过 1MB');
+      e.target.value = ''; // 重置input
+      return;
+    }
+
+    // 验证文件类型
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      toast.error('只支持 JPG、PNG、WEBP 格式的图片');
+      e.target.value = ''; // 重置input
+      return;
+    }
+
     try {
       setUploading(true);
       setUploadProgress(0);
@@ -161,6 +176,7 @@ export default function PublicHomeNew() {
     } finally {
       setUploading(false);
       setUploadProgress(0);
+      e.target.value = ''; // 重置input，允许重新上传同一文件
     }
   };
 

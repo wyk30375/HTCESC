@@ -98,15 +98,18 @@ export async function uploadBusinessLicense(
       onProgress?.(20);
     }
 
-    // 生成文件路径
-    const filePath = uploadFile.name;
+    // 生成唯一文件路径
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const fileExt = uploadFile.name.split('.').pop() || 'jpg';
+    const filePath = `business-licenses/${timestamp}-${randomStr}.${fileExt}`;
 
     // 上传到 Supabase Storage
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
       .upload(filePath, uploadFile, {
         cacheControl: '3600',
-        upsert: false,
+        upsert: true, // 允许覆盖同名文件
       });
 
     if (error) {
