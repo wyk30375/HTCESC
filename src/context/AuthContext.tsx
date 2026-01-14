@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, dealership:dealerships(*)')
+        .select('*, dealership:dealerships!profiles_dealership_id_fkey(*)')
         .eq('id', userId)
         .maybeSingle();
 
