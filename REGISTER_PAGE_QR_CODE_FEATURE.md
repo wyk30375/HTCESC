@@ -1,15 +1,15 @@
-# 平台二维码生成功能实现报告
+# 车行注册页面二维码生成功能实现报告
 
 ## 🎯 需求描述
 
-**用户需求**：在平台主页添加平台二维码生成控件，点击生成进入平台二维码，方便车商注册车行。
+**用户需求**：在车行注册主页（/register）上添加平台二维码生成控件，点击生成进入平台二维码，方便车商注册车行。
 
 ### 功能目标
-- 在平台管理后台主页添加"平台二维码"按钮
-- 点击按钮后弹出对话框，显示平台注册页面的二维码
-- 二维码指向车行注册页面（/register）
+- 在公共的车行注册页面（PublicHomeNew）添加"生成二维码"按钮
+- 点击按钮后弹出对话框，显示注册页面的二维码
+- 二维码指向当前注册页面（/register）
 - 提供复制链接功能
-- 方便车商扫码快速注册车行
+- 方便车商分享给其他车商，扩大平台影响力
 
 ---
 
@@ -18,7 +18,11 @@
 ### 1. 添加必要的导入
 
 ```tsx
-import { Building2, Plus, Edit, Power, PowerOff, Eye, CheckCircle, XCircle, QrCode, Copy } from 'lucide-react';
+import { 
+  // ... 其他图标
+  QrCode,
+  Copy
+} from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 ```
 
@@ -30,49 +34,64 @@ import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 ### 2. 添加状态管理
 
 ```tsx
-const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对话框
+const [qrDialogOpen, setQrDialogOpen] = useState(false); // 二维码对话框
 ```
 
-### 3. 添加"平台二维码"按钮
+### 3. 添加"生成二维码"按钮
+
+在页面顶部导航栏，未登录用户可见的按钮区域添加：
 
 ```tsx
-<div className="flex gap-2">
-  <Button 
-    variant="outline" 
-    onClick={() => setQrDialogOpen(true)} 
-    className="gap-2"
-  >
-    <QrCode className="h-4 w-4" />
-    平台二维码
-  </Button>
-  <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-    <DialogTrigger asChild>
-      <Button className="gap-2">
-        <Plus className="h-4 w-4" />
-        创建车行
-      </Button>
-    </DialogTrigger>
-    {/* ... */}
-  </Dialog>
-</div>
+) : (
+  <>
+    <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
+      <LogIn className="h-4 w-4" />
+      登录
+    </Button>
+    <Button 
+      variant="outline" 
+      onClick={() => setQrDialogOpen(true)} 
+      className="gap-2"
+    >
+      <QrCode className="h-4 w-4" />
+      <span className="hidden sm:inline">生成二维码</span>
+    </Button>
+    <Dialog open={registerDialogOpen} onOpenChange={(open) => {
+      setRegisterDialogOpen(open);
+      if (!open) setRegisterStep(1);
+    }}>
+      <DialogTrigger asChild>
+        <Button className="gap-2">
+          <UserPlus className="h-4 w-4" />
+          注册车行
+        </Button>
+      </DialogTrigger>
+      {/* ... */}
+    </Dialog>
+  </>
+)}
 ```
 
 **改进**：
-- ✅ 使用 `outline` 变体，与"创建车行"按钮区分
+- ✅ 使用 `outline` 变体，与"注册车行"按钮区分
 - ✅ 配合 QrCode 图标，功能明确
-- ✅ 与"创建车行"按钮并排显示
+- ✅ 移动端隐藏文字，只显示图标（`hidden sm:inline`）
+- ✅ 按钮顺序：登录 → 生成二维码 → 注册车行
 
 ### 4. 实现二维码对话框
 
 ```tsx
-{/* 平台二维码对话框 */}
+{/* 二维码对话框 */}
 <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
   <DialogContent className="max-w-md">
     <DialogHeader>
       <DialogTitle className="flex items-center gap-2">
         <QrCode className="h-5 w-5" />
-        平台注册二维码
+        车行注册二维码
       </DialogTitle>
+      <DialogDescription>
+        扫描二维码或分享链接，方便其他车商快速注册
+      </DialogDescription>
     </DialogHeader>
     <div className="space-y-4">
       {/* 二维码显示区域 */}
@@ -82,7 +101,7 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
           size={200}
         />
         <p className="text-sm text-muted-foreground text-center">
-          扫描二维码或分享链接给车商，方便快速注册车行
+          使用微信扫描二维码，快速访问注册页面
         </p>
       </div>
       
@@ -106,6 +125,9 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
             <Copy className="h-4 w-4" />
           </Button>
         </div>
+        <p className="text-xs text-muted-foreground">
+          复制链接后可通过微信、短信等方式分享给其他车商
+        </p>
       </div>
 
       {/* 关闭按钮 */}
@@ -126,27 +148,29 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 - ✅ 显示完整的注册链接
 - ✅ 提供一键复制链接功能
 - ✅ 复制成功后显示 Toast 提示
+- ✅ 添加使用说明，引导用户分享
 
 ---
 
 ## 🎨 UI 设计
 
-### 1. 平台管理后台主页
+### 1. 车行注册页面顶部导航栏
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  车行列表                                        │
-│  管理平台上的所有车行，审核新车行注册申请       │
+│  🚗 恏淘车                                        │
+│     二手车经营管理平台                           │
 │                                                  │
-│                    [📱 平台二维码] [➕ 创建车行] │
+│              [登录] [📱生成二维码] [➕注册车行]  │
 └─────────────────────────────────────────────────┘
 ```
 
-### 2. 平台二维码对话框
+### 2. 二维码对话框
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  📱 平台注册二维码                            ✕  │
+│  📱 车行注册二维码                            ✕  │
+│  扫描二维码或分享链接，方便其他车商快速注册     │
 ├─────────────────────────────────────────────────┤
 │                                                  │
 │  ┌───────────────────────────────────────────┐ │
@@ -156,14 +180,14 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 │  │         ██  ████████  ██  ████            │ │
 │  │         ████████████████████████          │ │
 │  │                                            │ │
-│  │  扫描二维码或分享链接给车商，             │ │
-│  │  方便快速注册车行                         │ │
+│  │  使用微信扫描二维码，快速访问注册页面     │ │
 │  └───────────────────────────────────────────┘ │
 │                                                  │
 │  注册链接                                        │
 │  ┌───────────────────────────────────────┐     │
 │  │ https://example.com/register      [📋] │     │
 │  └───────────────────────────────────────┘     │
+│  复制链接后可通过微信、短信等方式分享给其他车商 │
 │                                                  │
 │                                    [关闭]       │
 └─────────────────────────────────────────────────┘
@@ -173,21 +197,19 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 
 ## 🔄 使用流程
 
-### 平台管理员分享注册链接流程
+### 车商分享注册链接流程
 
 ```
-平台管理员登录系统
+车商访问注册页面（/register）
     ↓
-进入车行管理页面
-    ↓
-点击"平台二维码"按钮
+点击"生成二维码"按钮
     ↓
 弹出二维码对话框
     ↓
 选择分享方式：
     ├─ 扫描二维码
     │   ↓
-    │   车商扫码
+    │   其他车商扫码
     │   ↓
     │   跳转到注册页面
     │   ↓
@@ -201,9 +223,9 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
         ↓
         显示"链接已复制"提示
         ↓
-        通过微信/邮件等方式发送给车商
+        通过微信/短信等方式发送给其他车商
         ↓
-        车商点击链接
+        其他车商点击链接
         ↓
         跳转到注册页面
         ↓
@@ -221,12 +243,14 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
     ↓
 跳转到车行注册页面（/register）
     ↓
+查看平台介绍和功能特点
+    ↓
+点击"注册车行"按钮
+    ↓
 填写车行信息：
-    - 车行名称
-    - 车行代码
-    - 联系人
-    - 联系电话
-    - 地址
+    - 步骤1：基本信息（车行名称、代码、联系人、联系电话、地址）
+    - 步骤2：资质上传（营业执照）
+    - 步骤3：确认提交
     ↓
 提交注册申请
     ↓
@@ -251,13 +275,14 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 - ✅ 显示完整的注册链接
 - ✅ 一键复制到剪贴板
 - ✅ 复制成功后显示 Toast 提示
-- ✅ 方便通过微信、邮件等方式分享
+- ✅ 方便通过微信、短信等方式分享
 
 ### 3. 用户体验
 - ✅ 按钮位置明显，易于找到
 - ✅ 对话框设计清晰，信息完整
 - ✅ 提供多种分享方式（扫码/链接）
 - ✅ 操作简单，一键完成
+- ✅ 移动端优化，按钮文字自适应
 
 ### 4. 视觉设计
 - ✅ 使用 `outline` 变体，轻量不抢夺焦点
@@ -267,36 +292,37 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 
 ### 5. 响应式设计
 - ✅ 对话框最大宽度 `max-w-md`，适配移动端
-- ✅ 按钮使用 `flex gap-2`，自动换行
+- ✅ 按钮文字在小屏幕隐藏（`hidden sm:inline`）
 - ✅ 二维码居中显示，视觉平衡
 
 ---
 
 ## 🎯 使用场景
 
-### 场景 1：线下推广
-- 平台管理员打印二维码海报
-- 张贴在汽车市场、车行聚集地
-- 车商扫码注册
+### 场景 1：车商推荐其他车商
+- 车商A访问注册页面
+- 点击"生成二维码"按钮
+- 将二维码截图发给车商B
+- 车商B扫码注册
 - 快速加入平台
 
-### 场景 2：线上推广
-- 平台管理员复制注册链接
-- 通过微信群、朋友圈分享
-- 车商点击链接注册
+### 场景 2：线下推广
+- 车商打印二维码海报
+- 张贴在汽车市场、车行聚集地
+- 其他车商扫码注册
 - 扩大平台影响力
 
-### 场景 3：一对一推广
-- 平台管理员与车商沟通
-- 现场展示二维码
-- 车商扫码注册
-- 即时完成注册
+### 场景 3：线上推广
+- 车商复制注册链接
+- 通过微信群、朋友圈分享
+- 其他车商点击链接注册
+- 快速传播
 
-### 场景 4：邮件推广
-- 平台管理员复制注册链接
-- 通过邮件发送给潜在车商
-- 车商点击链接注册
-- 精准触达目标客户
+### 场景 4：一对一推广
+- 车商与其他车商沟通
+- 现场展示二维码
+- 其他车商扫码注册
+- 即时完成注册
 
 ---
 
@@ -305,34 +331,36 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 ### 修改前
 | 功能 | 是否支持 | 说明 |
 |------|---------|------|
-| 生成平台二维码 | ❌ | 无此功能 |
+| 生成注册二维码 | ❌ | 无此功能 |
 | 分享注册链接 | ❌ | 需要手动输入URL |
-| 快速推广 | ❌ | 操作繁琐 |
+| 车商推荐其他车商 | ❌ | 操作繁琐 |
 
 ### 修改后
 | 功能 | 是否支持 | 说明 |
 |------|---------|------|
-| 生成平台二维码 | ✅ | 一键生成 |
+| 生成注册二维码 | ✅ | 一键生成 |
 | 分享注册链接 | ✅ | 一键复制 |
-| 快速推广 | ✅ | 操作简单 |
+| 车商推荐其他车商 | ✅ | 操作简单 |
 
 ---
 
 ## 🔗 与其他功能的配合
 
-### 1. 车行注册页面
-在 `/register` 页面，车商可以：
+### 1. 车行注册功能
+在同一页面，车商可以：
+- 点击"注册车行"按钮
 - 填写车行信息
 - 提交注册申请
 - 等待平台管理员审核
 
 **配合说明**：
-- ✅ 二维码指向注册页面
+- ✅ "生成二维码"按钮与"注册车行"按钮并排显示
+- ✅ 二维码指向当前注册页面
 - ✅ 注册流程完整
 - ✅ 审核机制完善
 
 ### 2. 车行审核功能
-在车行管理页面，平台管理员可以：
+在平台管理后台，平台管理员可以：
 - 查看待审核车行列表
 - 审核通过或拒绝申请
 - 管理所有车行
@@ -349,8 +377,8 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 - 员工扫码注册
 
 **配合说明**：
-- ✅ 平台二维码用于车行注册
-- ✅ 员工二维码用于员工注册
+- ✅ 车行注册二维码用于车行注册
+- ✅ 员工注册二维码用于员工注册
 - ✅ 两级注册体系完善
 
 ---
@@ -358,7 +386,7 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 ## 🎉 总结
 
 ### 实现的功能
-- ✅ 在平台管理后台主页添加"平台二维码"按钮
+- ✅ 在车行注册页面添加"生成二维码"按钮
 - ✅ 点击按钮后弹出对话框，显示二维码
 - ✅ 二维码指向车行注册页面（/register）
 - ✅ 提供复制链接功能
@@ -376,12 +404,14 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 - ✅ 提供多种分享方式（扫码/链接）
 - ✅ 复制成功后显示提示
 - ✅ 对话框设计清晰，信息完整
+- ✅ 移动端优化，按钮文字自适应
 
 ### 业务价值
 - ✅ 降低车商注册门槛
 - ✅ 提高平台推广效率
 - ✅ 扩大平台影响力
 - ✅ 增强平台竞争力
+- ✅ 促进车商之间的推荐
 
 ### 代码质量
 - ✅ TypeScript 类型安全
@@ -392,7 +422,21 @@ const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对�
 
 ---
 
-**实现完成时间**：2026-01-15 10:00:00  
+## 🔍 实现位置
+
+**文件**：`src/pages/PublicHomeNew.tsx`
+
+**修改内容**：
+1. 添加导入：`QrCode`、`Copy` 图标，`QRCodeDataUrl` 组件
+2. 添加状态：`qrDialogOpen`
+3. 添加按钮：在顶部导航栏未登录用户区域
+4. 添加对话框：在页面底部 footer 前
+
+**代码行数**：约 60 行
+
+---
+
+**实现完成时间**：2026-01-15 10:30:00  
 **实现人员**：秒哒 AI  
 **功能类型**：新功能开发  
 **实现状态**：✅ 已完成并验证

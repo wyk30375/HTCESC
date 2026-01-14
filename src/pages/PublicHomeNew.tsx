@@ -35,7 +35,9 @@ import {
   TrendingUp,
   MapPin,
   Phone,
-  Mail
+  Mail,
+  QrCode,
+  Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Vehicle, Dealership } from '@/types/types';
@@ -44,12 +46,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { uploadBusinessLicense, formatFileSize } from '@/utils/imageUpload';
 import { PROVINCES, getCitiesByProvince } from '@/utils/regions';
 import DisclaimerContent from '@/components/DisclaimerContent';
+import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 
 export default function PublicHomeNew() {
   const navigate = useNavigate();
   const { user, profile, dealership } = useAuth();
   const [loading, setLoading] = useState(true);
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false); // 二维码对话框
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerStep, setRegisterStep] = useState(1); // 注册步骤：1-基本信息，2-资质上传，3-确认提交
   
@@ -402,6 +406,14 @@ export default function PublicHomeNew() {
                 <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
                   <LogIn className="h-4 w-4" />
                   登录
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setQrDialogOpen(true)} 
+                  className="gap-2"
+                >
+                  <QrCode className="h-4 w-4" />
+                  <span className="hidden sm:inline">生成二维码</span>
                 </Button>
                 <Dialog open={registerDialogOpen} onOpenChange={(open) => {
                   setRegisterDialogOpen(open);
@@ -1045,6 +1057,62 @@ export default function PublicHomeNew() {
           </div>
         </section>
       )}
+
+      {/* 二维码对话框 */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              车行注册二维码
+            </DialogTitle>
+            <DialogDescription>
+              扫描二维码或分享链接，方便其他车商快速注册
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-4 p-6 bg-muted/50 rounded-lg">
+              <QRCodeDataUrl 
+                data={`${window.location.origin}/register`}
+                size={200}
+              />
+              <p className="text-sm text-muted-foreground text-center">
+                使用微信扫描二维码，快速访问注册页面
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>注册链接</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${window.location.origin}/register`}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/register`);
+                    toast.success('链接已复制到剪贴板');
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                复制链接后可通过微信、短信等方式分享给其他车商
+              </p>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => setQrDialogOpen(false)}>
+                关闭
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* 页脚 */}
       <footer className="border-t bg-muted/30">
