@@ -185,9 +185,13 @@ export default function Sales() {
       console.log('  - 贷款返利:', formData.has_loan ? formData.loan_rebate : 0);
       console.log('  - 总利润:', totalProfit);
 
+      // 获取车行ID
+      const dealershipId = await getCurrentDealershipId();
+
       // 创建销售记录
       const saleData = {
         vehicle_id: formData.vehicle_id,
+        dealership_id: dealershipId, // 添加车行ID
         sale_date: formData.sale_date,
         sale_price: formData.sale_price,
         customer_name: formData.customer_name,
@@ -210,9 +214,6 @@ export default function Sales() {
       console.log('🚀 开始创建销售记录...');
       const createdSale = await vehicleSalesApi.create(saleData as any);
       console.log('✅ 销售记录创建成功:', createdSale);
-
-      // 获取车行ID
-      const dealershipId = await getCurrentDealershipId();
 
       // 添加销售相关成本
       if (formData.sale_preparation_cost > 0) {
