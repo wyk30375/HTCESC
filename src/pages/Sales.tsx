@@ -204,8 +204,8 @@ export default function Sales() {
         sale_misc_cost: formData.sale_misc_cost,
         total_cost: saleTotalCost, // 保存总成本
         total_profit: totalProfit,
-        sales_employee_id: formData.salesperson_id, // 保留旧字段以兼容
-        salesperson_id: formData.salesperson_id, // 新字段
+        sales_employee_id: formData.salesperson_id || null, // 空字符串转为 null
+        salesperson_id: formData.salesperson_id || null, // 空字符串转为 null
         notes: formData.notes || null,
       };
 
