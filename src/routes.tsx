@@ -18,7 +18,7 @@ export const Statistics = lazy(() => import('@/pages/Statistics'));
 export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 export const UserDebug = lazy(() => import('@/pages/UserDebug'));
 export const Dealerships = lazy(() => import('@/pages/Dealerships'));
-export const PublicHome = lazy(() => import('@/pages/PublicHome'));
+export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
 export const Login = lazy(() => import('@/pages/Login'));
@@ -82,7 +82,7 @@ export const routes: RouteConfig[] = [
   },
   {
     path: '/register',
-    component: PublicHome,
+    component: PublicHomeNew,
     title: '易驰汽车平台',
   },
   {

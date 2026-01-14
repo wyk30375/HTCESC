@@ -34,7 +34,7 @@ export default function Dealerships() {
     contact_person: '',
     contact_phone: '',
     address: '',
-    status: 'active' as 'active' | 'inactive',
+    status: 'active' as 'pending' | 'active' | 'inactive' | 'rejected',
   });
 
   useEffect(() => {
@@ -257,11 +257,13 @@ export default function Dealerships() {
                       <select
                         id="status"
                         value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pending' | 'active' | 'inactive' | 'rejected' })}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
+                        <option value="pending">待审核</option>
                         <option value="active">正常</option>
                         <option value="inactive">停用</option>
+                        <option value="rejected">审核拒绝</option>
                       </select>
                     </div>
                   )}
