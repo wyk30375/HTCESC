@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { vehiclesApi } from '@/db/api';
 import type { Vehicle } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Calendar, Gauge } from 'lucide-react';
+import { Car, Calendar, Gauge, ArrowLeft } from 'lucide-react';
 
 export default function CustomerView() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadVehicles();
@@ -46,12 +49,22 @@ export default function CustomerView() {
       {/* 头部 */}
       <header className="border-b bg-card">
         <div className="mx-auto max-w-6xl px-4 py-6">
-          <div className="flex items-center gap-3">
-            <Car className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold">二手车展示</h1>
-              <p className="text-sm text-muted-foreground">优质车源，诚信经营</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Car className="h-8 w-8 text-primary" />
+              <div>
+                <h1 className="text-2xl font-bold">二手车展示</h1>
+                <p className="text-sm text-muted-foreground">优质车源，诚信经营</p>
+              </div>
             </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/register')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              返回主页
+            </Button>
           </div>
         </div>
       </header>
