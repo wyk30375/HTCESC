@@ -89,11 +89,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!email) throw new Error('用户不存在');
     
     // 使用邮箱地址登录
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) throw error;
+
+    // 登录成功后，检查用户的车行状态
+    if (data.user) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('dealership_id, role, dealership:dealerships(status)')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('获取用户资料失败:', profileError);
+        throw new Error('登录失败，请稍后重试');
+      }
+
+      // 检查车行状态（超级管理员不受限制）
+      if (profileData?.role !== 'super_admin') {
+        const dealershipStatus = (profileData?.dealership as any)?.status;
+        
+        if (!dealershipStatus) {
+          // 登出用户
+          await supabase.auth.signOut();
+          throw new Error('您的账号未关联车行，请联系管理员');
+        }
+
+        if (dealershipStatus === 'pending') {
+          // 登出用户
+          await supabase.auth.signOut();
+          throw new Error('您的车行正在审核中，请等待管理员审核通过后再登录');
+        }
+
+        if (dealershipStatus === 'rejected') {
+          // 登出用户
+          await supabase.auth.signOut();
+          throw new Error('您的车行注册申请已被拒绝，请联系管理员了解详情');
+        }
+
+        if (dealershipStatus === 'inactive') {
+          // 登出用户
+          await supabase.auth.signOut();
+          throw new Error('您的车行已被停用，请联系管理员');
+        }
+      }
+    }
   };
 
   const signUp = async (username: string, password: string, phone: string, dealershipId: string) => {
