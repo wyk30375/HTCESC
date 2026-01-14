@@ -735,49 +735,47 @@ export default function PublicHomeNew() {
             <p className="text-muted-foreground">简单三步，快速开启车行管理</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="text-center">
-              <CardHeader>
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
-                  <FileText className="h-8 w-8 text-primary" />
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <FileText className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">1. 提交资料</h3>
+                    <p className="text-sm text-muted-foreground">
+                      填写车行信息，上传营业执照
+                    </p>
+                  </div>
                 </div>
-                <CardTitle className="text-xl">提交资料</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  填写车行信息，上传营业执照
-                </p>
-              </CardContent>
-            </Card>
 
-            <Card className="text-center">
-              <CardHeader>
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
-                  <Upload className="h-8 w-8 text-primary" />
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <Upload className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">2. 等待审核</h3>
+                    <p className="text-sm text-muted-foreground">
+                      平台审核资质，1-2个工作日
+                    </p>
+                  </div>
                 </div>
-                <CardTitle className="text-xl">等待审核</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  平台审核资质，1-2个工作日
-                </p>
-              </CardContent>
-            </Card>
 
-            <Card className="text-center">
-              <CardHeader>
-                <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4 mx-auto">
-                  <CheckCircle2 className="h-8 w-8 text-primary" />
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <CheckCircle2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">3. 开始使用</h3>
+                    <p className="text-sm text-muted-foreground">
+                      审核通过后即可登录管理系统
+                    </p>
+                  </div>
                 </div>
-                <CardTitle className="text-xl">开始使用</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  审核通过后即可登录管理系统
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
