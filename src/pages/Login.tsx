@@ -247,7 +247,7 @@ export default function Login() {
           onClick={() => navigate('/register')}
         >
           <Car className="h-4 w-4 mr-2" />
-          创建或加入车行
+          浏览在售车辆
         </Button>
         
         <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
