@@ -9,7 +9,7 @@ interface AuthContextType {
   dealership: Dealership | null;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<void>;
-  signUp: (username: string, password: string, phone: string, dealershipName: string) => Promise<void>;
+  signUp: (username: string, password: string, phone: string, dealershipId: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (username: string, password: string, phone: string, dealershipName: string) => {
+  const signUp = async (username: string, password: string, phone: string, dealershipId: string) => {
     // 移除用户名字符限制，允许中文和其他字符
     // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
 
@@ -105,30 +105,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) throw error;
 
-    // 注册成功后，创建车行记录并更新 profiles 表
+    // 注册成功后，更新 profiles 表并创建员工记录
     if (data.user) {
-      // 1. 创建车行记录
-      const { data: dealershipData, error: dealershipError } = await supabase
-        .from('dealerships')
-        .insert({
-          name: dealershipName,
-          status: 'active',
-        })
-        .select()
-        .single();
-
-      if (dealershipError) {
-        console.error('创建车行失败:', dealershipError);
-        throw new Error('创建车行失败');
-      }
-
-      // 2. 更新 profiles 表，关联车行和更新手机号
+      // 1. 更新 profiles 表，关联车行和更新手机号
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
           phone,
-          dealership_id: dealershipData.id,
-          role: 'admin',
+          dealership_id: dealershipId,
+          role: 'user', // 普通员工角色
         })
         .eq('id', data.user.id);
       
@@ -137,13 +122,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error('更新用户信息失败');
       }
 
-      // 3. 创建员工记录（管理员同时也是员工）
+      // 2. 创建员工记录
       const { error: employeeError } = await supabase
         .from('employees')
         .insert({
-          dealership_id: dealershipData.id,
+          dealership_id: dealershipId,
           name: username,
-          position: '管理员',
+          position: '员工',
           phone,
           hire_date: new Date().toISOString().split('T')[0],
         });

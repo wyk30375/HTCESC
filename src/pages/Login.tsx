@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Car, KeyRound, Shield, Zap, TrendingUp } from 'lucide-react';
 import { supabase } from '@/db/supabase';
@@ -15,8 +16,12 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [dealershipName, setDealershipName] = useState('');
+  const [dealershipId, setDealershipId] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // 车行列表
+  const [dealerships, setDealerships] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingDealerships, setLoadingDealerships] = useState(false);
   
   // 管理员密码重置
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
@@ -29,6 +34,30 @@ export default function Login() {
   const location = useLocation();
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
+
+  // 获取车行列表
+  useEffect(() => {
+    const fetchDealerships = async () => {
+      setLoadingDealerships(true);
+      try {
+        const { data, error } = await supabase
+          .from('dealerships')
+          .select('id, name')
+          .eq('status', 'active')
+          .order('name');
+        
+        if (error) throw error;
+        setDealerships(data || []);
+      } catch (error) {
+        console.error('获取车行列表失败:', error);
+        toast.error('获取车行列表失败');
+      } finally {
+        setLoadingDealerships(false);
+      }
+    };
+
+    fetchDealerships();
+  }, []);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,8 +81,8 @@ export default function Login() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dealershipName || !username || !password || !phone) {
-      toast.error('请输入车行名称、用户名、密码和手机号码');
+    if (!dealershipId || !username || !password || !phone) {
+      toast.error('请选择车行、输入用户名、密码和手机号码');
       return;
     }
 
@@ -71,7 +100,7 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await signUp(username, password, phone, dealershipName);
+      await signUp(username, password, phone, dealershipId);
       toast.success('注册成功，正在登录...');
       // 注册成功后自动登录
       await signIn(username, password);
@@ -252,18 +281,31 @@ export default function Login() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-dealership">车行名称</Label>
-                  <Input
-                    id="signup-dealership"
-                    type="text"
-                    placeholder="请输入车行名称"
-                    value={dealershipName}
-                    onChange={(e) => setDealershipName(e.target.value)}
-                    disabled={loading}
-                    required
-                  />
+                  <Label htmlFor="signup-dealership">选择车行</Label>
+                  <Select
+                    value={dealershipId}
+                    onValueChange={setDealershipId}
+                    disabled={loading || loadingDealerships}
+                  >
+                    <SelectTrigger id="signup-dealership">
+                      <SelectValue placeholder={loadingDealerships ? "加载中..." : "请选择要加入的车行"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dealerships.length === 0 ? (
+                        <SelectItem value="no-dealerships" disabled>
+                          暂无可用车行
+                        </SelectItem>
+                      ) : (
+                        dealerships.map((dealership) => (
+                          <SelectItem key={dealership.id} value={dealership.id}>
+                            {dealership.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                   <p className="text-xs text-muted-foreground">
-                    您所在的车行名称
+                    选择您要加入的车行，注册后成为该车行员工
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -278,7 +320,7 @@ export default function Login() {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    管理员姓名，同时也是车行员工
+                    您的姓名，注册后成为车行员工
                   </p>
                 </div>
                 <div className="space-y-2">
