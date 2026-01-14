@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -480,17 +480,28 @@ export default function Employees() {
         <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 p-0 hover:bg-accent"
+                    onClick={() => setQrDialogOpen(false)}
+                    aria-label="返回"
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                  <DialogTitle className="text-xl">员工注册二维码</DialogTitle>
+                </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-9 w-9 p-0 hover:bg-accent"
                   onClick={() => setQrDialogOpen(false)}
-                  aria-label="返回"
+                  aria-label="关闭"
                 >
-                  <ArrowLeft className="h-5 w-5" />
+                  <X className="h-5 w-5" />
                 </Button>
-                <DialogTitle className="text-xl">员工注册二维码</DialogTitle>
               </div>
             </DialogHeader>
             <div className="space-y-4">
