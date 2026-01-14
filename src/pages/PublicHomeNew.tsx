@@ -285,7 +285,9 @@ export default function PublicHomeNew() {
       });
 
       // 创建管理员账号
-      const email = `${createForm.username}@yichi.internal`;
+      // 使用车行代码和时间戳生成唯一的邮箱地址（避免中文用户名导致邮箱格式错误）
+      const timestamp = Date.now();
+      const email = `${dealershipData.code}_${timestamp}@yichi.internal`;
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email,
         password: createForm.password,
@@ -300,13 +302,14 @@ export default function PublicHomeNew() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('注册失败：未返回用户信息');
 
-      // 更新用户资料
+      // 更新用户资料（保存邮箱地址以便后续登录）
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
           role: 'admin',
           dealership_id: dealershipData.id,
           phone: createForm.phone,
+          email: email,
         })
         .eq('id', authData.user.id);
 

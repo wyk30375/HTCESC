@@ -80,7 +80,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (username: string, password: string) => {
-    const email = `${username}@yichi.internal`;
+    // 使用数据库函数根据用户名获取邮箱地址
+    const { data: email, error: queryError } = await supabase.rpc('get_email_by_username', {
+      p_username: username,
+    });
+    
+    if (queryError) throw queryError;
+    if (!email) throw new Error('用户不存在');
+    
+    // 使用邮箱地址登录
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -89,10 +97,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signUp = async (username: string, password: string, phone: string, dealershipId: string) => {
-    // 移除用户名字符限制，允许中文和其他字符
-    // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
-
-    const email = `${username}@yichi.internal`;
+    // 使用时间戳和随机数生成唯一的邮箱地址（避免中文用户名导致邮箱格式错误）
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const email = `user_${timestamp}_${randomStr}@yichi.internal`;
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -107,13 +116,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // 注册成功后，更新 profiles 表并创建员工记录
     if (data.user) {
-      // 1. 更新 profiles 表，关联车行和更新手机号
+      // 1. 更新 profiles 表，关联车行和更新手机号（保存邮箱地址以便后续登录）
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ 
           phone,
           dealership_id: dealershipId,
           role: 'user', // 普通员工角色
+          email: email,
         })
         .eq('id', data.user.id);
       
