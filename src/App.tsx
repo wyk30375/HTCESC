@@ -9,7 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 import { RouteGuard } from './components/common/RouteGuard';
 import Layout from './components/layouts/Layout';
 import PlatformLayout from './components/layouts/PlatformLayout';
-import { routes, Dealerships, PlatformStatistics, PlatformSettings } from './routes';
+import { routes, Dealerships, PlatformStatistics, PlatformSettings, PlatformEmployees } from './routes';
 import { Skeleton } from './components/ui/skeleton';
 
 const queryClient = new QueryClient({
@@ -65,6 +65,7 @@ const App = () => {
                     {/* 平台管理后台（超级管理员专用） */}
                     <Route path="/platform" element={<PlatformLayout />}>
                       <Route path="dealerships" element={<Dealerships />} />
+                      <Route path="employees" element={<PlatformEmployees />} />
                       <Route path="statistics" element={<PlatformStatistics />} />
                       <Route path="settings" element={<PlatformSettings />} />
                       <Route index element={<Navigate to="/platform/dealerships" replace />} />

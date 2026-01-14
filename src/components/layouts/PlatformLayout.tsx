@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, BarChart3, Settings, LogOut, Menu } from 'lucide-react';
+import { Building2, BarChart3, Settings, LogOut, Menu, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -20,6 +20,7 @@ export default function PlatformLayout() {
 
   const navigation = [
     { name: '车行管理', path: '/platform/dealerships', icon: Building2 },
+    { name: '员工管理', path: '/platform/employees', icon: Users },
     { name: '平台统计', path: '/platform/statistics', icon: BarChart3 },
     { name: '系统设置', path: '/platform/settings', icon: Settings },
   ];
