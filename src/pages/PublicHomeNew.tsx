@@ -380,7 +380,10 @@ export default function PublicHomeNew() {
                 variant="outline" 
                 onClick={() => setQrDialogOpen(true)} 
                 className="gap-2"
-              >平台分享</Button>
+              >
+                <QrCode className="h-4 w-4" />
+                平台分享
+              </Button>
             )}
           </div>
           
@@ -1072,10 +1075,10 @@ export default function PublicHomeNew() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <QrCode className="h-5 w-5" />
-              车行注册二维码
+              平台分享
             </DialogTitle>
             <DialogDescription>
-              扫描二维码或分享链接，方便其他车商快速注册
+              扫描二维码或分享链接，邀请更多车商加入恏淘车平台
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
