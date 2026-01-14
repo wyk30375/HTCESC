@@ -37,7 +37,19 @@ export default function Employees() {
     try {
       setLoading(true);
       const profilesData = await profilesApi.getAll();
-      setEmployees(profilesData);
+      
+      // 过滤：只显示当前车行的员工
+      // 即使是超级管理员，在车行管理系统中也只显示当前车行的员工
+      const currentDealershipEmployees = profilesData.filter(
+        p => p.dealership_id === profile?.dealership_id
+      );
+      
+      console.log('📊 员工数据统计:');
+      console.log('  - 总用户数:', profilesData.length);
+      console.log('  - 当前车行员工数:', currentDealershipEmployees.length);
+      console.log('  - 当前车行ID:', profile?.dealership_id);
+      
+      setEmployees(currentDealershipEmployees);
     } catch (error) {
       console.error('加载员工数据失败:', error);
       toast.error('加载员工数据失败');
