@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from '@/db/supabase';
 import type { User } from '@supabase/supabase-js';
-import type { Profile } from '@/types/types';
+import type { Profile, Dealership } from '@/types/types';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
+  dealership: Dealership | null;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<void>;
   signUp: (username: string, password: string, phone: string) => Promise<void>;
@@ -18,21 +19,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [dealership, setDealership] = useState<Dealership | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, dealership:dealerships(*)')
         .eq('id', userId)
         .maybeSingle();
 
       if (error) throw error;
-      setProfile(data);
+      
+      if (data) {
+        setProfile(data);
+        // 设置车行信息
+        if (data.dealership) {
+          setDealership(data.dealership as Dealership);
+        }
+      }
     } catch (error) {
       console.error('获取用户资料失败:', error);
       setProfile(null);
+      setDealership(null);
     }
   };
 
@@ -61,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fetchProfile(session.user.id);
       } else {
         setProfile(null);
+        setDealership(null);
       }
       setLoading(false);
     });
@@ -117,6 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         profile,
+        dealership,
         loading,
         signIn,
         signUp,

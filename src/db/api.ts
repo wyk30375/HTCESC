@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import type {
   Profile,
+  Dealership,
   Employee,
   EmployeeRole,
   Vehicle,
@@ -12,6 +13,92 @@ import type {
   EmployeeRoleType,
   ProfitRule,
 } from '@/types/types';
+
+// ==================== 辅助函数 ====================
+// 获取当前用户的车行ID
+export async function getCurrentDealershipId(): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('未登录');
+  
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('dealership_id')
+    .eq('id', user.id)
+    .maybeSingle();
+  
+  if (error) throw error;
+  if (!profile?.dealership_id) throw new Error('用户未关联车行');
+  
+  return profile.dealership_id;
+}
+
+// ==================== 车行管理 API ====================
+export const dealershipsApi = {
+  // 获取所有车行（仅 super_admin）
+  async getAll() {
+    const { data, error } = await supabase
+      .from('dealerships')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data as Dealership[];
+  },
+
+  // 获取当前用户的车行
+  async getCurrent() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('未登录');
+    
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('dealership:dealerships(*)')
+      .eq('id', user.id)
+      .maybeSingle();
+    
+    if (profileError) throw profileError;
+    if (!profile) return null;
+    
+    // dealership 是一个对象，不是数组
+    const dealership = profile.dealership as unknown;
+    return dealership as Dealership | null;
+  },
+
+  // 创建新车行
+  async create(dealership: Omit<Dealership, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('dealerships')
+      .insert(dealership)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data as Dealership;
+  },
+
+  // 更新车行信息
+  async update(id: string, dealership: Partial<Dealership>) {
+    const { data, error } = await supabase
+      .from('dealerships')
+      .update(dealership)
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data as Dealership;
+  },
+
+  // 删除车行
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('dealerships')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+};
 
 // ==================== 用户资料 API ====================
 export const profilesApi = {

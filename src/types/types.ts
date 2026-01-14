@@ -1,11 +1,24 @@
 // 用户角色枚举
-export type UserRole = 'admin' | 'employee';
+export type UserRole = 'super_admin' | 'admin' | 'employee';
 
 // 员工角色类型
 export type EmployeeRoleType = 'landlord' | 'bonus_pool' | 'sales_commission' | 'investor';
 
 // 车辆状态
 export type VehicleStatus = 'in_stock' | 'sold';
+
+// 车行信息
+export interface Dealership {
+  id: string;
+  name: string;
+  code: string;
+  contact_person?: string;
+  contact_phone?: string;
+  address?: string;
+  status: 'active' | 'inactive';
+  created_at: string;
+  updated_at: string;
+}
 
 // 用户资料
 export interface Profile {
@@ -14,16 +27,19 @@ export interface Profile {
   email?: string;
   phone?: string;
   role: UserRole;
+  dealership_id: string;
   status?: 'active' | 'inactive';
   default_password?: string;
   created_at: string;
   updated_at: string;
+  dealership?: Dealership;
 }
 
 // 员工信息
 export interface Employee {
   id: string;
   profile_id: string;
+  dealership_id: string;
   name: string;
   position: string;
   contact: string;
@@ -47,6 +63,7 @@ export interface EmployeeRole {
 // 车辆信息
 export interface Vehicle {
   id: string;
+  dealership_id: string;
   vin_last_six: string; // 车架号后六位（唯一标识）
   plate_number: string;
   brand: string;
@@ -68,6 +85,7 @@ export interface Vehicle {
 export interface VehicleCost {
   id: string;
   vehicle_id: string;
+  dealership_id: string;
   cost_type: 'purchase' | 'preparation' | 'transfer' | 'misc'; // 购车款、整备费、过户费、杂费
   amount: number;
   description?: string;
@@ -79,6 +97,7 @@ export interface VehicleCost {
 export interface VehicleSale {
   id: string;
   vehicle_id: string;
+  dealership_id: string;
   sale_date: string;
   sale_price: number;
   customer_name: string;
@@ -102,6 +121,7 @@ export interface VehicleSale {
 // 费用记录
 export interface Expense {
   id: string;
+  dealership_id: string;
   expense_date: string;
   expense_type: string;
   amount: number;
@@ -114,6 +134,7 @@ export interface Expense {
 // 利润分配记录
 export interface ProfitDistribution {
   id: string;
+  dealership_id: string;
   sale_id: string;
   employee_id: string;
   role_type: EmployeeRoleType;
@@ -127,6 +148,7 @@ export interface ProfitDistribution {
 // 月度奖金池
 export interface MonthlyBonus {
   id: string;
+  dealership_id: string;
   year: number;
   month: number;
   total_bonus_pool: number; // 总奖金池金额
@@ -160,6 +182,7 @@ export interface EmployeePerformance {
 // 提成规则
 export interface ProfitRule {
   id: string;
+  dealership_id: string;
   rent_investor_rate: number;
   bonus_pool_rate: number;
   salesperson_rate: number;

@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import { vehiclesApi, vehicleCostsApi, profilesApi } from '@/db/api';
+import { vehiclesApi, vehicleCostsApi, profilesApi, getCurrentDealershipId } from '@/db/api';
 import type { Vehicle, Profile } from '@/types/types';
 import { Plus, Edit, Eye, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,7 +20,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function Vehicles() {
   const { profile } = useAuth();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -83,8 +83,10 @@ export default function Vehicles() {
         
         // 添加购车款成本
         if (vehicle && formData.purchase_price > 0) {
+          const dealershipId = await getCurrentDealershipId();
           await vehicleCostsApi.add({
             vehicle_id: vehicle.id,
+            dealership_id: dealershipId,
             cost_type: 'purchase',
             amount: formData.purchase_price,
             description: '购车款',

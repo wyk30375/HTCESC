@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { vehiclesApi, vehicleSalesApi, vehicleCostsApi, employeesApi, profitDistributionsApi, profilesApi } from '@/db/api';
+import { vehiclesApi, vehicleSalesApi, vehicleCostsApi, employeesApi, profitDistributionsApi, profilesApi, getCurrentDealershipId } from '@/db/api';
 import type { Vehicle, VehicleSale, Employee, Profile } from '@/types/types';
 import { Plus, Eye, Lock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,7 +19,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function Sales() {
   const { profile } = useAuth();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   
   const [sales, setSales] = useState<VehicleSale[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -211,11 +211,15 @@ export default function Sales() {
       const createdSale = await vehicleSalesApi.create(saleData as any);
       console.log('✅ 销售记录创建成功:', createdSale);
 
+      // 获取车行ID
+      const dealershipId = await getCurrentDealershipId();
+
       // 添加销售相关成本
       if (formData.sale_preparation_cost > 0) {
         console.log('💰 添加销售整备费:', formData.sale_preparation_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
+          dealership_id: dealershipId,
           cost_type: 'preparation',
           amount: formData.sale_preparation_cost,
           description: '销售整备费',
@@ -225,6 +229,7 @@ export default function Sales() {
         console.log('💰 添加销售过户费:', formData.sale_transfer_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
+          dealership_id: dealershipId,
           cost_type: 'transfer',
           amount: formData.sale_transfer_cost,
           description: '销售过户费',
@@ -234,6 +239,7 @@ export default function Sales() {
         console.log('💰 添加销售杂费:', formData.sale_misc_cost);
         await vehicleCostsApi.add({
           vehicle_id: formData.vehicle_id,
+          dealership_id: dealershipId,
           cost_type: 'misc',
           amount: formData.sale_misc_cost,
           description: '销售杂费',

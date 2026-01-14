@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { profitRulesApi } from '@/db/api';
+import { profitRulesApi, getCurrentDealershipId } from '@/db/api';
 import type { ProfitRule } from '@/types/types';
 import { Settings, Save, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function ProfitRules() {
   const { profile } = useAuth();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -80,8 +80,10 @@ export default function ProfitRules() {
         await profitRulesApi.update(currentRule.id, formData);
       } else {
         // 创建新规则
+        const dealershipId = await getCurrentDealershipId();
         await profitRulesApi.create({
           ...formData,
+          dealership_id: dealershipId,
           is_active: true,
         });
       }
