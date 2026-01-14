@@ -239,15 +239,15 @@ export default function Login() {
       </Card>
 
       {/* 底部按钮组 */}
-      <div className="flex flex-col sm:flex-row gap-3 mt-4">
+      <div className="flex flex-col gap-3 mt-4">
         <Button
-          variant="ghost"
-          size="sm"
-          className="text-muted-foreground hover:text-primary"
+          variant="default"
+          size="lg"
+          className="w-full"
           onClick={() => navigate('/register')}
         >
-          <Car className="h-4 w-4 mr-2" />
-          浏览在售车辆
+          <Car className="h-5 w-5 mr-2" />
+          访问平台主页 - 浏览在售车辆
         </Button>
         
         <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
