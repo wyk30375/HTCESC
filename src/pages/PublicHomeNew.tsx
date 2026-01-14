@@ -787,55 +787,59 @@ export default function PublicHomeNew() {
             <p className="text-muted-foreground">为车行提供全方位的线上展示和管理服务</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            <Card>
-              <CardHeader>
-                <Shield className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">安全可靠</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  严格审核机制，确保每家车行资质真实有效
-                </p>
-              </CardContent>
-            </Card>
+          <Card className="max-w-4xl mx-auto">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">安全可靠</h3>
+                    <p className="text-sm text-muted-foreground">
+                      严格审核机制，确保每家车行资质真实有效
+                    </p>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <Zap className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">操作简单</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  直观的管理界面，快速上手，轻松管理车辆信息
-                </p>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <Zap className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">操作简单</h3>
+                    <p className="text-sm text-muted-foreground">
+                      直观的管理界面，快速上手，轻松管理车辆信息
+                    </p>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <Users className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">客户触达</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  统一展示平台，帮助您触达更多潜在客户
-                </p>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">客户触达</h3>
+                    <p className="text-sm text-muted-foreground">
+                      统一展示平台，帮助您触达更多潜在客户
+                    </p>
+                  </div>
+                </div>
 
-            <Card>
-              <CardHeader>
-                <TrendingUp className="h-8 w-8 text-primary mb-2" />
-                <CardTitle className="text-lg">数据分析</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  完善的统计分析功能，助力业务增长
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+                <div className="flex items-start gap-4">
+                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 shrink-0">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">数据分析</h3>
+                    <p className="text-sm text-muted-foreground">
+                      完善的统计分析功能，助力业务增长
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
