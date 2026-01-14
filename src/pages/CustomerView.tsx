@@ -3,15 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Vehicle } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Calendar, Gauge, ArrowLeft } from 'lucide-react';
+import { Car, Calendar, Gauge, ArrowLeft, QrCode } from 'lucide-react';
+import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
+import { toast } from 'sonner';
 
 export default function CustomerView() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { dealership } = useAuth();
 
@@ -61,14 +65,24 @@ export default function CustomerView() {
                 <p className="text-sm text-muted-foreground">优质车源，诚信经营</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/register')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              返回主页
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setQrDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                <span className="hidden sm:inline">生成二维码</span>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/register')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">返回主页</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -145,6 +159,57 @@ export default function CustomerView() {
           </div>
         )}
       </main>
+
+      {/* 二维码对话框 */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl">客户展示页面二维码</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-muted-foreground space-y-2">
+              <p>客户可扫描此二维码查看在售车辆：</p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li>实时展示所有在售车辆</li>
+                <li>查看车辆详细信息和照片</li>
+                <li>方便客户随时浏览</li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center py-6 bg-muted/30 rounded-lg">
+              <QRCodeDataUrl
+                data={`${window.location.origin}/customer-view`}
+                size={200}
+              />
+            </div>
+
+            <div className="space-y-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
+              <p className="font-medium text-foreground">展示页面链接：</p>
+              <p className="break-all font-mono bg-background px-2 py-1 rounded">
+                {`${window.location.origin}/customer-view`}
+              </p>
+              <p className="text-xs">可复制此链接发送给客户</p>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const url = `${window.location.origin}/customer-view`;
+                  navigator.clipboard.writeText(url);
+                  toast.success('链接已复制到剪贴板');
+                }}
+                className="h-10"
+              >
+                复制链接
+              </Button>
+              <Button onClick={() => setQrDialogOpen(false)} className="h-10">
+                关闭
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
