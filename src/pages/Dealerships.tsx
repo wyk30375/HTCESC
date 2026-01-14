@@ -47,6 +47,12 @@ export default function Dealerships() {
   const inactiveDealerships = dealerships.filter(d => d.status === 'inactive');
   const rejectedDealerships = dealerships.filter(d => d.status === 'rejected');
 
+  console.log('🏢 [车行分类] 总车行数:', dealerships.length);
+  console.log('🏢 [车行分类] 待审核:', pendingDealerships.length);
+  console.log('🏢 [车行分类] 正常运营:', activeDealerships.length, activeDealerships.map(d => d.name));
+  console.log('🏢 [车行分类] 已停用:', inactiveDealerships.length, inactiveDealerships.map(d => d.name));
+  console.log('🏢 [车行分类] 已拒绝:', rejectedDealerships.length);
+
   useEffect(() => {
     if (isSuperAdmin) {
       loadDealerships();
@@ -58,10 +64,13 @@ export default function Dealerships() {
   const loadDealerships = async () => {
     try {
       setLoading(true);
+      console.log('🏢 [车行管理] 开始加载车行列表...');
       const data = await dealershipsApi.getAll();
+      console.log('🏢 [车行管理] ✅ 加载成功，车行数量:', data.length);
+      console.log('🏢 [车行管理] 📋 车行数据:', data);
       setDealerships(data);
     } catch (error) {
-      console.error('加载车行列表失败:', error);
+      console.error('❌ [车行管理] 加载车行列表失败:', error);
       toast.error('加载车行列表失败');
     } finally {
       setLoading(false);
