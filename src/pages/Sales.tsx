@@ -247,10 +247,8 @@ export default function Sales() {
         });
       }
 
-      // 更新车辆状态为已售
-      console.log('🚗 更新车辆状态为已售...');
-      await vehiclesApi.update(formData.vehicle_id, { status: 'sold' });
-      console.log('✅ 车辆状态更新成功');
+      // 车辆状态会由数据库触发器自动更新为 sold
+      console.log('✅ 销售记录创建成功，车辆状态将由触发器自动更新');
 
       toast.success('销售记录已创建');
       setDialogOpen(false);
