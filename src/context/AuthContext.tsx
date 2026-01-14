@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (username: string, password: string) => {
-    const email = `${username}@miaoda.com`;
+    const email = `${username}@yichi.internal`;
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 移除用户名字符限制，允许中文和其他字符
     // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
 
-    const email = `${username}@miaoda.com`;
+    const email = `${username}@yichi.internal`;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
