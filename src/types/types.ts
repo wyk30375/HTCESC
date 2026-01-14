@@ -117,12 +117,12 @@ export interface VehicleSale {
   sale_misc_cost: number; // 销售杂费
   total_cost: number; // 总成本
   total_profit: number; // 总利润
-  salesperson_id: string; // 销售员ID
-  sales_employee_id: string; // 销售员工ID（兼容旧字段）
+  salesperson_id?: string; // 销售员ID（可选）
+  sales_employee_id?: string; // 销售员工ID（可选，兼容旧字段）
   notes?: string; // 备注
   created_at: string;
   vehicle?: Vehicle;
-  sales_employee?: Employee;
+  sales_employee?: Profile;
 }
 
 // 费用记录

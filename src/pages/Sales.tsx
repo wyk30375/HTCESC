@@ -298,7 +298,8 @@ export default function Sales() {
     return allVehicles.find(v => v.id === vehicleId);
   };
 
-  const getSalespersonName = (salespersonId: string) => {
+  const getSalespersonName = (salespersonId?: string) => {
+    if (!salespersonId) return '-';
     const person = salespeople.find(p => p.id === salespersonId);
     return person?.username || person?.email || '-';
   };
