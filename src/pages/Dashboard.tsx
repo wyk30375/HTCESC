@@ -3,8 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { vehiclesApi, vehicleSalesApi, profilesApi } from '@/db/api';
 import { Car, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Dashboard() {
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalVehicles: 0,
@@ -33,6 +35,16 @@ export default function Dashboard() {
 
       // 获取员工统计（使用 profiles 表）
       const profiles = await profilesApi.getAll();
+      
+      // 过滤：只统计当前车行的员工
+      const currentDealershipEmployees = profiles.filter(
+        p => p.dealership_id === profile?.dealership_id
+      );
+      
+      console.log('📊 仪表盘员工统计:');
+      console.log('  - 总用户数:', profiles.length);
+      console.log('  - 当前车行员工数:', currentDealershipEmployees.length);
+      console.log('  - 当前车行ID:', profile?.dealership_id);
 
       // 获取本月销售统计
       const now = new Date();
@@ -45,7 +57,7 @@ export default function Dashboard() {
         totalVehicles: allVehicles.length,
         inStockVehicles: inStockVehicles.length,
         soldVehicles: soldVehicles.length,
-        totalEmployees: profiles.length,
+        totalEmployees: currentDealershipEmployees.length,
         monthSales: monthSales.length,
         monthRevenue,
         monthProfit,
