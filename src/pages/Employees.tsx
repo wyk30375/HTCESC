@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound, QrCode } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -467,7 +467,17 @@ export default function Employees() {
         <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>员工注册二维码</DialogTitle>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setQrDialogOpen(false)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <DialogTitle>员工注册二维码</DialogTitle>
+              </div>
             </DialogHeader>
             <div className="space-y-4">
               <div className="text-sm text-muted-foreground space-y-2">
