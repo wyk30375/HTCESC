@@ -7,6 +7,7 @@ import { Suspense } from 'react';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider } from './context/AuthContext';
 import { RouteGuard } from './components/common/RouteGuard';
+import { PlatformGuard } from './components/common/PlatformGuard';
 import Layout from './components/layouts/Layout';
 import PlatformLayout from './components/layouts/PlatformLayout';
 import { routes, Dealerships, PlatformStatistics, PlatformSettings, PlatformEmployees } from './routes';
@@ -63,7 +64,11 @@ const App = () => {
                     )}
                     
                     {/* 平台管理后台（超级管理员专用） */}
-                    <Route path="/platform" element={<PlatformLayout />}>
+                    <Route path="/platform" element={
+                      <PlatformGuard>
+                        <PlatformLayout />
+                      </PlatformGuard>
+                    }>
                       <Route path="dealerships" element={<Dealerships />} />
                       <Route path="employees" element={<PlatformEmployees />} />
                       <Route path="statistics" element={<PlatformStatistics />} />
