@@ -15,6 +15,7 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [dealershipName, setDealershipName] = useState('');
   const [loading, setLoading] = useState(false);
   
   // 管理员密码重置
@@ -51,8 +52,8 @@ export default function Login() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password || !phone) {
-      toast.error('请输入用户名、密码和手机号码');
+    if (!dealershipName || !username || !password || !phone) {
+      toast.error('请输入车行名称、用户名、密码和手机号码');
       return;
     }
 
@@ -70,7 +71,7 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await signUp(username, password, phone);
+      await signUp(username, password, phone, dealershipName);
       toast.success('注册成功，正在登录...');
       // 注册成功后自动登录
       await signIn(username, password);
@@ -251,6 +252,21 @@ export default function Login() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="signup-dealership">车行名称</Label>
+                  <Input
+                    id="signup-dealership"
+                    type="text"
+                    placeholder="请输入车行名称"
+                    value={dealershipName}
+                    onChange={(e) => setDealershipName(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    您所在的车行名称
+                  </p>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="signup-username">用户名</Label>
                   <Input
                     id="signup-username"
@@ -262,7 +278,7 @@ export default function Login() {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    用户名可以使用中文、字母、数字等任意字符
+                    管理员姓名，同时也是车行员工
                   </p>
                 </div>
                 <div className="space-y-2">

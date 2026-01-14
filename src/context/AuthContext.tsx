@@ -9,7 +9,7 @@ interface AuthContextType {
   dealership: Dealership | null;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<void>;
-  signUp: (username: string, password: string, phone: string) => Promise<void>;
+  signUp: (username: string, password: string, phone: string, dealershipName: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (username: string, password: string, phone: string) => {
+  const signUp = async (username: string, password: string, phone: string, dealershipName: string) => {
     // 移除用户名字符限制，允许中文和其他字符
     // 用户名将用于生成邮箱地址，但不影响实际显示的用户名
 
@@ -105,15 +105,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) throw error;
 
-    // 注册成功后，更新 profiles 表的 phone 字段
+    // 注册成功后，创建车行记录并更新 profiles 表
     if (data.user) {
+      // 1. 创建车行记录
+      const { data: dealershipData, error: dealershipError } = await supabase
+        .from('dealerships')
+        .insert({
+          name: dealershipName,
+          status: 'active',
+        })
+        .select()
+        .single();
+
+      if (dealershipError) {
+        console.error('创建车行失败:', dealershipError);
+        throw new Error('创建车行失败');
+      }
+
+      // 2. 更新 profiles 表，关联车行和更新手机号
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ phone })
+        .update({ 
+          phone,
+          dealership_id: dealershipData.id,
+          role: 'admin',
+        })
         .eq('id', data.user.id);
       
       if (updateError) {
-        console.error('更新手机号码失败:', updateError);
+        console.error('更新用户信息失败:', updateError);
+        throw new Error('更新用户信息失败');
+      }
+
+      // 3. 创建员工记录（管理员同时也是员工）
+      const { error: employeeError } = await supabase
+        .from('employees')
+        .insert({
+          dealership_id: dealershipData.id,
+          name: username,
+          position: '管理员',
+          phone,
+          hire_date: new Date().toISOString().split('T')[0],
+        });
+
+      if (employeeError) {
+        console.error('创建员工记录失败:', employeeError);
+        // 员工记录创建失败不影响注册流程
       }
     }
   };
