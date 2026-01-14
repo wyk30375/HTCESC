@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const PUBLIC_ROUTES = ['/login', '/customer-view'];
+const PUBLIC_ROUTES = ['/login', '/register', '/customer-view'];
 
 interface RouteGuardProps {
   children: React.ReactNode;

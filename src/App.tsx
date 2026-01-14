@@ -34,8 +34,9 @@ function LoadingFallback() {
 }
 
 const App = () => {
-  // 获取特殊路由的组件
+  // 获取特殊路由的组件（不需要布局的页面）
   const LoginComponent = routes.find(r => r.path === '/login')?.component;
+  const RegisterComponent = routes.find(r => r.path === '/register')?.component;
   const CustomerViewComponent = routes.find(r => r.path === '/customer-view')?.component;
 
   return (
@@ -49,9 +50,12 @@ const App = () => {
               <RouteGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
-                    {/* 登录页面和客户展示页面不需要布局 */}
+                    {/* 登录页面、注册页面和客户展示页面不需要布局 */}
                     {LoginComponent && (
                       <Route path="/login" element={<LoginComponent />} />
+                    )}
+                    {RegisterComponent && (
+                      <Route path="/register" element={<RegisterComponent />} />
                     )}
                     {CustomerViewComponent && (
                       <Route path="/customer-view" element={<CustomerViewComponent />} />
@@ -64,7 +68,7 @@ const App = () => {
                         <Layout>
                           <Routes>
                             {routes
-                              .filter(r => r.path !== '/login' && r.path !== '/customer-view')
+                              .filter(r => r.path !== '/login' && r.path !== '/register' && r.path !== '/customer-view')
                               .map((route) => {
                                 const Component = route.component;
                                 return (
