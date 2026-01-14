@@ -35,14 +35,14 @@ interface LayoutProps {
 }
 
 const navItems = [
-  { path: '/', label: '仪表盘', icon: LayoutDashboard },
-  { path: '/employees', label: '员工管理', icon: Users },
-  { path: '/vehicles', label: '车辆管理', icon: Car },
-  { path: '/sales', label: '销售管理', icon: ShoppingCart },
-  { path: '/expenses', label: '费用管理', icon: Receipt },
-  { path: '/profits', label: '利润分配', icon: PieChart },
-  { path: '/profit-rules', label: '提成规则', icon: Settings },
-  { path: '/statistics', label: '统计分析', icon: BarChart3 },
+  { path: '/', label: '仪表盘', icon: LayoutDashboard, roles: ['admin', 'employee'] },
+  { path: '/employees', label: '员工管理', icon: Users, roles: ['admin'] }, // 只有管理员可以访问
+  { path: '/vehicles', label: '车辆管理', icon: Car, roles: ['admin', 'employee'] },
+  { path: '/sales', label: '销售管理', icon: ShoppingCart, roles: ['admin', 'employee'] },
+  { path: '/expenses', label: '费用管理', icon: Receipt, roles: ['admin', 'employee'] },
+  { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'] },
+  { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'] }, // 只有管理员可以访问
+  { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'] },
 ];
 
 const mobileNavItems = [
@@ -68,6 +68,12 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  // 根据用户角色过滤菜单项
+  const filteredNavItems = navItems.filter(item => {
+    if (!profile?.role) return false;
+    return item.roles.includes(profile.role);
+  });
 
   // 关闭移动端菜单
   const closeMobileMenu = () => {
@@ -97,7 +103,7 @@ export default function Layout({ children }: LayoutProps) {
           {/* 导航菜单 */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
-              {navItems.map((item) => {
+              {filteredNavItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.path);
                 return (
@@ -181,7 +187,7 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
                 <nav className="flex-1 overflow-y-auto p-4">
                   <div className="space-y-1">
-                    {navItems.map((item) => {
+                    {filteredNavItems.map((item) => {
                       const Icon = item.icon;
                       const active = isActive(item.path);
                       return (

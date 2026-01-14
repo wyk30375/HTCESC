@@ -6,18 +6,51 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { PageWrapper } from '@/components/common/PageWrapper';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
+import { useNavigate } from 'react-router-dom';
 
 export default function Employees() {
   const { profile, dealership } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = profile?.role === 'admin';
+  
+  // 权限检查：只有管理员可以访问员工管理页面
+  if (profile && profile.role !== 'admin' && profile.role !== 'super_admin') {
+    return (
+      <PageWrapper>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Card className="max-w-md w-full">
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="h-6 w-6 text-destructive" />
+                <CardTitle>无权访问</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert variant="destructive">
+                <ShieldAlert className="h-4 w-4" />
+                <AlertTitle>权限不足</AlertTitle>
+                <AlertDescription>
+                  只有管理员才能访问员工管理页面。如需查看或管理员工信息，请联系您的车行管理员。
+                </AlertDescription>
+              </Alert>
+              <Button onClick={() => navigate('/')} className="w-full">
+                返回仪表盘
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </PageWrapper>
+    );
+  }
   
   const [employees, setEmployees] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
