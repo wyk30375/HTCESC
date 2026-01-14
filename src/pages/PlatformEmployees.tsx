@@ -19,8 +19,6 @@ interface PlatformEmployee {
   role: string;
   status: 'active' | 'inactive';
   created_at: string;
-  dealership_id?: string;
-  dealership_name?: string;
 }
 
 export default function PlatformEmployees() {
@@ -45,21 +43,12 @@ export default function PlatformEmployees() {
     try {
       setLoading(true);
       // 查询所有平台员工（super_admin）
-      // 注意：super_admin 可能有 dealership_id（如吴韩属于易驰汽车）
+      // 平台员工不属于任何车行，dealership_id 必须为 NULL
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          id, 
-          username, 
-          email, 
-          phone, 
-          role, 
-          status,
-          created_at,
-          dealership_id,
-          dealership:dealerships!profiles_dealership_id_fkey(name)
-        `)
+        .select('id, username, email, phone, role, status, created_at')
         .eq('role', 'super_admin')
+        .is('dealership_id', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -75,8 +64,6 @@ export default function PlatformEmployees() {
         role: item.role,
         status: item.status || 'active',
         created_at: item.created_at,
-        dealership_id: item.dealership_id,
-        dealership_name: item.dealership?.name,
       })) || []);
     } catch (error) {
       console.error('加载员工列表失败:', error);
@@ -344,7 +331,6 @@ export default function PlatformEmployees() {
                   <TableHead>邮箱</TableHead>
                   <TableHead>手机号</TableHead>
                   <TableHead>角色</TableHead>
-                  <TableHead>所属车行</TableHead>
                   <TableHead>创建时间</TableHead>
                   <TableHead className="text-right">操作</TableHead>
                 </TableRow>
@@ -359,13 +345,6 @@ export default function PlatformEmployees() {
                       <Badge variant={getRoleBadgeVariant(employee.role)}>
                         {getRoleName(employee.role)}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {employee.dealership_name ? (
-                        <span className="text-sm">{employee.dealership_name}</span>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">平台直属</span>
-                      )}
                     </TableCell>
                     <TableCell>
                       {new Date(employee.created_at).toLocaleDateString('zh-CN')}
