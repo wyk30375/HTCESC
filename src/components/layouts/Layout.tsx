@@ -25,6 +25,7 @@ import {
   Eye,
   FileText,
   Settings,
+  Building2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -50,7 +51,7 @@ const mobileNavItems = [
 ];
 
 export default function Layout({ children }: LayoutProps) {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, dealership, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -82,7 +83,14 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex h-16 items-center border-b px-6">
             <Link to="/" className="flex items-center gap-2 font-semibold text-sidebar-foreground">
               <Car className="h-6 w-6 text-sidebar-primary" />
-              <span className="text-lg">车行管理系统</span>
+              <div className="flex flex-col">
+                <span className="text-lg">{dealership?.name || '车行管理系统'}</span>
+                {dealership && (
+                  <span className="text-xs text-muted-foreground font-normal">
+                    {dealership.code}
+                  </span>
+                )}
+              </div>
             </Link>
           </div>
 
@@ -108,7 +116,7 @@ export default function Layout({ children }: LayoutProps) {
                 );
               })}
 
-              {profile?.role === 'admin' && (
+              {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                 <>
                   <div className="my-4 border-t border-sidebar-border" />
                   <Link
@@ -122,6 +130,20 @@ export default function Layout({ children }: LayoutProps) {
                     <UserCog className="h-4 w-4" />
                     用户管理
                   </Link>
+                  
+                  {profile?.role === 'super_admin' && (
+                    <Link
+                      to="/dealerships"
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                        isActive('/dealerships')
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                      }`}
+                    >
+                      <Building2 className="h-4 w-4" />
+                      车行管理
+                    </Link>
+                  )}
                 </>
               )}
 

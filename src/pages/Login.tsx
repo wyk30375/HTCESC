@@ -238,18 +238,29 @@ export default function Login() {
         </CardContent>
       </Card>
 
-      {/* 管理员密码重置对话框 */}
-      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mt-4 text-muted-foreground hover:text-primary"
-          >
-            <KeyRound className="h-4 w-4 mr-2" />
-            管理员密码重置
-          </Button>
-        </DialogTrigger>
+      {/* 底部按钮组 */}
+      <div className="flex flex-col sm:flex-row gap-3 mt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground hover:text-primary"
+          onClick={() => navigate('/register')}
+        >
+          <Car className="h-4 w-4 mr-2" />
+          创建或加入车行
+        </Button>
+        
+        <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+          <DialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-primary"
+            >
+              <KeyRound className="h-4 w-4 mr-2" />
+              管理员密码重置
+            </Button>
+          </DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>管理员密码重置</DialogTitle>
@@ -312,6 +323,7 @@ export default function Login() {
           </form>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

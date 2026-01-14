@@ -17,6 +17,8 @@ export const ProfitRules = lazy(() => import('@/pages/ProfitRules'));
 export const Statistics = lazy(() => import('@/pages/Statistics'));
 export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 export const UserDebug = lazy(() => import('@/pages/UserDebug'));
+export const Dealerships = lazy(() => import('@/pages/Dealerships'));
+export const DealershipRegister = lazy(() => import('@/pages/DealershipRegister'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
 export const Login = lazy(() => import('@/pages/Login'));
@@ -72,6 +74,16 @@ export const routes: RouteConfig[] = [
     path: '/user-debug',
     component: UserDebug,
     title: '用户调试',
+  },
+  {
+    path: '/dealerships',
+    component: Dealerships,
+    title: '车行管理',
+  },
+  {
+    path: '/register',
+    component: DealershipRegister,
+    title: '车行注册',
   },
   {
     path: '/customer-view',
