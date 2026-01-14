@@ -3,11 +3,13 @@ import { Building2, BarChart3, Settings, LogOut, Menu, Users } from 'lucide-reac
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useState } from 'react';
 
 export default function PlatformLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -25,6 +27,7 @@ export default function PlatformLayout() {
     { name: '系统设置', path: '/platform/settings', icon: Settings },
   ];
 
+  // 桌面端导航链接
   const NavLinks = () => (
     <>
       {navigation.map((item) => {
@@ -33,6 +36,30 @@ export default function PlatformLayout() {
           <Link
             key={item.path}
             to={item.path}
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+              isActive(item.path)
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            {item.name}
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  // 移动端导航链接（点击后关闭菜单）
+  const MobileNavLinks = () => (
+    <>
+      {navigation.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.path}
+            to={item.path}
+            onClick={() => setMobileMenuOpen(false)}
             className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
               isActive(item.path)
                 ? 'bg-sidebar-accent text-sidebar-accent-foreground'
@@ -91,7 +118,7 @@ export default function PlatformLayout() {
       {/* 移动端顶部栏 */}
       <div className="flex flex-col flex-1">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background px-4 lg:hidden">
-          <Sheet>
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Menu className="h-5 w-5" />
@@ -108,7 +135,7 @@ export default function PlatformLayout() {
                 </div>
               </div>
               <nav className="flex-1 space-y-1 p-4">
-                <NavLinks />
+                <MobileNavLinks />
               </nav>
               <div className="border-t border-border p-4">
                 <div className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2">
