@@ -15,7 +15,14 @@ export interface Dealership {
   contact_person?: string;
   contact_phone?: string;
   address?: string;
-  status: 'active' | 'inactive';
+  business_license?: string; // 营业执照URL
+  province?: string; // 省份
+  city?: string; // 城市
+  district?: string; // 区县
+  status: 'pending' | 'active' | 'inactive' | 'rejected'; // pending-待审核, active-已激活, inactive-已停用, rejected-审核拒绝
+  rejected_reason?: string; // 拒绝原因
+  reviewed_at?: string; // 审核时间
+  reviewed_by?: string; // 审核人ID
   created_at: string;
   updated_at: string;
 }
