@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -331,17 +331,18 @@ export default function DealershipRegister() {
             </Alert>
           )}
 
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'create' | 'join')}>
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="create" className="gap-2" disabled={isLoggedIn}>
-                <Car className="h-4 w-4" />
-                创建新车行
-              </TabsTrigger>
-              <TabsTrigger value="join" className="gap-2" disabled={isLoggedIn}>
-                <UserPlus className="h-4 w-4" />
-                加入车行
-              </TabsTrigger>
-            </TabsList>
+          {!isLoggedIn && (
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'create' | 'join')}>
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="create" className="gap-2">
+                  <Car className="h-4 w-4" />
+                  创建新车行
+                </TabsTrigger>
+                <TabsTrigger value="join" className="gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  加入车行
+                </TabsTrigger>
+              </TabsList>
 
             {/* 创建新车行 */}
             <TabsContent value="create">
@@ -630,6 +631,7 @@ export default function DealershipRegister() {
               </form>
             </TabsContent>
           </Tabs>
+          )}
         </CardContent>
       </Card>
     </div>
