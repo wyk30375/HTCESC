@@ -66,11 +66,18 @@ export const dealershipsApi = {
 
   // 创建新车行
   async create(dealership: Omit<Dealership, 'id' | 'created_at' | 'updated_at'>) {
-    const { data, error } = await supabase
-      .from('dealerships')
-      .insert(dealership)
-      .select()
-      .single();
+    // 使用 RPC 函数来创建车行，绕过 RLS 限制
+    const { data, error } = await supabase.rpc('register_dealership', {
+      p_name: dealership.name,
+      p_code: dealership.code,
+      p_contact_person: dealership.contact_person || null,
+      p_contact_phone: dealership.contact_phone || null,
+      p_address: dealership.address || null,
+      p_business_license: dealership.business_license || null,
+      p_province: dealership.province || null,
+      p_city: dealership.city || null,
+      p_district: dealership.district || null,
+    });
     
     if (error) throw error;
     return data as Dealership;
