@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('dealership_id, role, dealership:dealerships(status)')
+        .select('dealership_id, role')
         .eq('id', data.user.id)
         .maybeSingle();
 
@@ -109,8 +109,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // 检查车行状态（超级管理员不受限制）
-      if (profileData?.role !== 'super_admin') {
-        const dealershipStatus = (profileData?.dealership as any)?.status;
+      if (profileData?.role !== 'super_admin' && profileData?.dealership_id) {
+        // 单独查询车行状态，明确指定使用 profiles_dealership_id_fkey 关系
+        const { data: dealershipData, error: dealershipError } = await supabase
+          .from('dealerships')
+          .select('status')
+          .eq('id', profileData.dealership_id)
+          .maybeSingle();
+
+        if (dealershipError) {
+          console.error('获取车行信息失败:', dealershipError);
+          throw new Error('登录失败，请稍后重试');
+        }
+
+        const dealershipStatus = dealershipData?.status;
         
         if (!dealershipStatus) {
           // 登出用户
