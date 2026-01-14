@@ -380,10 +380,7 @@ export default function PublicHomeNew() {
                 variant="outline" 
                 onClick={() => setQrDialogOpen(true)} 
                 className="gap-2"
-              >
-                <QrCode className="h-4 w-4" />
-                生成二维码
-              </Button>
+              >平台分享</Button>
             )}
           </div>
           
@@ -422,327 +419,18 @@ export default function PublicHomeNew() {
                   <LogIn className="h-4 w-4" />
                   登录
                 </Button>
-                <Dialog open={registerDialogOpen} onOpenChange={(open) => {
-                  setRegisterDialogOpen(open);
-                  if (!open) setRegisterStep(1);
-                }}>
-                  <DialogTrigger asChild>
-                    <Button className="gap-2">
-                      <UserPlus className="h-4 w-4" />
-                      注册车行
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>车行注册</DialogTitle>
-                      <DialogDescription>
-                        填写以下信息完成注册，审核通过后即可使用平台服务
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    {/* 步骤指示器 */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                          {registerStep > 1 ? <CheckCircle2 className="h-5 w-5" /> : '1'}
-                        </div>
-                        <span className="text-sm font-medium">基本信息</span>
-                      </div>
-                      <Separator className="flex-1 mx-2" />
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                          {registerStep > 2 ? <CheckCircle2 className="h-5 w-5" /> : '2'}
-                        </div>
-                        <span className="text-sm font-medium">资质上传</span>
-                      </div>
-                      <Separator className="flex-1 mx-2" />
-                      <div className="flex items-center gap-2">
-                        <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
-                          3
-                        </div>
-                        <span className="text-sm font-medium">确认提交</span>
-                      </div>
-                    </div>
-
-                    {/* 步骤1：基本信息 */}
-                    {registerStep === 1 && (
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="dealershipName">车行名称 *</Label>
-                            <Input
-                              id="dealershipName"
-                              placeholder="例如：恏淘车二手车行"
-                              value={createForm.dealershipName}
-                              onChange={(e) => setCreateForm({ ...createForm, dealershipName: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="dealershipCode">车行代码 *</Label>
-                            <Input
-                              id="dealershipCode"
-                              placeholder="例如：yichi"
-                              value={createForm.dealershipCode}
-                              onChange={(e) => setCreateForm({ ...createForm, dealershipCode: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                            <p className="text-xs text-muted-foreground">只能包含字母、数字和下划线</p>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="contactPerson">联系人</Label>
-                            <Input
-                              id="contactPerson"
-                              placeholder="请输入联系人姓名"
-                              value={createForm.contactPerson}
-                              onChange={(e) => setCreateForm({ ...createForm, contactPerson: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="contactPhone">联系电话 *</Label>
-                            <Input
-                              id="contactPhone"
-                              type="tel"
-                              placeholder="请输入手机号"
-                              value={createForm.contactPhone}
-                              onChange={(e) => setCreateForm({ ...createForm, contactPhone: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="province">省份 *</Label>
-                            <Select
-                              value={createForm.province}
-                              onValueChange={(value) => setCreateForm({ ...createForm, province: value, city: '', district: '' })}
-                              disabled={registerLoading}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="选择省份" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {PROVINCES.map((province) => (
-                                  <SelectItem key={province} value={province}>
-                                    {province}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="city">城市 *</Label>
-                            <Select
-                              value={createForm.city}
-                              onValueChange={(value) => setCreateForm({ ...createForm, city: value, district: '' })}
-                              disabled={registerLoading || !createForm.province}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="选择城市" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {getCitiesByProvince(createForm.province).map((city) => (
-                                  <SelectItem key={city} value={city}>
-                                    {city}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="district">区县</Label>
-                            <Input
-                              id="district"
-                              placeholder="选填"
-                              value={createForm.district}
-                              onChange={(e) => setCreateForm({ ...createForm, district: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="address">详细地址</Label>
-                          <Input
-                            id="address"
-                            placeholder="请输入详细地址"
-                            value={createForm.address}
-                            onChange={(e) => setCreateForm({ ...createForm, address: e.target.value })}
-                            disabled={registerLoading}
-                          />
-                        </div>
-
-                        <div className="flex justify-end gap-2 pt-4">
-                          <Button onClick={handleNextStep} className="gap-2">
-                            下一步
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 步骤2：资质上传 */}
-                    {registerStep === 2 && (
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label>营业执照 *</Label>
-                          <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                            {createForm.businessLicense ? (
-                              <div className="space-y-3">
-                                <img
-                                  src={createForm.businessLicense}
-                                  alt="营业执照"
-                                  className="max-h-48 mx-auto rounded-lg"
-                                />
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setCreateForm({ ...createForm, businessLicense: '', businessLicensePath: '' })}
-                                >
-                                  重新上传
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="space-y-3">
-                                <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
-                                <div>
-                                  <Label htmlFor="businessLicense" className="cursor-pointer">
-                                    <span className="text-primary hover:underline">点击上传</span>
-                                    <span className="text-muted-foreground"> 或拖拽文件到此处</span>
-                                  </Label>
-                                  <Input
-                                    id="businessLicense"
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleBusinessLicenseUpload}
-                                    disabled={uploading || registerLoading}
-                                  />
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                  支持 JPG、PNG、WEBP 格式，文件大小不超过 1MB
-                                </p>
-                                {uploading && (
-                                  <div className="space-y-2">
-                                    <Progress value={uploadProgress} />
-                                    <p className="text-xs text-muted-foreground">上传中... {uploadProgress}%</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <Separator />
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="username">管理员用户名 *</Label>
-                            <Input
-                              id="username"
-                              placeholder="请输入用户名"
-                              value={createForm.username}
-                              onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="phone">管理员手机号 *</Label>
-                            <Input
-                              id="phone"
-                              type="tel"
-                              placeholder="请输入手机号"
-                              value={createForm.phone}
-                              onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="password">登录密码 *</Label>
-                            <Input
-                              id="password"
-                              type="password"
-                              placeholder="至少6位"
-                              value={createForm.password}
-                              onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">确认密码 *</Label>
-                            <Input
-                              id="confirmPassword"
-                              type="password"
-                              placeholder="再次输入密码"
-                              value={createForm.confirmPassword}
-                              onChange={(e) => setCreateForm({ ...createForm, confirmPassword: e.target.value })}
-                              disabled={registerLoading}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between gap-2 pt-4">
-                          <Button variant="outline" onClick={handlePrevStep}>
-                            上一步
-                          </Button>
-                          <Button onClick={handleNextStep} className="gap-2">
-                            下一步
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* 步骤3：确认提交 */}
-                    {registerStep === 3 && (
-                      <div className="space-y-4">
-                        <Alert>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertDescription>
-                            请仔细阅读以下服务协议及免责条款，确认无误后提交注册申请
-                          </AlertDescription>
-                        </Alert>
-
-                        <DisclaimerContent />
-
-                        <div className="flex items-start space-x-2 pt-4">
-                          <Checkbox
-                            id="agreeDisclaimer"
-                            checked={createForm.agreeDisclaimer}
-                            onCheckedChange={(checked) => setCreateForm({ ...createForm, agreeDisclaimer: checked as boolean })}
-                            disabled={registerLoading}
-                          />
-                          <Label htmlFor="agreeDisclaimer" className="text-sm leading-relaxed cursor-pointer">
-                            我已阅读并同意《恏淘车经营管理平台服务协议及免责条款》
-                          </Label>
-                        </div>
-
-                        <div className="flex justify-between gap-2 pt-4">
-                          <Button variant="outline" onClick={handlePrevStep} disabled={registerLoading}>
-                            上一步
-                          </Button>
-                          <Button onClick={handleSubmitRegistration} disabled={registerLoading || !createForm.agreeDisclaimer}>
-                            {registerLoading ? '提交中...' : '提交注册申请'}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  className="gap-2"
+                  onClick={() => setRegisterDialogOpen(true)}
+                >
+                  <UserPlus className="h-4 w-4" />
+                  注册车行
+                </Button>
               </>
             )}
           </div>
         </div>
       </header>
-
       {/* Hero 区域 */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10">
         <div className="container px-4 py-20 md:py-32">
@@ -759,17 +447,14 @@ export default function PublicHomeNew() {
               汇聚多家优质车行，精选在售车辆，为您提供安全、便捷、透明的二手车经营管理服务
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6">
-              <Dialog open={registerDialogOpen} onOpenChange={(open) => {
-                setRegisterDialogOpen(open);
-                if (!open) setRegisterStep(1);
-              }}>
-                <DialogTrigger asChild>
-                  <Button size="lg" className="gap-2 text-lg h-12">
-                    <Building2 className="h-5 w-5" />
-                    立即注册车行
-                  </Button>
-                </DialogTrigger>
-              </Dialog>
+              <Button 
+                size="lg" 
+                className="gap-2 text-lg h-12"
+                onClick={() => setRegisterDialogOpen(true)}
+              >
+                <Building2 className="h-5 w-5" />
+                立即注册车行
+              </Button>
               <Button size="lg" variant="outline" className="gap-2 text-lg h-12" onClick={() => {
                 document.getElementById('vehicles-section')?.scrollIntoView({ behavior: 'smooth' });
               }}>
@@ -780,7 +465,6 @@ export default function PublicHomeNew() {
           </div>
         </div>
       </section>
-
       {/* 注册流程说明 */}
       <section className="py-20 bg-muted/30">
         <div className="container px-4">
@@ -832,7 +516,6 @@ export default function PublicHomeNew() {
           </Card>
         </div>
       </section>
-
       {/* 平台特色 */}
       <section className="py-20">
         <div className="container px-4">
@@ -896,7 +579,6 @@ export default function PublicHomeNew() {
           </Card>
         </div>
       </section>
-
       {/* 车辆展示区 */}
       <section id="vehicles-section" className="py-20 bg-muted/30">
         <div className="container px-4">
@@ -1041,7 +723,6 @@ export default function PublicHomeNew() {
           )}
         </div>
       </section>
-
       {/* 底部 CTA */}
       {!user && (
         <section className="py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10">
@@ -1050,20 +731,340 @@ export default function PublicHomeNew() {
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
               加入恏淘车经营管理平台，让更多客户看到您的优质车源
             </p>
-            <Dialog open={registerDialogOpen} onOpenChange={(open) => {
-              setRegisterDialogOpen(open);
-              if (!open) setRegisterStep(1);
-            }}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="gap-2 text-lg h-12">
-                  <Building2 className="h-5 w-5" />
-                  立即注册车行
-                </Button>
-              </DialogTrigger>
-            </Dialog>
+            <Button 
+              size="lg" 
+              className="gap-2 text-lg h-12"
+              onClick={() => setRegisterDialogOpen(true)}
+            >
+              <Building2 className="h-5 w-5" />
+              立即注册车行
+            </Button>
           </div>
         </section>
       )}
+
+      {/* 注册对话框 */}
+      <Dialog open={registerDialogOpen} onOpenChange={(open) => {
+        setRegisterDialogOpen(open);
+        if (!open) setRegisterStep(1);
+      }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>车行注册</DialogTitle>
+            <DialogDescription>
+              填写以下信息完成注册，审核通过后即可使用平台服务
+            </DialogDescription>
+          </DialogHeader>
+          
+          {/* 步骤指示器 */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {registerStep > 1 ? <CheckCircle2 className="h-5 w-5" /> : '1'}
+              </div>
+              <span className="text-sm font-medium">基本信息</span>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {registerStep > 2 ? <CheckCircle2 className="h-5 w-5" /> : '2'}
+              </div>
+              <span className="text-sm font-medium">资质上传</span>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${registerStep >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                {registerStep > 3 ? <CheckCircle2 className="h-5 w-5" /> : '3'}
+              </div>
+              <span className="text-sm font-medium">确认提交</span>
+            </div>
+          </div>
+
+          {/* 步骤1：基本信息 */}
+          {registerStep === 1 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dealershipName">车行名称 *</Label>
+                  <Input
+                    id="dealershipName"
+                    placeholder="请输入车行名称"
+                    value={createForm.dealershipName}
+                    onChange={(e) => setCreateForm({ ...createForm, dealershipName: e.target.value })}
+                    disabled={registerLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dealershipCode">车行代码 *</Label>
+                  <Input
+                    id="dealershipCode"
+                    placeholder="请输入车行代码"
+                    value={createForm.dealershipCode}
+                    onChange={(e) => setCreateForm({ ...createForm, dealershipCode: e.target.value })}
+                    disabled={registerLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="contactPerson">联系人 *</Label>
+                  <Input
+                    id="contactPerson"
+                    placeholder="请输入联系人姓名"
+                    value={createForm.contactPerson}
+                    onChange={(e) => setCreateForm({ ...createForm, contactPerson: e.target.value })}
+                    disabled={registerLoading}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactPhone">联系电话 *</Label>
+                  <Input
+                    id="contactPhone"
+                    placeholder="请输入联系电话"
+                    value={createForm.contactPhone}
+                    onChange={(e) => setCreateForm({ ...createForm, contactPhone: e.target.value })}
+                    disabled={registerLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>所在地区 *</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Select
+                    value={createForm.province}
+                    onValueChange={(value) => {
+                      setCreateForm({ ...createForm, province: value, city: '', district: '' });
+                    }}
+                    disabled={registerLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择省份" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROVINCES.map((province) => (
+                        <SelectItem key={province} value={province}>
+                          {province}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={createForm.city}
+                    onValueChange={(value) => {
+                      setCreateForm({ ...createForm, city: value, district: '' });
+                    }}
+                    disabled={!createForm.province || registerLoading}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择城市" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {createForm.province && getCitiesByProvince(createForm.province).map((city) => (
+                        <SelectItem key={city} value={city}>
+                          {city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Input
+                    placeholder="区/县"
+                    value={createForm.district}
+                    onChange={(e) => setCreateForm({ ...createForm, district: e.target.value })}
+                    disabled={registerLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">详细地址 *</Label>
+                <Input
+                  id="address"
+                  placeholder="请输入详细地址"
+                  value={createForm.address}
+                  onChange={(e) => setCreateForm({ ...createForm, address: e.target.value })}
+                  disabled={registerLoading}
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button onClick={handleNextStep} disabled={registerLoading}>
+                  下一步
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* 步骤2：资质上传 */}
+          {registerStep === 2 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>营业执照 *</Label>
+                <div className="border-2 border-dashed rounded-lg p-6 text-center space-y-4">
+                  {createForm.businessLicense ? (
+                    <div className="space-y-4">
+                      <img
+                        src={createForm.businessLicense}
+                        alt="营业执照"
+                        className="max-w-full h-auto mx-auto rounded-lg"
+                        style={{ maxHeight: '300px' }}
+                      />
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setCreateForm({ ...createForm, businessLicense: '', businessLicensePath: '' });
+                            setUploadProgress(0);
+                          }}
+                          disabled={uploading || registerLoading}
+                        >
+                          重新上传
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col items-center gap-2">
+                        <Upload className="h-12 w-12 text-muted-foreground" />
+                        <div className="text-sm text-muted-foreground">
+                          <label htmlFor="businessLicenseUpload" className="cursor-pointer text-primary hover:underline">
+                            点击上传
+                          </label>
+                          {' '}或拖拽文件到此处
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          支持 JPG、PNG 格式，文件大小不超过 1MB
+                        </div>
+                      </div>
+                      <input
+                        id="businessLicenseUpload"
+                        type="file"
+                        accept="image/jpeg,image/png"
+                        className="hidden"
+                        onChange={handleBusinessLicenseUpload}
+                        disabled={uploading || registerLoading}
+                      />
+                    </>
+                  )}
+                  {uploading && (
+                    <div className="space-y-2">
+                      <Progress value={uploadProgress} />
+                      <p className="text-sm text-muted-foreground">上传中... {uploadProgress}%</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  请确保营业执照图片清晰可见，包含完整的企业信息。审核人员将根据此信息进行审核。
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex justify-between gap-2 pt-4">
+                <Button variant="outline" onClick={handlePrevStep} disabled={registerLoading}>
+                  上一步
+                </Button>
+                <Button onClick={handleNextStep} disabled={!createForm.businessLicense || registerLoading}>
+                  下一步
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* 步骤3：确认提交 */}
+          {registerStep === 3 && (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="font-semibold">请确认以下信息</h3>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">车行名称：</span>
+                    <span className="font-medium">{createForm.dealershipName}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">车行代码：</span>
+                    <span className="font-medium">{createForm.dealershipCode}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">联系人：</span>
+                    <span className="font-medium">{createForm.contactPerson}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">联系电话：</span>
+                    <span className="font-medium">{createForm.contactPhone}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">所在地区：</span>
+                    <span className="font-medium">
+                      {createForm.province} {createForm.city} {createForm.district}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-muted-foreground">详细地址：</span>
+                    <span className="font-medium">{createForm.address}</span>
+                  </div>
+                </div>
+
+                {createForm.businessLicense && (
+                  <div className="space-y-2">
+                    <span className="text-sm text-muted-foreground">营业执照：</span>
+                    <img
+                      src={createForm.businessLicense}
+                      alt="营业执照"
+                      className="max-w-full h-auto rounded-lg border"
+                      style={{ maxHeight: '200px' }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              <Separator />
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="link" className="h-auto p-0 text-primary">
+                    查看《恏淘车经营管理平台服务协议及免责条款》
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>恏淘车经营管理平台服务协议及免责条款</DialogTitle>
+                  </DialogHeader>
+                  <DisclaimerContent />
+                </DialogContent>
+              </Dialog>
+
+              <div className="flex items-start gap-2">
+                <Checkbox
+                  id="agreeDisclaimer"
+                  checked={createForm.agreeDisclaimer}
+                  onCheckedChange={(checked) => setCreateForm({ ...createForm, agreeDisclaimer: checked as boolean })}
+                  disabled={registerLoading}
+                />
+                <Label htmlFor="agreeDisclaimer" className="text-sm leading-relaxed cursor-pointer">
+                  我已阅读并同意《恏淘车经营管理平台服务协议及免责条款》
+                </Label>
+              </div>
+
+              <div className="flex justify-between gap-2 pt-4">
+                <Button variant="outline" onClick={handlePrevStep} disabled={registerLoading}>
+                  上一步
+                </Button>
+                <Button onClick={handleSubmitRegistration} disabled={registerLoading || !createForm.agreeDisclaimer}>
+                  {registerLoading ? '提交中...' : '提交注册申请'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* 二维码对话框 */}
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
@@ -1120,7 +1121,6 @@ export default function PublicHomeNew() {
           </div>
         </DialogContent>
       </Dialog>
-
       {/* 页脚 */}
       <footer className="border-t bg-muted/30">
         <div className="container px-4 py-12">
