@@ -8,7 +8,7 @@ import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Vehicle } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Calendar, Gauge, ArrowLeft, QrCode } from 'lucide-react';
+import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { toast } from 'sonner';
 
@@ -144,8 +144,28 @@ export default function CustomerView() {
                   </p>
                 )}
 
-                <div className="pt-2 border-t">
-                  <p className="text-xs text-muted-foreground">价格面议</p>
+                <div className="pt-2 border-t flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-muted-foreground">价格面议</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-1 shrink-0"
+                    onClick={() => {
+                      if (dealership?.contact_phone) {
+                        toast.success('联系方式', {
+                          description: `${dealership.name}\n联系电话：${dealership.contact_phone}${dealership.contact_person ? `\n联系人：${dealership.contact_person}` : ''}`,
+                          duration: 5000,
+                        });
+                      } else {
+                        toast.error('暂无联系方式');
+                      }
+                    }}
+                  >
+                    <Phone className="h-3 w-3" />
+                    联系方式
+                  </Button>
                 </div>
               </CardContent>
             </Card>
