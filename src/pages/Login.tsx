@@ -6,14 +6,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Car } from 'lucide-react';
+import { Car, KeyRound } from 'lucide-react';
+import { supabase } from '@/db/supabase';
 
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // 管理员密码重置
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetUsername, setResetUsername] = useState('');
+  const [resetNewPassword, setResetNewPassword] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -72,6 +81,49 @@ export default function Login() {
       toast.error(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAdminResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resetUsername || !resetNewPassword) {
+      toast.error('请输入用户名和新密码');
+      return;
+    }
+
+    if (resetNewPassword.length < 6) {
+      toast.error('新密码长度至少为6位');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      // 调用 Edge Function 重置管理员密码
+      const { data, error } = await supabase.functions.invoke('reset-admin-password', {
+        body: {
+          username: resetUsername,
+          newPassword: resetNewPassword,
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data?.success) {
+        toast.success('管理员密码重置成功！请使用新密码登录');
+        setResetDialogOpen(false);
+        setResetUsername('');
+        setResetNewPassword('');
+      } else {
+        toast.error(data?.message || '密码重置失败');
+      }
+    } catch (error: any) {
+      console.error('重置密码失败:', error);
+      toast.error(error.message || '密码重置失败');
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -185,6 +237,81 @@ export default function Login() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* 管理员密码重置对话框 */}
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-4 text-muted-foreground hover:text-primary"
+          >
+            <KeyRound className="h-4 w-4 mr-2" />
+            管理员密码重置
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>管理员密码重置</DialogTitle>
+            <DialogDescription>
+              只有管理员账号可以使用此功能重置密码
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleAdminResetPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-username" className="text-sm sm:text-base">
+                管理员用户名 *
+              </Label>
+              <Input
+                id="reset-username"
+                type="text"
+                placeholder="请输入管理员用户名"
+                value={resetUsername}
+                onChange={(e) => setResetUsername(e.target.value)}
+                disabled={resetLoading}
+                className="h-11 sm:h-10"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reset-password" className="text-sm sm:text-base">
+                新密码 *
+              </Label>
+              <Input
+                id="reset-password"
+                type="password"
+                placeholder="请输入新密码（至少6位）"
+                value={resetNewPassword}
+                onChange={(e) => setResetNewPassword(e.target.value)}
+                disabled={resetLoading}
+                className="h-11 sm:h-10"
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                密码长度至少为6位，建议使用字母、数字和符号组合
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setResetDialogOpen(false)}
+                disabled={resetLoading}
+                className="h-11 sm:h-10 w-full sm:w-auto"
+              >
+                取消
+              </Button>
+              <Button
+                type="submit"
+                disabled={resetLoading}
+                className="h-11 sm:h-10 w-full sm:w-auto"
+              >
+                {resetLoading ? '重置中...' : '重置密码'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
