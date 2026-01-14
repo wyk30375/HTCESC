@@ -83,7 +83,7 @@ export const routes: RouteConfig[] = [
   {
     path: '/register',
     component: PublicHomeNew,
-    title: '易驰汽车平台',
+    title: '恏淘车经营管理平台',
   },
   {
     path: '/customer-view',

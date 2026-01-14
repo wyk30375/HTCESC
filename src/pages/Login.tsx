@@ -136,7 +136,7 @@ export default function Login() {
             <Car className="h-6 w-6 text-white" />
           </div>
           <div className="text-white">
-            <h1 className="text-xl font-bold">易驰汽车</h1>
+            <h1 className="text-xl font-bold">恏淘车</h1>
             <p className="text-sm text-white/80">二手车车行经营销售管理</p>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function Login() {
         </div>
 
         <div className="text-white/60 text-sm">
-          © 2026 易驰汽车车行管理系统. All rights reserved.
+          © 2026 恏淘车经营管理平台. All rights reserved.
         </div>
       </div>
 

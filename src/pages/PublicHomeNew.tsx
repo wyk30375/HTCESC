@@ -345,7 +345,7 @@ export default function PublicHomeNew() {
               <Car className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <span className="text-xl font-bold">易驰汽车</span>
+              <span className="text-xl font-bold">恏淘车</span>
               <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
             </div>
           </div>
@@ -418,7 +418,7 @@ export default function PublicHomeNew() {
                             <Label htmlFor="dealershipName">车行名称 *</Label>
                             <Input
                               id="dealershipName"
-                              placeholder="例如：易驰汽车"
+                              placeholder="例如：恏淘车二手车行"
                               value={createForm.dealershipName}
                               onChange={(e) => setCreateForm({ ...createForm, dealershipName: e.target.value })}
                               disabled={registerLoading}
@@ -667,7 +667,7 @@ export default function PublicHomeNew() {
                             disabled={registerLoading}
                           />
                           <Label htmlFor="agreeDisclaimer" className="text-sm leading-relaxed cursor-pointer">
-                            我已阅读并同意《易驰汽车平台服务协议及免责条款》
+                            我已阅读并同意《恏淘车经营管理平台服务协议及免责条款》
                           </Label>
                         </div>
 
@@ -959,7 +959,7 @@ export default function PublicHomeNew() {
           <div className="container px-4 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">准备好开始了吗？</h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              加入易驰汽车平台，让更多客户看到您的优质车源
+              加入恏淘车经营管理平台，让更多客户看到您的优质车源
             </p>
             <Dialog open={registerDialogOpen} onOpenChange={(open) => {
               setRegisterDialogOpen(open);
@@ -985,7 +985,7 @@ export default function PublicHomeNew() {
                 <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                   <Car className="h-6 w-6 text-primary" />
                 </div>
-                <span className="text-xl font-bold">易驰汽车</span>
+                <span className="text-xl font-bold">恏淘车</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 专业的二手车经营管理平台，为车行提供安全、便捷的管理服务。
@@ -1024,7 +1024,7 @@ export default function PublicHomeNew() {
           <Separator className="my-8" />
           
           <div className="text-center text-sm text-muted-foreground">
-            <p>© 2026 易驰汽车平台 · 优质二手车经营管理平台</p>
+            <p>© 2026 恏淘车经营管理平台 · 专业的二手车车行管理服务</p>
           </div>
         </div>
       </footer>

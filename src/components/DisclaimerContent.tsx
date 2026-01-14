@@ -4,12 +4,12 @@ export default function DisclaimerContent() {
   return (
     <ScrollArea className="h-64 w-full rounded-md border p-4">
       <div className="space-y-4 text-sm">
-        <h3 className="font-bold text-base">易驰汽车平台服务协议及免责条款</h3>
+        <h3 className="font-bold text-base">恏淘车经营管理平台服务协议及免责条款</h3>
         
         <section>
           <h4 className="font-semibold mb-2">一、服务说明</h4>
           <p className="text-muted-foreground leading-relaxed">
-            1.1 易驰汽车平台（以下简称"本平台"）为二手车行提供车辆展示、信息管理等服务。
+            1.1 恏淘车经营管理平台（以下简称"本平台"）为二手车行提供车辆展示、信息管理等服务。
           </p>
           <p className="text-muted-foreground leading-relaxed">
             1.2 车行注册并使用本平台服务，即表示同意遵守本协议的所有条款。
