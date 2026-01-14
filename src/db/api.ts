@@ -128,6 +128,24 @@ export const profilesApi = {
     if (error) throw error;
     return data;
   },
+
+  // 重置用户密码为默认密码123456
+  async resetPassword(userId: string) {
+    // 使用 Supabase Admin API 重置密码
+    const { data, error } = await supabase.auth.admin.updateUserById(
+      userId,
+      { password: '123456' }
+    );
+    if (error) throw error;
+
+    // 更新 profiles 表，标记为使用默认密码
+    await supabase
+      .from('profiles')
+      .update({ default_password: '123456' })
+      .eq('id', userId);
+
+    return data;
+  },
 };
 
 // ==================== 员工 API ====================

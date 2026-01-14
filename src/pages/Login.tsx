@@ -112,7 +112,12 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signin-password">密码</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="signin-password">密码</Label>
+                    <span className="text-xs text-muted-foreground">
+                      忘记密码？请联系管理员重置
+                    </span>
+                  </div>
                   <Input
                     id="signin-password"
                     type="password"

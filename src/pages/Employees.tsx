@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -123,6 +123,26 @@ export default function Employees() {
     }
   };
 
+  const handleResetPassword = async (employee: Profile) => {
+    if (!isAdmin) {
+      toast.error('只有管理员可以重置密码');
+      return;
+    }
+
+    if (!confirm(`确定要将 ${employee.username} 的密码重置为默认密码 123456 吗？`)) {
+      return;
+    }
+
+    try {
+      await profilesApi.resetPassword(employee.id);
+      toast.success('密码已重置为 123456，请通知员工修改密码');
+      loadData();
+    } catch (error) {
+      console.error('重置密码失败:', error);
+      toast.error('重置密码失败');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       username: '',
@@ -214,8 +234,17 @@ export default function Employees() {
                               variant="ghost"
                               size="icon"
                               onClick={() => handleEdit(employee)}
+                              title="编辑员工信息"
                             >
                               <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleResetPassword(employee)}
+                              title="重置密码为123456"
+                            >
+                              <KeyRound className="h-4 w-4 text-orange-600" />
                             </Button>
                             {employee.id !== profile?.id && (
                               <Button
@@ -300,32 +329,43 @@ export default function Employees() {
 
                         {/* 操作按钮 */}
                         {isAdmin && (
-                          <div className="flex gap-2 sm:gap-3 pt-3 border-t">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 h-11 sm:h-10"
-                              onClick={() => handleEdit(employee)}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              编辑
-                            </Button>
-                            {employee.id !== profile?.id && (
+                          <div className="flex flex-col gap-2 pt-3 border-t">
+                            <div className="flex gap-2 sm:gap-3">
                               <Button
                                 variant="outline"
                                 size="sm"
                                 className="flex-1 h-11 sm:h-10"
+                                onClick={() => handleEdit(employee)}
+                              >
+                                <Edit className="h-4 w-4 mr-2" />
+                                编辑
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 h-11 sm:h-10"
+                                onClick={() => handleResetPassword(employee)}
+                              >
+                                <KeyRound className="h-4 w-4 mr-2" />
+                                重置密码
+                              </Button>
+                            </div>
+                            {employee.id !== profile?.id && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full h-11 sm:h-10"
                                 onClick={() => handleToggleStatus(employee)}
                               >
                                 {employee.status === 'active' ? (
                                   <>
                                     <UserX className="h-4 w-4 mr-2" />
-                                    禁用
+                                    禁用账号
                                   </>
                                 ) : (
                                   <>
                                     <UserCheck className="h-4 w-4 mr-2" />
-                                    启用
+                                    启用账号
                                   </>
                                 )}
                               </Button>
