@@ -30,7 +30,9 @@ export default {
                                 foreground: 'hsl(var(--foreground))',
                                 primary: {
                                         DEFAULT: 'hsl(var(--primary))',
-                                        foreground: 'hsl(var(--primary-foreground))'
+                                        foreground: 'hsl(var(--primary-foreground))',
+                                        light: 'hsl(var(--primary-light))',
+                                        dark: 'hsl(var(--primary-dark))'
                                 },
                                 secondary: {
                                         DEFAULT: 'hsl(var(--secondary))',
@@ -46,7 +48,9 @@ export default {
                                 },
                                 accent: {
                                         DEFAULT: 'hsl(var(--accent))',
-                                        foreground: 'hsl(var(--accent-foreground))'
+                                        foreground: 'hsl(var(--accent-foreground))',
+                                        light: 'hsl(var(--accent-light))',
+                                        dark: 'hsl(var(--accent-dark))'
                                 },
                                 popover: {
                                         DEFAULT: 'hsl(var(--popover))',
@@ -58,15 +62,45 @@ export default {
                                 },
                                 success: {
                                         DEFAULT: 'hsl(var(--success))',
-                                        foreground: 'hsl(var(--success-foreground))'
+                                        foreground: 'hsl(var(--success-foreground))',
+                                        light: 'hsl(var(--success-light))',
+                                        dark: 'hsl(var(--success-dark))'
                                 },
                                 warning: {
                                         DEFAULT: 'hsl(var(--warning))',
-                                        foreground: 'hsl(var(--warning-foreground))'
+                                        foreground: 'hsl(var(--warning-foreground))',
+                                        light: 'hsl(var(--warning-light))',
+                                        dark: 'hsl(var(--warning-dark))'
                                 },
                                 info: {
                                         DEFAULT: 'hsl(var(--info))',
-                                        foreground: 'hsl(var(--info-foreground))'
+                                        foreground: 'hsl(var(--info-foreground))',
+                                        light: 'hsl(var(--info-light))',
+                                        dark: 'hsl(var(--info-dark))'
+                                },
+                                purple: {
+                                        DEFAULT: 'hsl(var(--purple))',
+                                        foreground: 'hsl(var(--purple-foreground))',
+                                        light: 'hsl(var(--purple-light))',
+                                        dark: 'hsl(var(--purple-dark))'
+                                },
+                                cyan: {
+                                        DEFAULT: 'hsl(var(--cyan))',
+                                        foreground: 'hsl(var(--cyan-foreground))',
+                                        light: 'hsl(var(--cyan-light))',
+                                        dark: 'hsl(var(--cyan-dark))'
+                                },
+                                pink: {
+                                        DEFAULT: 'hsl(var(--pink))',
+                                        foreground: 'hsl(var(--pink-foreground))',
+                                        light: 'hsl(var(--pink-light))',
+                                        dark: 'hsl(var(--pink-dark))'
+                                },
+                                indigo: {
+                                        DEFAULT: 'hsl(var(--indigo))',
+                                        foreground: 'hsl(var(--indigo-foreground))',
+                                        light: 'hsl(var(--indigo-light))',
+                                        dark: 'hsl(var(--indigo-dark))'
                                 },
                                 sidebar: {
                                         DEFAULT: 'hsl(var(--sidebar-background))',
@@ -83,7 +117,10 @@ export default {
                                         '2': 'hsl(var(--chart-2))',
                                         '3': 'hsl(var(--chart-3))',
                                         '4': 'hsl(var(--chart-4))',
-                                        '5': 'hsl(var(--chart-5))'
+                                        '5': 'hsl(var(--chart-5))',
+                                        '6': 'hsl(var(--chart-6))',
+                                        '7': 'hsl(var(--chart-7))',
+                                        '8': 'hsl(var(--chart-8))'
                                 }
                         },
                         borderRadius: {

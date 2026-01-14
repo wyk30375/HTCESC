@@ -18,6 +18,8 @@
     /* 主色：专业深蓝 */
     --primary: 215 85% 35%;
     --primary-foreground: 0 0% 100%;
+    --primary-light: 215 85% 45%;
+    --primary-dark: 215 85% 25%;
 
     /* 辅助色：灰蓝 */
     --secondary: 215 15% 92%;
@@ -30,6 +32,8 @@
     /* 强调色：活力橙 */
     --accent: 25 95% 53%;
     --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 63%;
+    --accent-dark: 25 95% 43%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -50,12 +54,15 @@
     --sidebar-border: 215 25% 22%;
     --sidebar-ring: 215 85% 35%;
 
-    /* 图表配色 */
-    --chart-1: 215 85% 35%;
-    --chart-2: 25 95% 53%;
-    --chart-3: 145 65% 45%;
-    --chart-4: 280 65% 55%;
-    --chart-5: 340 75% 55%;
+    /* 图表配色 - 更丰富的色彩 */
+    --chart-1: 215 85% 35%;  /* 深蓝 */
+    --chart-2: 25 95% 53%;   /* 橙色 */
+    --chart-3: 145 65% 45%;  /* 绿色 */
+    --chart-4: 280 65% 55%;  /* 紫色 */
+    --chart-5: 340 75% 55%;  /* 粉红 */
+    --chart-6: 190 85% 45%;  /* 青色 */
+    --chart-7: 45 95% 55%;   /* 黄色 */
+    --chart-8: 160 60% 50%;  /* 青绿 */
     
     /* 页面背景渐变色 */
     --page-bg-start: 210 40% 98%;
@@ -64,14 +71,44 @@
     /* 成功色 */
     --success: 145 65% 45%;
     --success-foreground: 0 0% 100%;
+    --success-light: 145 65% 55%;
+    --success-dark: 145 65% 35%;
     
     /* 警告色 */
     --warning: 45 95% 55%;
     --warning-foreground: 0 0% 100%;
+    --warning-light: 45 95% 65%;
+    --warning-dark: 45 95% 45%;
     
     /* 信息色 */
     --info: 200 85% 50%;
     --info-foreground: 0 0% 100%;
+    --info-light: 200 85% 60%;
+    --info-dark: 200 85% 40%;
+    
+    /* 扩展色彩 - 紫色系 */
+    --purple: 280 65% 55%;
+    --purple-foreground: 0 0% 100%;
+    --purple-light: 280 65% 65%;
+    --purple-dark: 280 65% 45%;
+    
+    /* 扩展色彩 - 青色系 */
+    --cyan: 190 85% 45%;
+    --cyan-foreground: 0 0% 100%;
+    --cyan-light: 190 85% 55%;
+    --cyan-dark: 190 85% 35%;
+    
+    /* 扩展色彩 - 粉色系 */
+    --pink: 340 75% 55%;
+    --pink-foreground: 0 0% 100%;
+    --pink-light: 340 75% 65%;
+    --pink-dark: 340 75% 45%;
+    
+    /* 扩展色彩 - 靛蓝系 */
+    --indigo: 240 75% 55%;
+    --indigo-foreground: 0 0% 100%;
+    --indigo-light: 240 75% 65%;
+    --indigo-dark: 240 75% 45%;
   }
 
   .dark {
@@ -86,6 +123,8 @@
 
     --primary: 215 85% 45%;
     --primary-foreground: 0 0% 100%;
+    --primary-light: 215 85% 55%;
+    --primary-dark: 215 85% 35%;
 
     --secondary: 215 25% 18%;
     --secondary-foreground: 215 15% 92%;
@@ -95,6 +134,8 @@
 
     --accent: 25 95% 53%;
     --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 63%;
+    --accent-dark: 25 95% 43%;
 
     --destructive: 0 75% 50%;
     --destructive-foreground: 0 0% 100%;
@@ -117,18 +158,47 @@
     --chart-3: 145 65% 50%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 60%;
+    --chart-6: 190 85% 50%;
+    --chart-7: 45 95% 60%;
+    --chart-8: 160 60% 55%;
     
     --page-bg-start: 215 25% 10%;
     --page-bg-end: 215 30% 8%;
     
     --success: 145 65% 50%;
     --success-foreground: 0 0% 100%;
+    --success-light: 145 65% 60%;
+    --success-dark: 145 65% 40%;
     
     --warning: 45 95% 60%;
     --warning-foreground: 0 0% 100%;
+    --warning-light: 45 95% 70%;
+    --warning-dark: 45 95% 50%;
     
     --info: 200 85% 55%;
     --info-foreground: 0 0% 100%;
+    --info-light: 200 85% 65%;
+    --info-dark: 200 85% 45%;
+    
+    --purple: 280 65% 60%;
+    --purple-foreground: 0 0% 100%;
+    --purple-light: 280 65% 70%;
+    --purple-dark: 280 65% 50%;
+    
+    --cyan: 190 85% 50%;
+    --cyan-foreground: 0 0% 100%;
+    --cyan-light: 190 85% 60%;
+    --cyan-dark: 190 85% 40%;
+    
+    --pink: 340 75% 60%;
+    --pink-foreground: 0 0% 100%;
+    --pink-light: 340 75% 70%;
+    --pink-dark: 340 75% 50%;
+    
+    --indigo: 240 75% 60%;
+    --indigo-foreground: 0 0% 100%;
+    --indigo-light: 240 75% 70%;
+    --indigo-dark: 240 75% 50%;
   }
 }
 
@@ -157,43 +227,244 @@
   
   /* 主色渐变背景 */
   .primary-gradient {
-    @apply bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(215_85%_45%)];
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-light))];
   }
   
   /* 强调色渐变背景 */
   .accent-gradient {
-    @apply bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(35_95%_58%)];
+    @apply bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent-light))];
   }
   
   /* 成功色渐变背景 */
   .success-gradient {
-    @apply bg-gradient-to-r from-[hsl(var(--success))] to-[hsl(155_65%_50%)];
+    @apply bg-gradient-to-r from-[hsl(var(--success))] to-[hsl(var(--success-light))];
+  }
+  
+  /* 警告色渐变背景 */
+  .warning-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--warning))] to-[hsl(var(--warning-light))];
+  }
+  
+  /* 信息色渐变背景 */
+  .info-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--info))] to-[hsl(var(--info-light))];
+  }
+  
+  /* 紫色渐变背景 */
+  .purple-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--purple))] to-[hsl(var(--purple-light))];
+  }
+  
+  /* 青色渐变背景 */
+  .cyan-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--cyan))] to-[hsl(var(--cyan-light))];
+  }
+  
+  /* 粉色渐变背景 */
+  .pink-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--pink))] to-[hsl(var(--pink-light))];
+  }
+  
+  /* 靛蓝渐变背景 */
+  .indigo-gradient {
+    @apply bg-gradient-to-r from-[hsl(var(--indigo))] to-[hsl(var(--indigo-light))];
   }
   
   /* 页面标题区域背景 */
   .page-header-bg {
-    @apply bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(215_75%_40%)] to-[hsl(215_85%_35%)] text-white;
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(215_75%_40%)] to-[hsl(var(--primary-dark))] text-white;
   }
   
-  /* 统计卡片背景 */
-  .stat-card-blue {
-    @apply bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200;
+  /* 统计卡片背景 - 使用语义化颜色 */
+  .stat-card-primary {
+    @apply bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/30 border-blue-200 dark:border-blue-800;
   }
   
-  .stat-card-orange {
-    @apply bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200;
+  .stat-card-accent {
+    @apply bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 border-orange-200 dark:border-orange-800;
   }
   
-  .stat-card-green {
-    @apply bg-gradient-to-br from-green-50 to-green-100 border-green-200;
+  .stat-card-success {
+    @apply bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950/30 dark:to-green-900/30 border-green-200 dark:border-green-800;
   }
   
   .stat-card-purple {
-    @apply bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200;
+    @apply bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950/30 dark:to-purple-900/30 border-purple-200 dark:border-purple-800;
+  }
+  
+  .stat-card-cyan {
+    @apply bg-gradient-to-br from-cyan-50 to-cyan-100 dark:from-cyan-950/30 dark:to-cyan-900/30 border-cyan-200 dark:border-cyan-800;
+  }
+  
+  .stat-card-pink {
+    @apply bg-gradient-to-br from-pink-50 to-pink-100 dark:from-pink-950/30 dark:to-pink-900/30 border-pink-200 dark:border-pink-800;
+  }
+  
+  .stat-card-indigo {
+    @apply bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950/30 dark:to-indigo-900/30 border-indigo-200 dark:border-indigo-800;
+  }
+  
+  .stat-card-warning {
+    @apply bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-950/30 dark:to-yellow-900/30 border-yellow-200 dark:border-yellow-800;
   }
   
   /* 玻璃态效果 */
   .glass-effect {
-    @apply bg-white/80 backdrop-blur-sm border border-white/20 shadow-lg;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border border-white/20 dark:border-gray-700/20 shadow-lg;
+  }
+  
+  /* 卡片悬停效果 */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1;
+  }
+  
+  /* 渐变文字 */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-light))] bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-accent {
+    @apply bg-gradient-to-r from-[hsl(var(--accent))] to-[hsl(var(--accent-light))] bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-success {
+    @apply bg-gradient-to-r from-[hsl(var(--success))] to-[hsl(var(--success-light))] bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-[hsl(var(--purple))] to-[hsl(var(--purple-light))] bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-rainbow {
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--purple))] to-[hsl(var(--pink))] bg-clip-text text-transparent;
+  }
+  
+  /* 边框渐变 */
+  .border-gradient-primary {
+    @apply border-2 border-transparent bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--primary-light))] bg-clip-border;
+  }
+  
+  /* 阴影效果 */
+  .shadow-primary {
+    box-shadow: 0 4px 14px 0 rgba(33, 96, 253, 0.15);
+  }
+  
+  .shadow-accent {
+    box-shadow: 0 4px 14px 0 rgba(255, 107, 0, 0.15);
+  }
+  
+  .shadow-success {
+    box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.15);
+  }
+  
+  .shadow-purple {
+    box-shadow: 0 4px 14px 0 rgba(168, 85, 247, 0.15);
+  }
+  
+  /* 彩色边框 */
+  .border-primary {
+    @apply border-[hsl(var(--primary))];
+  }
+  
+  .border-accent {
+    @apply border-[hsl(var(--accent))];
+  }
+  
+  .border-success {
+    @apply border-[hsl(var(--success))];
+  }
+  
+  .border-warning {
+    @apply border-[hsl(var(--warning))];
+  }
+  
+  .border-info {
+    @apply border-[hsl(var(--info))];
+  }
+  
+  .border-purple {
+    @apply border-[hsl(var(--purple))];
+  }
+  
+  .border-cyan {
+    @apply border-[hsl(var(--cyan))];
+  }
+  
+  .border-pink {
+    @apply border-[hsl(var(--pink))];
+  }
+  
+  /* 彩色文字 */
+  .text-primary {
+    @apply text-[hsl(var(--primary))];
+  }
+  
+  .text-accent {
+    @apply text-[hsl(var(--accent))];
+  }
+  
+  .text-success {
+    @apply text-[hsl(var(--success))];
+  }
+  
+  .text-warning {
+    @apply text-[hsl(var(--warning))];
+  }
+  
+  .text-info {
+    @apply text-[hsl(var(--info))];
+  }
+  
+  .text-purple {
+    @apply text-[hsl(var(--purple))];
+  }
+  
+  .text-cyan {
+    @apply text-[hsl(var(--cyan))];
+  }
+  
+  .text-pink {
+    @apply text-[hsl(var(--pink))];
+  }
+  
+  .text-indigo {
+    @apply text-[hsl(var(--indigo))];
+  }
+  
+  /* 彩色背景 */
+  .bg-primary {
+    @apply bg-[hsl(var(--primary))];
+  }
+  
+  .bg-accent {
+    @apply bg-[hsl(var(--accent))];
+  }
+  
+  .bg-success {
+    @apply bg-[hsl(var(--success))];
+  }
+  
+  .bg-warning {
+    @apply bg-[hsl(var(--warning))];
+  }
+  
+  .bg-info {
+    @apply bg-[hsl(var(--info))];
+  }
+  
+  .bg-purple {
+    @apply bg-[hsl(var(--purple))];
+  }
+  
+  .bg-cyan {
+    @apply bg-[hsl(var(--cyan))];
+  }
+  
+  .bg-pink {
+    @apply bg-[hsl(var(--pink))];
+  }
+  
+  .bg-indigo {
+    @apply bg-[hsl(var(--indigo))];
   }
 }
