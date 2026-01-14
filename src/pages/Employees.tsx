@@ -8,19 +8,21 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { PageWrapper } from '@/components/common/PageWrapper';
+import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 
 export default function Employees() {
-  const { profile } = useAuth();
+  const { profile, dealership } = useAuth();
   const isAdmin = profile?.role === 'admin';
   
   const [employees, setEmployees] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Profile | null>(null);
 
   const [formData, setFormData] = useState({
@@ -191,9 +193,19 @@ export default function Employees() {
             <p className="text-muted-foreground mt-2 text-sm sm:text-base">管理员工信息和账号权限</p>
           </div>
           {isAdmin && (
-            <Button onClick={() => setDialogOpen(true)} className="w-full sm:w-auto h-11 sm:h-10">
-              添加员工
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => setQrDialogOpen(true)} 
+                className="flex-1 sm:flex-initial h-11 sm:h-10 gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                员工注册二维码
+              </Button>
+              <Button onClick={() => setDialogOpen(true)} className="flex-1 sm:flex-initial h-11 sm:h-10">
+                添加员工
+              </Button>
+            </div>
           )}
         </div>
 
@@ -448,6 +460,68 @@ export default function Employees() {
                 </Button>
               </div>
             </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* 员工注册二维码对话框 */}
+        <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>员工注册二维码</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground space-y-2">
+                <p>员工可扫描此二维码进行注册：</p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>自动关联到当前车行</li>
+                  <li>无需手动输入车行代码</li>
+                  <li>注册后等待管理员审核</li>
+                </ul>
+              </div>
+              
+              <div className="flex flex-col items-center justify-center py-6 bg-muted/30 rounded-lg">
+                {dealership?.code ? (
+                  <QRCodeDataUrl
+                    data={`${window.location.origin}/register?dealership=${dealership.code}`}
+                    size={200}
+                  />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <p>无法生成二维码</p>
+                    <p className="text-xs mt-1">车行代码不存在</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                <p className="font-medium text-foreground">注册链接：</p>
+                <p className="break-all font-mono bg-background px-2 py-1 rounded">
+                  {dealership?.code 
+                    ? `${window.location.origin}/register?dealership=${dealership.code}`
+                    : '车行代码不存在'}
+                </p>
+                <p className="text-xs">可复制此链接发送给员工</p>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (dealership?.code) {
+                      const url = `${window.location.origin}/register?dealership=${dealership.code}`;
+                      navigator.clipboard.writeText(url);
+                      toast.success('注册链接已复制到剪贴板');
+                    }
+                  }}
+                  className="h-10"
+                >
+                  复制链接
+                </Button>
+                <Button onClick={() => setQrDialogOpen(false)} className="h-10">
+                  关闭
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
