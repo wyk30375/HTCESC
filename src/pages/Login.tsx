@@ -70,14 +70,35 @@ export default function Login() {
     try {
       await signIn(username, password);
       
-      // 登录成功后，获取用户信息并根据角色跳转
+      // 登录成功后，获取用户信息并检查状态
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profileData } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, status')
           .eq('id', user.id)
           .maybeSingle();
+        
+        // 检查用户状态
+        if (profileData?.status === 'pending') {
+          // 待审核状态，不允许登录
+          await supabase.auth.signOut();
+          toast.error('账号待审核', {
+            description: '您的账号正在等待管理员审核，审核通过后即可登录使用系统。',
+            duration: 5000,
+          });
+          return;
+        }
+        
+        if (profileData?.status === 'inactive') {
+          // 已停用状态，不允许登录
+          await supabase.auth.signOut();
+          toast.error('账号已停用', {
+            description: '您的账号已被停用，如有疑问请联系管理员。',
+            duration: 5000,
+          });
+          return;
+        }
         
         if (profileData?.role === 'super_admin') {
           // 超级管理员跳转到平台管理后台

@@ -271,13 +271,14 @@ export default function DealershipRegister() {
 
       console.log('用户注册成功:', authData.user.id);
 
-      // 3. 更新 profiles 表，设置为员工并关联车行
+      // 3. 更新 profiles 表，设置为员工并关联车行，状态为待审核
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
           role: 'employee',
           dealership_id: dealerships.id,
           phone: joinForm.phone,
+          status: 'pending', // 设置为待审核状态
         })
         .eq('id', authData.user.id);
 
@@ -286,24 +287,15 @@ export default function DealershipRegister() {
         throw updateError;
       }
 
-      console.log('用户资料更新成功');
+      console.log('用户资料更新成功，状态为待审核');
 
-      toast.success(`成功加入${dealerships.name}！正在登录...`);
-      
-      // 4. 自动登录
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: joinForm.password,
+      toast.success(`成功提交加入${dealerships.name}的申请！`, {
+        description: '请等待管理员审核，审核通过后即可登录使用系统。',
+        duration: 5000,
       });
-
-      if (signInError) {
-        toast.error('自动登录失败，请手动登录');
-        navigate('/login');
-        return;
-      }
-
-      // 登录成功，跳转到仪表盘
-      navigate('/');
+      
+      // 注册成功后跳转到登录页面，不自动登录
+      navigate('/login');
     } catch (error: any) {
       console.error('加入车行失败:', error);
       if (error.message?.includes('User already registered')) {

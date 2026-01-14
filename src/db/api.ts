@@ -240,6 +240,30 @@ export const profilesApi = {
 
     return data;
   },
+
+  // 审核通过员工申请
+  async approveEmployee(id: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ status: 'active' })
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
+  // 拒绝员工申请
+  async rejectEmployee(id: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ status: 'inactive' })
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
 };
 
 // ==================== 员工 API ====================

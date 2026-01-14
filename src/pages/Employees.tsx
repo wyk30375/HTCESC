@@ -4,12 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X, ShieldAlert } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X, ShieldAlert, CheckCircle, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -52,7 +53,8 @@ export default function Employees() {
     );
   }
   
-  const [employees, setEmployees] = useState<Profile[]>([]);
+  const [employees, setEmployees] = useState<Profile[]>([]); // 在职员工
+  const [pendingEmployees, setPendingEmployees] = useState<Profile[]>([]); // 待审核员工
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
@@ -74,17 +76,27 @@ export default function Employees() {
       const profilesData = await profilesApi.getAll();
       
       // 过滤：只显示当前车行的员工
-      // 即使是超级管理员，在车行管理系统中也只显示当前车行的员工
       const currentDealershipEmployees = profilesData.filter(
         p => p.dealership_id === profile?.dealership_id
+      );
+      
+      // 分离在职员工和待审核员工
+      const activeEmployees = currentDealershipEmployees.filter(
+        p => p.status === 'active'
+      );
+      const pendingEmployees = currentDealershipEmployees.filter(
+        p => p.status === 'pending'
       );
       
       console.log('📊 员工数据统计:');
       console.log('  - 总用户数:', profilesData.length);
       console.log('  - 当前车行员工数:', currentDealershipEmployees.length);
+      console.log('  - 在职员工数:', activeEmployees.length);
+      console.log('  - 待审核员工数:', pendingEmployees.length);
       console.log('  - 当前车行ID:', profile?.dealership_id);
       
-      setEmployees(currentDealershipEmployees);
+      setEmployees(activeEmployees);
+      setPendingEmployees(pendingEmployees);
     } catch (error) {
       console.error('加载员工数据失败:', error);
       toast.error('加载员工数据失败');
@@ -190,6 +202,38 @@ export default function Employees() {
     }
   };
 
+  // 审核通过员工申请
+  const handleApproveEmployee = async (employee: Profile) => {
+    if (!confirm(`确定要审核通过 ${employee.username} 的加入申请吗？`)) {
+      return;
+    }
+
+    try {
+      await profilesApi.approveEmployee(employee.id);
+      toast.success(`已审核通过 ${employee.username} 的申请，该员工现在可以登录使用系统`);
+      loadData();
+    } catch (error) {
+      console.error('审核失败:', error);
+      toast.error('审核失败');
+    }
+  };
+
+  // 拒绝员工申请
+  const handleRejectEmployee = async (employee: Profile) => {
+    if (!confirm(`确定要拒绝 ${employee.username} 的加入申请吗？拒绝后该员工将无法登录系统。`)) {
+      return;
+    }
+
+    try {
+      await profilesApi.rejectEmployee(employee.id);
+      toast.success(`已拒绝 ${employee.username} 的申请`);
+      loadData();
+    } catch (error) {
+      console.error('拒绝失败:', error);
+      toast.error('拒绝失败');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       username: '',
@@ -242,11 +286,23 @@ export default function Employees() {
           )}
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>员工列表</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Tabs defaultValue="active" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="active">
+              在职员工 ({employees.length})
+            </TabsTrigger>
+            <TabsTrigger value="pending">
+              待审核员工 ({pendingEmployees.length})
+            </TabsTrigger>
+          </TabsList>
+
+          {/* 在职员工列表 */}
+          <TabsContent value="active">
+            <Card>
+              <CardHeader>
+                <CardTitle>在职员工列表</CardTitle>
+              </CardHeader>
+              <CardContent>
             {/* 桌面端表格视图 */}
             <div className="hidden lg:block overflow-x-auto">
               <Table>
@@ -437,6 +493,118 @@ export default function Employees() {
             </div>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      {/* 待审核员工列表 */}
+      <TabsContent value="pending">
+        <Card>
+          <CardHeader>
+            <CardTitle>待审核员工列表</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pendingEmployees.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                暂无待审核员工
+              </div>
+            ) : (
+              <>
+                {/* 桌面端表格视图 */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>姓名</TableHead>
+                        <TableHead>手机号</TableHead>
+                        <TableHead>申请时间</TableHead>
+                        {isAdmin && <TableHead className="text-right">操作</TableHead>}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {pendingEmployees.map((employee) => (
+                        <TableRow key={employee.id}>
+                          <TableCell className="font-medium">{employee.username}</TableCell>
+                          <TableCell>{employee.phone || '-'}</TableCell>
+                          <TableCell>
+                            {new Date(employee.created_at).toLocaleDateString('zh-CN')}
+                          </TableCell>
+                          {isAdmin && (
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleApproveEmployee(employee)}
+                                  className="gap-1"
+                                >
+                                  <CheckCircle className="h-4 w-4" />
+                                  审核通过
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleRejectEmployee(employee)}
+                                  className="gap-1"
+                                >
+                                  <XCircle className="h-4 w-4" />
+                                  拒绝
+                                </Button>
+                              </div>
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* 移动端卡片视图 */}
+                <div className="lg:hidden space-y-4">
+                  {pendingEmployees.map((employee) => (
+                    <Card key={employee.id}>
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <p className="font-medium">{employee.username}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {employee.phone || '未填写手机号'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              申请时间：{new Date(employee.created_at).toLocaleDateString('zh-CN')}
+                            </p>
+                          </div>
+                        </div>
+                        {isAdmin && (
+                          <div className="flex gap-2 pt-2 border-t">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleApproveEmployee(employee)}
+                              className="flex-1 gap-1"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                              审核通过
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleRejectEmployee(employee)}
+                              className="flex-1 gap-1"
+                            >
+                              <XCircle className="h-4 w-4" />
+                              拒绝
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
 
         <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
           <DialogContent>
