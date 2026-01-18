@@ -123,11 +123,21 @@ export default function Vehicles() {
     }
     
     try {
+      // 清理数据：将空字符串转换为null（枚举类型字段）
+      const cleanedData = {
+        ...formData,
+        vehicle_type: formData.vehicle_type || null,
+        transmission_type: formData.transmission_type || null,
+        drive_type: formData.drive_type || null,
+        fuel_type: formData.fuel_type || null,
+        emission_standard: formData.emission_standard || null,
+      };
+      
       if (editingVehicle) {
-        await vehiclesApi.update(editingVehicle.id, formData);
+        await vehiclesApi.update(editingVehicle.id, cleanedData);
         toast.success('车辆信息已更新');
       } else {
-        const vehicle = await vehiclesApi.create({ ...formData, status: 'in_stock' } as any);
+        const vehicle = await vehiclesApi.create({ ...cleanedData, status: 'in_stock' } as any);
         
         // 添加购车款成本
         if (vehicle && formData.purchase_price > 0) {
