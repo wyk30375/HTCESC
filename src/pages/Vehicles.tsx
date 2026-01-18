@@ -57,10 +57,10 @@ export default function Vehicles() {
     model: '',
     vehicle_type: '' as any,
     year: new Date().getFullYear(),
-    mileage: 0,
+    mileage: '' as any,
     
     // 车辆技术参数
-    displacement: 0,
+    displacement: '' as any,
     is_turbo: false,
     transmission_type: '' as any,
     drive_type: '' as any,
@@ -69,17 +69,17 @@ export default function Vehicles() {
     seats: 5,
     
     // 新能源车专用参数
-    battery_capacity: 0,
-    endurance_range: 0,
-    motor_power: 0,
-    motor_torque: 0,
+    battery_capacity: '' as any,
+    endurance_range: '' as any,
+    motor_power: '' as any,
+    motor_torque: '' as any,
     
     // 车辆外观
     exterior_color: '',
     interior_color: '',
     
     // 车辆状态
-    transfer_count: 0,
+    transfer_count: '' as any,
     is_accident: false,
     is_flooded: false,
     is_fire: false,
@@ -90,9 +90,9 @@ export default function Vehicles() {
     inspection_expiry: '',
     
     // 价格信息
-    original_price: 0,
-    purchase_price: 0,
-    selling_price: 0,
+    original_price: '' as any,
+    purchase_price: '' as any,
+    selling_price: '' as any,
     
     // 其他
     photos: [] as string[],
@@ -446,8 +446,9 @@ export default function Vehicles() {
                     <Input
                       id="year"
                       type="number"
+                      placeholder="请输入年份"
                       value={formData.year}
-                      onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
+                      onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) || new Date().getFullYear() })}
                       required
                     />
                   </div>
@@ -456,8 +457,9 @@ export default function Vehicles() {
                     <Input
                       id="mileage"
                       type="number"
-                      value={formData.mileage}
-                      onChange={(e) => setFormData({ ...formData, mileage: Number(e.target.value) })}
+                      placeholder="0"
+                      value={formData.mileage || ''}
+                      onChange={(e) => setFormData({ ...formData, mileage: e.target.value ? Number(e.target.value) : '' as any })}
                       required
                     />
                   </div>
@@ -467,8 +469,9 @@ export default function Vehicles() {
                       id="transfer_count"
                       type="number"
                       min="0"
-                      value={formData.transfer_count}
-                      onChange={(e) => setFormData({ ...formData, transfer_count: Number(e.target.value) })}
+                      placeholder="0"
+                      value={formData.transfer_count || ''}
+                      onChange={(e) => setFormData({ ...formData, transfer_count: e.target.value ? Number(e.target.value) : '' as any })}
                       required
                     />
                   </div>
@@ -787,8 +790,9 @@ export default function Vehicles() {
                       id="purchase_price"
                       type="number"
                       step="0.01"
-                      value={formData.purchase_price}
-                      onChange={(e) => setFormData({ ...formData, purchase_price: Number(e.target.value) })}
+                      placeholder="0"
+                      value={formData.purchase_price || ''}
+                      onChange={(e) => setFormData({ ...formData, purchase_price: e.target.value ? Number(e.target.value) : '' as any })}
                       required
                     />
                   </div>

@@ -37,7 +37,7 @@ export default function Expenses() {
 
   const [formData, setFormData] = useState({
     expense_type: '',
-    amount: 0,
+    amount: '' as any,
     expense_date: new Date().toISOString().split('T')[0],
     description: '',
   });
@@ -165,8 +165,9 @@ export default function Expenses() {
                   id="amount"
                   type="number"
                   step="0.01"
-                  value={formData.amount}
-                  onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+                  placeholder="0"
+                  value={formData.amount || ''}
+                  onChange={(e) => setFormData({ ...formData, amount: e.target.value ? Number(e.target.value) : '' as any })}
                   required
                 />
               </div>

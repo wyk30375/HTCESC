@@ -33,16 +33,16 @@ export default function Sales() {
   const [formData, setFormData] = useState({
     vehicle_id: '',
     sale_date: new Date().toISOString().split('T')[0],
-    sale_price: 0,
+    sale_price: '' as any,
     customer_name: '',
     customer_contact: '',
     customer_id_number: '',
     salesperson_id: '',
     has_loan: false,
-    loan_rebate: 0,
-    sale_preparation_cost: 0,
-    sale_transfer_cost: 0,
-    sale_misc_cost: 0,
+    loan_rebate: '' as any,
+    sale_preparation_cost: '' as any,
+    sale_transfer_cost: '' as any,
+    sale_misc_cost: '' as any,
     notes: '',
   });
 
@@ -399,8 +399,9 @@ export default function Sales() {
                     id="sale_price"
                     type="number"
                     step="0.01"
-                    value={formData.sale_price}
-                    onChange={(e) => setFormData({ ...formData, sale_price: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formData.sale_price || ''}
+                    onChange={(e) => setFormData({ ...formData, sale_price: e.target.value ? Number(e.target.value) : '' as any })}
                     required
                   />
                 </div>
@@ -492,8 +493,9 @@ export default function Sales() {
                     id="sale_preparation_cost"
                     type="number"
                     step="0.01"
-                    value={formData.sale_preparation_cost}
-                    onChange={(e) => setFormData({ ...formData, sale_preparation_cost: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formData.sale_preparation_cost || ''}
+                    onChange={(e) => setFormData({ ...formData, sale_preparation_cost: e.target.value ? Number(e.target.value) : '' as any })}
                   />
                 </div>
 
@@ -503,8 +505,9 @@ export default function Sales() {
                     id="sale_transfer_cost"
                     type="number"
                     step="0.01"
-                    value={formData.sale_transfer_cost}
-                    onChange={(e) => setFormData({ ...formData, sale_transfer_cost: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formData.sale_transfer_cost || ''}
+                    onChange={(e) => setFormData({ ...formData, sale_transfer_cost: e.target.value ? Number(e.target.value) : '' as any })}
                   />
                 </div>
 
@@ -514,8 +517,9 @@ export default function Sales() {
                     id="sale_misc_cost"
                     type="number"
                     step="0.01"
-                    value={formData.sale_misc_cost}
-                    onChange={(e) => setFormData({ ...formData, sale_misc_cost: Number(e.target.value) })}
+                    placeholder="0"
+                    value={formData.sale_misc_cost || ''}
+                    onChange={(e) => setFormData({ ...formData, sale_misc_cost: e.target.value ? Number(e.target.value) : '' as any })}
                   />
                 </div>
 
@@ -554,9 +558,9 @@ export default function Sales() {
                       type="number"
                       step="0.01"
                       min="0"
-                      value={formData.loan_rebate}
-                      onChange={(e) => setFormData({ ...formData, loan_rebate: Number(e.target.value) })}
-                      placeholder="请输入贷款返利金额"
+                      placeholder="0"
+                      value={formData.loan_rebate || ''}
+                      onChange={(e) => setFormData({ ...formData, loan_rebate: e.target.value ? Number(e.target.value) : '' as any })}
                       className="border-blue-300 focus:border-blue-500"
                       required
                     />
