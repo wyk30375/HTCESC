@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAuth } from '@/context/AuthContext';
 import { 
   Car, 
@@ -22,17 +24,21 @@ import {
   TrendingUp,
   MapPin,
   Phone,
-  Mail
+  Mail,
+  QrCode,
+  Copy
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/db/supabase';
+import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 
 export default function PublicHomeNew() {
   const navigate = useNavigate();
   const { user, profile, dealership } = useAuth();
   const [loading, setLoading] = useState(true);
+  const [qrDialogOpen, setQrDialogOpen] = useState(false);
   
   // 车辆和车行数据
   const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
@@ -104,6 +110,18 @@ export default function PublicHomeNew() {
                 <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
               </div>
             </div>
+            
+            {!user && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setQrDialogOpen(true)} 
+                className="gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                平台分享
+              </Button>
+            )}
           </div>
           
           {/* 第二行：登录按钮 */}
@@ -429,6 +447,59 @@ export default function PublicHomeNew() {
           </div>
         </div>
       </footer>
+
+      {/* 二维码对话框 */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5" />
+              平台分享
+            </DialogTitle>
+            <DialogDescription>
+              扫描二维码或分享链接，邀请更多车商加入恏淘车平台
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-4 p-6 bg-muted/50 rounded-lg">
+              <QRCodeDataUrl 
+                data={`${window.location.origin}/register`}
+                size={200}
+              />
+              <p className="text-sm text-muted-foreground text-center">
+                使用微信扫描二维码，快速访问注册页面
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>注册链接</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={`${window.location.origin}/register`}
+                  readOnly
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/register`);
+                    toast.success('链接已复制到剪贴板');
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => setQrDialogOpen(false)}>
+                关闭
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
