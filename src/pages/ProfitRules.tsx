@@ -22,6 +22,8 @@ export default function ProfitRules() {
   const [currentRule, setCurrentRule] = useState<ProfitRule | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [rentInvestorIds, setRentInvestorIds] = useState<string[]>([]);
+  const [displayContactName, setDisplayContactName] = useState('');
+  const [displayContactPhone, setDisplayContactPhone] = useState('');
   
   const [formData, setFormData] = useState({
     rent_investor_rate: 18,
@@ -55,10 +57,15 @@ export default function ProfitRules() {
       const profilesList = await profilesApi.getByDealership(dealershipId);
       setProfiles(profilesList);
       
-      // 加载当前车行的场地老板配置
+      // 加载当前车行的配置
       const dealership = await dealershipsApi.getById(dealershipId);
-      if (dealership?.rent_investor_ids) {
-        setRentInvestorIds(dealership.rent_investor_ids);
+      if (dealership) {
+        if (dealership.rent_investor_ids) {
+          setRentInvestorIds(dealership.rent_investor_ids);
+        }
+        // 加载公共展示联系人信息
+        setDisplayContactName(dealership.display_contact_name || '');
+        setDisplayContactPhone(dealership.display_contact_phone || '');
       }
     } catch (error) {
       console.error('加载提成规则失败:', error);
@@ -105,9 +112,11 @@ export default function ProfitRules() {
         });
       }
       
-      // 保存场地老板配置
+      // 保存场地老板配置和公共展示联系人信息
       await dealershipsApi.update(dealershipId, {
-        rent_investor_ids: rentInvestorIds
+        rent_investor_ids: rentInvestorIds,
+        display_contact_name: displayContactName || undefined,
+        display_contact_phone: displayContactPhone || undefined,
       });
       
       toast.success('提成规则已更新，所有利润计算将使用新规则');
@@ -318,6 +327,60 @@ export default function ProfitRules() {
                   <p className="text-xs text-primary">
                     已选择 {rentInvestorIds.length} 位场地老板
                   </p>
+                )}
+              </div>
+
+              {/* 公共展示联系人信息 */}
+              <div className="space-y-3 pt-4 border-t">
+                <div>
+                  <Label className="text-sm sm:text-base">
+                    公共展示联系人信息
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    设置在公共车辆展示页面显示的联系方式。如果不设置，将默认显示管理员的名字和电话。
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="display_contact_name" className="text-sm">
+                      联系人名称
+                    </Label>
+                    <Input
+                      id="display_contact_name"
+                      type="text"
+                      placeholder="留空则显示管理员名字"
+                      value={displayContactName}
+                      onChange={(e) => setDisplayContactName(e.target.value)}
+                      disabled={!isAdmin}
+                      className="h-11 sm:h-10"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="display_contact_phone" className="text-sm">
+                      联系电话
+                    </Label>
+                    <Input
+                      id="display_contact_phone"
+                      type="tel"
+                      placeholder="留空则显示管理员电话"
+                      value={displayContactPhone}
+                      onChange={(e) => setDisplayContactPhone(e.target.value)}
+                      disabled={!isAdmin}
+                      className="h-11 sm:h-10"
+                    />
+                  </div>
+                </div>
+                
+                {(displayContactName || displayContactPhone) && (
+                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                    <p className="text-xs text-primary font-medium">
+                      ✓ 公共展示页面将显示：
+                      {displayContactName && ` ${displayContactName}`}
+                      {displayContactPhone && ` ${displayContactPhone}`}
+                    </p>
+                  </div>
                 )}
               </div>
 

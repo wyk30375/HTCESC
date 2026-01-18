@@ -39,6 +39,8 @@ export interface Dealership {
   reviewed_at?: string; // 审核时间
   reviewed_by?: string; // 审核人ID
   rent_investor_ids?: string[]; // 场地老板ID列表
+  display_contact_name?: string; // 公共展示页面的联系人名称（不设置则使用管理员名称）
+  display_contact_phone?: string; // 公共展示页面的联系电话（不设置则使用管理员电话）
   created_at: string;
   updated_at: string;
 }

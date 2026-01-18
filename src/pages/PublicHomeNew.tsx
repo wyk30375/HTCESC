@@ -473,17 +473,21 @@ export default function PublicHomeNew() {
                         className="h-7 text-xs gap-1 shrink-0"
                         onClick={(e) => {
                           e.stopPropagation(); // 阻止事件冒泡
-                          if (vehicle.dealership?.contact_phone) {
+                          // 优先使用display_contact_phone和display_contact_name，如果没有则使用contact_phone和contact_person
+                          const displayPhone = vehicle.dealership?.display_contact_phone || vehicle.dealership?.contact_phone;
+                          const displayName = vehicle.dealership?.display_contact_name || vehicle.dealership?.contact_person;
+                          
+                          if (displayPhone && vehicle.dealership) {
                             toast.success(
                               <div className="space-y-1">
                                 <div className="font-semibold">{vehicle.dealership.name}</div>
                                 <div className="flex items-center gap-2">
                                   <Phone className="h-3 w-3" />
-                                  <span>{vehicle.dealership.contact_phone}</span>
+                                  <span>{displayPhone}</span>
                                 </div>
-                                {vehicle.dealership.contact_person && (
+                                {displayName && (
                                   <div className="text-xs text-muted-foreground">
-                                    联系人：{vehicle.dealership.contact_person}
+                                    联系人：{displayName}
                                   </div>
                                 )}
                               </div>,
@@ -959,30 +963,36 @@ export default function PublicHomeNew() {
                 >
                   关闭
                 </Button>
-                {selectedVehicle.dealership?.contact_phone && (
-                  <Button
-                    onClick={() => {
-                      toast.success(
-                        <div className="space-y-1">
-                          <div className="font-semibold">{selectedVehicle.dealership?.name}</div>
-                          <div className="flex items-center gap-2">
-                            <Phone className="h-3 w-3" />
-                            <span>{selectedVehicle.dealership?.contact_phone}</span>
-                          </div>
-                          {selectedVehicle.dealership?.contact_person && (
-                            <div className="text-xs text-muted-foreground">
-                              联系人：{selectedVehicle.dealership.contact_person}
+                {(() => {
+                  // 优先使用display_contact_phone和display_contact_name，如果没有则使用contact_phone和contact_person
+                  const displayPhone = selectedVehicle.dealership?.display_contact_phone || selectedVehicle.dealership?.contact_phone;
+                  const displayName = selectedVehicle.dealership?.display_contact_name || selectedVehicle.dealership?.contact_person;
+                  
+                  return displayPhone ? (
+                    <Button
+                      onClick={() => {
+                        toast.success(
+                          <div className="space-y-1">
+                            <div className="font-semibold">{selectedVehicle.dealership?.name}</div>
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-3 w-3" />
+                              <span>{displayPhone}</span>
                             </div>
-                          )}
-                        </div>,
-                        { duration: 5000 }
-                      );
-                    }}
-                  >
-                    <Phone className="mr-2 h-4 w-4" />
-                    联系车行
-                  </Button>
-                )}
+                            {displayName && (
+                              <div className="text-xs text-muted-foreground">
+                                联系人：{displayName}
+                              </div>
+                            )}
+                          </div>,
+                          { duration: 5000 }
+                        );
+                      }}
+                    >
+                      <Phone className="mr-2 h-4 w-4" />
+                      联系车行
+                    </Button>
+                  ) : null;
+                })()}
               </div>
             </div>
           )}
