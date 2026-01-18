@@ -255,21 +255,36 @@ export default function PlatformMembershipManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {memberships.map((membership) => {
+                {memberships.map((membership, index) => {
                   const daysRemaining = getDaysRemaining(membership.end_date);
+                  const hasNoMembership = !membership.id; // 没有会员记录
+                  
                   return (
-                    <TableRow key={membership.id}>
+                    <TableRow key={membership.id || `no-membership-${index}`}>
                       <TableCell className="font-medium">
                         {membership.dealership?.name || '-'}
                       </TableCell>
                       <TableCell>
-                        {membership.tier && (
+                        {membership.tier ? (
                           <Badge className={getTierBadgeColor(membership.tier.tier_level)}>
                             {membership.tier.tier_name}
                           </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-muted-foreground">
+                            未开通
+                          </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{getStatusBadge(membership)}</TableCell>
+                      <TableCell>
+                        {hasNoMembership ? (
+                          <Badge variant="secondary" className="bg-gray-400 text-white">
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            未初始化
+                          </Badge>
+                        ) : (
+                          getStatusBadge(membership)
+                        )}
+                      </TableCell>
                       <TableCell>{formatDate(membership.start_date)}</TableCell>
                       <TableCell>{formatDate(membership.end_date)}</TableCell>
                       <TableCell>
@@ -280,14 +295,25 @@ export default function PlatformMembershipManagement() {
                         ) : '-'}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleOpenRenewDialog(membership)}
-                        >
-                          <CreditCard className="w-4 h-4 mr-1" />
-                          续费
-                        </Button>
+                        {hasNoMembership ? (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleOpenRenewDialog(membership)}
+                          >
+                            <Crown className="w-4 h-4 mr-1" />
+                            开通会员
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenRenewDialog(membership)}
+                          >
+                            <CreditCard className="w-4 h-4 mr-1" />
+                            续费
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   );

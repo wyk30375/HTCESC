@@ -241,17 +241,68 @@ export async function getPaymentHistory(dealershipId: string): Promise<Membershi
 
 // 获取所有车商会员信息（超级管理员用）
 export async function getAllDealershipMemberships(): Promise<DealershipMembership[]> {
+  // 查询所有车行及其活跃的会员记录
   const { data, error } = await supabase
-    .from('dealership_memberships')
+    .from('dealerships')
     .select(`
-      *,
-      tier:membership_tiers(*),
-      dealership:dealerships(*)
+      id,
+      name,
+      status,
+      created_at,
+      memberships:dealership_memberships!dealership_memberships_dealership_id_fkey(
+        id,
+        tier_id,
+        start_date,
+        end_date,
+        is_trial,
+        trial_end_date,
+        status,
+        created_at,
+        updated_at,
+        tier:membership_tiers(*)
+      )
     `)
+    .eq('memberships.status', 'active')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return Array.isArray(data) ? data : [];
+  
+  // 转换数据格式，将车行信息和会员信息合并
+  const result = (data || []).map(dealership => {
+    const membership = dealership.memberships?.[0];
+    if (membership) {
+      return {
+        ...membership,
+        dealership: {
+          id: dealership.id,
+          name: dealership.name,
+          status: dealership.status
+        }
+      };
+    } else {
+      // 没有会员记录的车行，返回一个空的会员对象
+      return {
+        id: null,
+        dealership_id: dealership.id,
+        tier_id: null,
+        start_date: null,
+        end_date: null,
+        is_trial: null,
+        trial_end_date: null,
+        status: null,
+        created_at: dealership.created_at,
+        updated_at: null,
+        tier: null,
+        dealership: {
+          id: dealership.id,
+          name: dealership.name,
+          status: dealership.status
+        }
+      };
+    }
+  });
+
+  return result as unknown as DealershipMembership[];
 }
 
 // 手动更新会员信息（超级管理员用）
