@@ -446,7 +446,9 @@ export default function PublicHomeNew() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <div className="text-2xl font-bold text-primary">
-                      ¥{(vehicle.selling_price || vehicle.purchase_price)?.toLocaleString()}
+                      {vehicle.selling_price 
+                        ? `¥${vehicle.selling_price.toLocaleString()}` 
+                        : '价格面议'}
                     </div>
                     {vehicle.condition_description && (
                       <p className="text-sm text-muted-foreground line-clamp-2">
@@ -904,7 +906,9 @@ export default function PublicHomeNew() {
                   <div className="space-y-1">
                     <div className="text-xs text-muted-foreground">售价</div>
                     <div className="text-2xl font-bold text-primary">
-                      ¥{(selectedVehicle.selling_price || selectedVehicle.purchase_price)?.toLocaleString()}
+                      {selectedVehicle.selling_price 
+                        ? `¥${Number(selectedVehicle.selling_price).toLocaleString()}` 
+                        : '价格面议'}
                     </div>
                   </div>
                 </div>
