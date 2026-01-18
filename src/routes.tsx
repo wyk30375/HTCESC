@@ -23,6 +23,7 @@ export const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'));
 export const PlatformEmployees = lazy(() => import('@/pages/PlatformEmployees'));
 export const DealershipSettings = lazy(() => import('@/pages/DealershipSettings'));
 export const MembershipCenter = lazy(() => import('@/pages/MembershipCenter'));
+export const PlatformMembershipManagement = lazy(() => import('@/pages/PlatformMembershipManagement'));
 export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
@@ -94,6 +95,11 @@ export const routes: RouteConfig[] = [
     path: '/dealerships',
     component: Dealerships,
     title: '车行管理',
+  },
+  {
+    path: '/platform-membership',
+    component: PlatformMembershipManagement,
+    title: '会员管理',
   },
   {
     path: '/register',
