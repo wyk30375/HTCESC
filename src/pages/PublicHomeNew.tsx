@@ -935,18 +935,6 @@ export default function PublicHomeNew() {
                       <div className="text-xs text-muted-foreground">车行名称</div>
                       <div className="font-medium">{selectedVehicle.dealership.name}</div>
                     </div>
-                    {selectedVehicle.dealership.contact_person && (
-                      <div className="space-y-1">
-                        <div className="text-xs text-muted-foreground">联系人</div>
-                        <div className="font-medium">{selectedVehicle.dealership.contact_person}</div>
-                      </div>
-                    )}
-                    {selectedVehicle.dealership.contact_phone && (
-                      <div className="space-y-1">
-                        <div className="text-xs text-muted-foreground">联系电话</div>
-                        <div className="font-medium">{selectedVehicle.dealership.contact_phone}</div>
-                      </div>
-                    )}
                     {selectedVehicle.dealership.address && (
                       <div className="space-y-1">
                         <div className="text-xs text-muted-foreground">地址</div>
