@@ -503,7 +503,7 @@ export default function Vehicles() {
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {formData.displacement > 0 ? `显示为：${formData.displacement}${formData.is_turbo ? 'T' : 'L'}` : '未选择涡轮时显示为自然吸气（L）'}
+                      {formData.displacement > 0 ? `显示为：${formData.displacement.toFixed(1)}${formData.is_turbo ? 'T' : 'L'}` : '未选择涡轮时显示为自然吸气（L）'}
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -954,7 +954,7 @@ export default function Vehicles() {
                         <TableCell>{vehicle.year}</TableCell>
                         <TableCell className="whitespace-nowrap">{vehicle.mileage.toLocaleString()} km</TableCell>
                         <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
-                        <TableCell>{vehicle.displacement ? `${vehicle.displacement}${vehicle.is_turbo ? 'T' : 'L'}` : '-'}</TableCell>
+                        <TableCell>{vehicle.displacement ? `${vehicle.displacement.toFixed(1)}${vehicle.is_turbo ? 'T' : 'L'}` : '-'}</TableCell>
                         <TableCell>
                           {vehicle.transmission_type ? (
                             TRANSMISSION_TYPE_MAP[vehicle.transmission_type as keyof typeof TRANSMISSION_TYPE_MAP] || '-'

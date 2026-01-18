@@ -791,7 +791,7 @@ export default function PublicHomeNew() {
                     {selectedVehicle.displacement && (
                       <div className="space-y-1">
                         <div className="text-xs text-muted-foreground">排量</div>
-                        <div className="font-medium">{selectedVehicle.displacement}{selectedVehicle.is_turbo ? 'T' : 'L'}</div>
+                        <div className="font-medium">{selectedVehicle.displacement.toFixed(1)}{selectedVehicle.is_turbo ? 'T' : 'L'}</div>
                       </div>
                     )}
                     {selectedVehicle.transmission_type && (
