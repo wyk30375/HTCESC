@@ -12,6 +12,7 @@ interface AuthContextType {
   signUp: (username: string, password: string, phone: string, dealershipId: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshDealership: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,6 +50,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
+    }
+  };
+
+  const refreshDealership = async () => {
+    if (profile?.dealership_id) {
+      try {
+        const { data, error } = await supabase
+          .from('dealerships')
+          .select('*')
+          .eq('id', profile.dealership_id)
+          .maybeSingle();
+
+        if (error) throw error;
+        
+        if (data) {
+          setDealership(data as Dealership);
+        }
+      } catch (error) {
+        console.error('刷新车行信息失败:', error);
+      }
     }
   };
 
@@ -221,6 +242,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signUp,
         signOut,
         refreshProfile,
+        refreshDealership,
       }}
     >
       {children}

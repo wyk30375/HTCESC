@@ -42,6 +42,7 @@ const navItems = [
   { path: '/expenses', label: '费用管理', icon: Receipt, roles: ['admin', 'employee'] },
   { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'] },
   { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'] }, // 只有管理员可以访问
+  { path: '/dealership-settings', label: '车行信息', icon: Building2, roles: ['admin'] }, // 只有管理员可以访问
   { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'] },
 ];
 

@@ -21,6 +21,7 @@ export const Dealerships = lazy(() => import('@/pages/Dealerships'));
 export const PlatformStatistics = lazy(() => import('@/pages/PlatformStatistics'));
 export const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'));
 export const PlatformEmployees = lazy(() => import('@/pages/PlatformEmployees'));
+export const DealershipSettings = lazy(() => import('@/pages/DealershipSettings'));
 export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
@@ -62,6 +63,11 @@ export const routes: RouteConfig[] = [
     path: '/profit-rules',
     component: ProfitRules,
     title: '提成规则',
+  },
+  {
+    path: '/dealership-settings',
+    component: DealershipSettings,
+    title: '车行信息',
   },
   {
     path: '/statistics',
