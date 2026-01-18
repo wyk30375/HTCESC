@@ -322,9 +322,48 @@ export default function MembershipCenter() {
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      根据您当前的在售车辆数量（{membershipStatus.vehicleCount}台），建议升级到
-                      <strong className="mx-1">{membershipStatus.suggestedTier.tier_name}</strong>
-                      （¥{membershipStatus.suggestedTier.annual_fee}/年）
+                      <div className="flex items-center justify-between">
+                        <div>
+                          根据您当前的在售车辆数量（{membershipStatus.vehicleCount}台），建议升级到
+                          <strong className="mx-1">{membershipStatus.suggestedTier.tier_name}</strong>
+                          （¥{membershipStatus.suggestedTier.annual_fee}/年）
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={() => handleOpenPayment(membershipStatus.suggestedTier)}
+                        >
+                          <Crown className="w-4 h-4 mr-1" />
+                          立即升级
+                        </Button>
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+              {/* 车辆数量限制提示 */}
+              {membershipStatus.currentTier.max_vehicles && 
+                membershipStatus.vehicleCount >= membershipStatus.currentTier.max_vehicles && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          您的在售车辆数量（{membershipStatus.vehicleCount}台）已达到
+                          <strong className="mx-1">{membershipStatus.currentTier.tier_name}</strong>
+                          的上限（{membershipStatus.currentTier.max_vehicles}台），无法继续添加车辆。
+                          请升级会员后继续添加。
+                        </div>
+                        {membershipStatus.suggestedTier && (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handleOpenPayment(membershipStatus.suggestedTier)}
+                          >
+                            <Crown className="w-4 h-4 mr-1" />
+                            升级会员
+                          </Button>
+                        )}
+                      </div>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -474,6 +513,58 @@ export default function MembershipCenter() {
                   </p>
                 </AlertDescription>
               </Alert>
+
+              {/* 选择其他等级 */}
+              <details className="group">
+                <summary className="cursor-pointer list-none">
+                  <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    <span>选择其他会员等级</span>
+                    <svg
+                      className="w-4 h-4 transition-transform group-open:rotate-180"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </summary>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {tiers.map((tier) => (
+                    <Card
+                      key={tier.id}
+                      className={`cursor-pointer hover:border-primary transition-colors ${
+                        tier.id === membershipStatus.suggestedTier.id ? 'border-primary' : ''
+                      }`}
+                      onClick={() => handleOpenPayment(tier)}
+                    >
+                      <CardHeader className="pb-3">
+                        <Badge className={getTierBadgeColor(tier.tier_level)}>
+                          {tier.tier_name}
+                        </Badge>
+                        {tier.id === membershipStatus.suggestedTier.id && (
+                          <Badge variant="outline" className="mt-1">推荐</Badge>
+                        )}
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div>
+                          <p className="text-2xl font-bold text-primary">
+                            ¥{tier.annual_fee}
+                          </p>
+                          <p className="text-sm text-muted-foreground">每年</p>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          <p>{tier.min_vehicles}{tier.max_vehicles ? ` - ${tier.max_vehicles}` : '+'}台</p>
+                        </div>
+                        <Button className="w-full" size="sm">
+                          <QrCode className="w-4 h-4 mr-2" />
+                          选择此等级
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </details>
 
               {/* 支付成功说明 */}
               <Alert>

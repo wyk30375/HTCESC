@@ -328,3 +328,19 @@ export async function updateMembership(
 
   if (error) throw error;
 }
+
+// 检查车辆数量是否超过会员等级限制
+export async function checkVehicleLimit(dealershipId: string): Promise<{
+  allowed: boolean;
+  current_count: number;
+  max_vehicles: number | null;
+  tier_name: string | null;
+  message: string;
+}> {
+  const { data, error } = await supabase.rpc('check_vehicle_limit', {
+    p_dealership_id: dealershipId
+  });
+
+  if (error) throw error;
+  return data;
+}

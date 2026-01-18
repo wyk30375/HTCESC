@@ -11,13 +11,16 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { vehiclesApi, vehicleCostsApi, profilesApi, getCurrentDealershipId } from '@/db/api';
+import { checkVehicleLimit } from '@/db/membershipApi';
 import type { Vehicle, Profile } from '@/types/types';
-import { Plus, Edit, Eye, Lock } from 'lucide-react';
+import { Plus, Edit, Eye, Lock, AlertCircle, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import ImageUpload from '@/components/common/ImageUpload';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import {
   VEHICLE_TYPE_OPTIONS,
   TRANSMISSION_TYPE_OPTIONS,
@@ -36,6 +39,7 @@ import {
 
 export default function Vehicles() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin';
   
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -44,6 +48,7 @@ export default function Vehicles() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [activeTab, setActiveTab] = useState('in_stock');
+  const [vehicleLimit, setVehicleLimit] = useState<any>(null);
 
   const [formData, setFormData] = useState({
     // 基本识别信息
@@ -106,12 +111,15 @@ export default function Vehicles() {
   const loadVehicles = async () => {
     try {
       setLoading(true);
-      const [vehiclesData, profilesData] = await Promise.all([
+      const dealershipId = await getCurrentDealershipId();
+      const [vehiclesData, profilesData, limitData] = await Promise.all([
         vehiclesApi.getAll(),
         profilesApi.getAll(),
+        dealershipId ? checkVehicleLimit(dealershipId) : Promise.resolve(null)
       ]);
       setVehicles(vehiclesData);
       setProfiles(profilesData);
+      setVehicleLimit(limitData);
     } catch (error) {
       console.error('加载车辆数据失败:', error);
       toast.error('加载车辆数据失败');
@@ -126,6 +134,18 @@ export default function Vehicles() {
     // 如果是编辑模式且不是管理员，阻止操作
     if (editingVehicle && !isAdmin) {
       toast.error('只有管理员可以修改已有车辆信息');
+      return;
+    }
+    
+    // 如果是新增车辆，检查车辆数量限制
+    if (!editingVehicle && vehicleLimit && !vehicleLimit.allowed) {
+      toast.error(vehicleLimit.message, {
+        duration: 5000,
+        action: {
+          label: '升级会员',
+          onClick: () => navigate('/membership-center')
+        }
+      });
       return;
     }
     
@@ -327,6 +347,54 @@ export default function Vehicles() {
 
   return (
     <div className="space-y-6">
+      {/* 车辆数量限制提示 */}
+      {vehicleLimit && !vehicleLimit.allowed && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>车辆数量已达上限！</strong>
+                <p className="mt-1">{vehicleLimit.message}</p>
+              </div>
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => navigate('/membership-center')}
+              >
+                <Crown className="w-4 h-4 mr-1" />
+                升级会员
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* 车辆数量接近上限提示 */}
+      {vehicleLimit && vehicleLimit.allowed && vehicleLimit.max_vehicles && 
+        vehicleLimit.current_count >= vehicleLimit.max_vehicles * 0.8 && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                您的在售车辆数量（{vehicleLimit.current_count}台）接近
+                <strong className="mx-1">{vehicleLimit.tier_name}</strong>
+                的上限（{vehicleLimit.max_vehicles}台）。
+                建议提前升级会员，避免影响业务。
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate('/membership-center')}
+              >
+                查看会员
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">车辆管理</h1>
