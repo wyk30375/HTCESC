@@ -265,10 +265,11 @@ export default function Login() {
         <Card className="w-full max-w-md border-0 shadow-none">
           <CardHeader className="space-y-2 pb-6">
             {/* 移动端 Logo */}
-            <div className="flex lg:hidden items-center justify-center mb-4">
+            <div className="flex lg:hidden items-center justify-center mb-4 gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
                 <Car className="h-6 w-6 text-primary-foreground" />
               </div>
+              <span className="text-2xl font-bold">恏淘车</span>
             </div>
             <CardTitle className="text-2xl text-center lg:text-left">欢迎回来</CardTitle>
             <CardDescription className="text-center lg:text-left">
