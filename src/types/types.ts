@@ -7,6 +7,21 @@ export type EmployeeRoleType = 'landlord' | 'bonus_pool' | 'sales_commission' | 
 // 车辆状态
 export type VehicleStatus = 'in_stock' | 'sold';
 
+// 车辆类型
+export type VehicleType = 'sedan' | 'suv' | 'mpv' | 'coupe' | 'hatchback' | 'pickup' | 'van' | 'sports';
+
+// 变速箱类型
+export type TransmissionType = 'manual' | 'automatic' | 'cvt' | 'dct' | 'amt';
+
+// 驱动方式
+export type DriveType = 'fwd' | 'rwd' | 'awd' | '4wd';
+
+// 燃料类型
+export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'phev';
+
+// 排放标准
+export type EmissionStandard = 'national_3' | 'national_4' | 'national_5' | 'national_6a' | 'national_6b';
+
 // 车行信息
 export interface Dealership {
   id: string;
@@ -71,19 +86,53 @@ export interface EmployeeRole {
 export interface Vehicle {
   id: string;
   dealership_id: string;
+  
+  // 基本识别信息
   vin_last_six: string; // 车架号后六位（唯一标识）
-  plate_number: string;
-  brand: string;
-  model: string;
-  year: number;
-  mileage: number;
+  vin_full?: string; // 完整车架号（VIN）
+  plate_number: string; // 车牌号
+  engine_number?: string; // 发动机号
+  
+  // 车辆基本信息
+  brand: string; // 品牌
+  model: string; // 型号
+  vehicle_type?: VehicleType; // 车辆类型
+  year: number; // 年份
+  mileage: number; // 里程数
+  
+  // 车辆技术参数
+  displacement?: number; // 排量（升）
+  transmission_type?: TransmissionType; // 变速箱类型
+  drive_type?: DriveType; // 驱动方式
+  fuel_type?: FuelType; // 燃料类型
+  emission_standard?: EmissionStandard; // 排放标准
+  seats?: number; // 座位数
+  
+  // 车辆外观
+  exterior_color?: string; // 车身颜色
+  interior_color?: string; // 内饰颜色
+  
+  // 车辆状态
   transfer_count: number; // 过户次数
-  condition_description?: string;
-  photos: string[]; // 照片URL数组
-  status: VehicleStatus;
+  is_accident?: boolean; // 是否事故车
+  is_flooded?: boolean; // 是否泡水车
+  is_fire?: boolean; // 是否火烧车
+  condition_description?: string; // 车况描述
+  
+  // 证件信息
+  insurance_expiry?: string; // 保险到期日
+  inspection_expiry?: string; // 年检到期日
+  
+  // 价格信息
+  original_price?: number; // 新车指导价
   purchase_price: number; // 购车款
+  
+  // 其他
+  photos: string[]; // 照片URL数组
+  status: VehicleStatus; // 车辆状态
   investor_ids: string[]; // 押车出资人ID列表
   rent_investor_ids: string[]; // 场地老板ID列表
+  
   created_at: string;
   updated_at: string;
 }

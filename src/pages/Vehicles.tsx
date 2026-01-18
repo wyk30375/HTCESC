@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { vehiclesApi, vehicleCostsApi, profilesApi, getCurrentDealershipId } from '@/db/api';
 import type { Vehicle, Profile } from '@/types/types';
 import { Plus, Edit, Eye, Lock } from 'lucide-react';
@@ -17,6 +18,16 @@ import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import ImageUpload from '@/components/common/ImageUpload';
 import { useAuth } from '@/context/AuthContext';
+import {
+  VEHICLE_TYPE_OPTIONS,
+  TRANSMISSION_TYPE_OPTIONS,
+  DRIVE_TYPE_OPTIONS,
+  FUEL_TYPE_OPTIONS,
+  EMISSION_STANDARD_OPTIONS,
+  SEATS_OPTIONS,
+  EXTERIOR_COLOR_OPTIONS,
+  INTERIOR_COLOR_OPTIONS
+} from '@/types/vehicleEnums';
 
 export default function Vehicles() {
   const { profile } = useAuth();
@@ -30,16 +41,48 @@ export default function Vehicles() {
   const [activeTab, setActiveTab] = useState('in_stock');
 
   const [formData, setFormData] = useState({
+    // 基本识别信息
     vin_last_six: '',
+    vin_full: '',
     plate_number: '',
+    engine_number: '',
+    
+    // 车辆基本信息
     brand: '',
     model: '',
+    vehicle_type: '' as any,
     year: new Date().getFullYear(),
     mileage: 0,
+    
+    // 车辆技术参数
+    displacement: 0,
+    transmission_type: '' as any,
+    drive_type: '' as any,
+    fuel_type: '' as any,
+    emission_standard: '' as any,
+    seats: 5,
+    
+    // 车辆外观
+    exterior_color: '',
+    interior_color: '',
+    
+    // 车辆状态
     transfer_count: 0,
+    is_accident: false,
+    is_flooded: false,
+    is_fire: false,
     condition_description: '',
-    photos: [] as string[],
+    
+    // 证件信息
+    insurance_expiry: '',
+    inspection_expiry: '',
+    
+    // 价格信息
+    original_price: 0,
     purchase_price: 0,
+    
+    // 其他
+    photos: [] as string[],
     investor_ids: [] as string[],
     rent_investor_ids: [] as string[],
   });
@@ -106,16 +149,48 @@ export default function Vehicles() {
 
   const resetForm = () => {
     setFormData({
+      // 基本识别信息
       vin_last_six: '',
+      vin_full: '',
       plate_number: '',
+      engine_number: '',
+      
+      // 车辆基本信息
       brand: '',
       model: '',
+      vehicle_type: '' as any,
       year: new Date().getFullYear(),
       mileage: 0,
+      
+      // 车辆技术参数
+      displacement: 0,
+      transmission_type: '' as any,
+      drive_type: '' as any,
+      fuel_type: '' as any,
+      emission_standard: '' as any,
+      seats: 5,
+      
+      // 车辆外观
+      exterior_color: '',
+      interior_color: '',
+      
+      // 车辆状态
       transfer_count: 0,
+      is_accident: false,
+      is_flooded: false,
+      is_fire: false,
       condition_description: '',
-      photos: [],
+      
+      // 证件信息
+      insurance_expiry: '',
+      inspection_expiry: '',
+      
+      // 价格信息
+      original_price: 0,
       purchase_price: 0,
+      
+      // 其他
+      photos: [],
       investor_ids: [],
       rent_investor_ids: [],
     });
@@ -154,16 +229,48 @@ export default function Vehicles() {
     
     setEditingVehicle(vehicle);
     setFormData({
+      // 基本识别信息
       vin_last_six: vehicle.vin_last_six,
+      vin_full: vehicle.vin_full || '',
       plate_number: vehicle.plate_number,
+      engine_number: vehicle.engine_number || '',
+      
+      // 车辆基本信息
       brand: vehicle.brand,
       model: vehicle.model,
+      vehicle_type: vehicle.vehicle_type || '' as any,
       year: vehicle.year,
       mileage: vehicle.mileage,
+      
+      // 车辆技术参数
+      displacement: vehicle.displacement || 0,
+      transmission_type: vehicle.transmission_type || '' as any,
+      drive_type: vehicle.drive_type || '' as any,
+      fuel_type: vehicle.fuel_type || '' as any,
+      emission_standard: vehicle.emission_standard || '' as any,
+      seats: vehicle.seats || 5,
+      
+      // 车辆外观
+      exterior_color: vehicle.exterior_color || '',
+      interior_color: vehicle.interior_color || '',
+      
+      // 车辆状态
       transfer_count: vehicle.transfer_count || 0,
+      is_accident: vehicle.is_accident || false,
+      is_flooded: vehicle.is_flooded || false,
+      is_fire: vehicle.is_fire || false,
       condition_description: vehicle.condition_description || '',
-      photos: vehicle.photos || [],
+      
+      // 证件信息
+      insurance_expiry: vehicle.insurance_expiry || '',
+      inspection_expiry: vehicle.inspection_expiry || '',
+      
+      // 价格信息
+      original_price: vehicle.original_price ? Number(vehicle.original_price) : 0,
       purchase_price: Number(vehicle.purchase_price),
+      
+      // 其他
+      photos: vehicle.photos || [],
       investor_ids: investorIds,
       rent_investor_ids: rentInvestorIds,
     });
@@ -212,94 +319,375 @@ export default function Vehicles() {
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="vin_last_six">车架号后六位</Label>
-                  <Input
-                    id="vin_last_six"
-                    value={formData.vin_last_six}
-                    onChange={(e) => setFormData({ ...formData, vin_last_six: e.target.value })}
-                    maxLength={6}
-                    required
-                    disabled={!!editingVehicle}
-                  />
+              {/* 基本识别信息 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">基本识别信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="vin_last_six">车架号后六位 *</Label>
+                    <Input
+                      id="vin_last_six"
+                      value={formData.vin_last_six}
+                      onChange={(e) => setFormData({ ...formData, vin_last_six: e.target.value })}
+                      maxLength={6}
+                      required
+                      disabled={!!editingVehicle}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="plate_number">车牌号 *</Label>
+                    <Input
+                      id="plate_number"
+                      value={formData.plate_number}
+                      onChange={(e) => setFormData({ ...formData, plate_number: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vin_full">完整车架号（VIN）</Label>
+                    <Input
+                      id="vin_full"
+                      value={formData.vin_full}
+                      onChange={(e) => setFormData({ ...formData, vin_full: e.target.value })}
+                      maxLength={17}
+                      placeholder="17位车架号"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="engine_number">发动机号</Label>
+                    <Input
+                      id="engine_number"
+                      value={formData.engine_number}
+                      onChange={(e) => setFormData({ ...formData, engine_number: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 车辆基本信息 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">车辆基本信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="brand">品牌 *</Label>
+                    <Input
+                      id="brand"
+                      value={formData.brand}
+                      onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="model">型号 *</Label>
+                    <Input
+                      id="model"
+                      value={formData.model}
+                      onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicle_type">车辆类型</Label>
+                    <Select
+                      value={formData.vehicle_type}
+                      onValueChange={(value) => setFormData({ ...formData, vehicle_type: value as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择车辆类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VEHICLE_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="year">年份 *</Label>
+                    <Input
+                      id="year"
+                      type="number"
+                      value={formData.year}
+                      onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mileage">里程数（公里）*</Label>
+                    <Input
+                      id="mileage"
+                      type="number"
+                      value={formData.mileage}
+                      onChange={(e) => setFormData({ ...formData, mileage: Number(e.target.value) })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="transfer_count">过户次数 *</Label>
+                    <Input
+                      id="transfer_count"
+                      type="number"
+                      min="0"
+                      value={formData.transfer_count}
+                      onChange={(e) => setFormData({ ...formData, transfer_count: Number(e.target.value) })}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* 车辆技术参数 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">车辆技术参数</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="displacement">排量（升）</Label>
+                    <Input
+                      id="displacement"
+                      type="number"
+                      step="0.1"
+                      value={formData.displacement || ''}
+                      onChange={(e) => setFormData({ ...formData, displacement: Number(e.target.value) })}
+                      placeholder="例如：1.5"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="transmission_type">变速箱类型</Label>
+                    <Select
+                      value={formData.transmission_type}
+                      onValueChange={(value) => setFormData({ ...formData, transmission_type: value as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择变速箱类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRANSMISSION_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="drive_type">驱动方式</Label>
+                    <Select
+                      value={formData.drive_type}
+                      onValueChange={(value) => setFormData({ ...formData, drive_type: value as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择驱动方式" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {DRIVE_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fuel_type">燃料类型</Label>
+                    <Select
+                      value={formData.fuel_type}
+                      onValueChange={(value) => setFormData({ ...formData, fuel_type: value as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择燃料类型" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {FUEL_TYPE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="emission_standard">排放标准</Label>
+                    <Select
+                      value={formData.emission_standard}
+                      onValueChange={(value) => setFormData({ ...formData, emission_standard: value as any })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择排放标准" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EMISSION_STANDARD_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="seats">座位数</Label>
+                    <Select
+                      value={String(formData.seats)}
+                      onValueChange={(value) => setFormData({ ...formData, seats: Number(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择座位数" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SEATS_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={String(option.value)}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 车辆外观 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">车辆外观</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="exterior_color">车身颜色</Label>
+                    <Select
+                      value={formData.exterior_color}
+                      onValueChange={(value) => setFormData({ ...formData, exterior_color: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择车身颜色" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {EXTERIOR_COLOR_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="interior_color">内饰颜色</Label>
+                    <Select
+                      value={formData.interior_color}
+                      onValueChange={(value) => setFormData({ ...formData, interior_color: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="请选择内饰颜色" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {INTERIOR_COLOR_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* 车辆状态 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">车辆状态</h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="is_accident"
+                      checked={formData.is_accident}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_accident: checked as boolean })}
+                    />
+                    <Label htmlFor="is_accident" className="text-sm font-normal cursor-pointer">
+                      事故车
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="is_flooded"
+                      checked={formData.is_flooded}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_flooded: checked as boolean })}
+                    />
+                    <Label htmlFor="is_flooded" className="text-sm font-normal cursor-pointer">
+                      泡水车
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="is_fire"
+                      checked={formData.is_fire}
+                      onCheckedChange={(checked) => setFormData({ ...formData, is_fire: checked as boolean })}
+                    />
+                    <Label htmlFor="is_fire" className="text-sm font-normal cursor-pointer">
+                      火烧车
+                    </Label>
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="plate_number">车牌号</Label>
-                  <Input
-                    id="plate_number"
-                    value={formData.plate_number}
-                    onChange={(e) => setFormData({ ...formData, plate_number: e.target.value })}
-                    required
+                  <Label htmlFor="condition_description">车况描述</Label>
+                  <Textarea
+                    id="condition_description"
+                    value={formData.condition_description}
+                    onChange={(e) => setFormData({ ...formData, condition_description: e.target.value })}
+                    rows={3}
+                    placeholder="请详细描述车辆状况..."
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="brand">品牌</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="model">型号</Label>
-                  <Input
-                    id="model"
-                    value={formData.model}
-                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="year">年份</Label>
-                  <Input
-                    id="year"
-                    type="number"
-                    value={formData.year}
-                    onChange={(e) => setFormData({ ...formData, year: Number(e.target.value) })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="mileage">里程数（公里）</Label>
-                  <Input
-                    id="mileage"
-                    type="number"
-                    value={formData.mileage}
-                    onChange={(e) => setFormData({ ...formData, mileage: Number(e.target.value) })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="transfer_count">过户次数</Label>
-                  <Input
-                    id="transfer_count"
-                    type="number"
-                    min="0"
-                    value={formData.transfer_count}
-                    onChange={(e) => setFormData({ ...formData, transfer_count: Number(e.target.value) })}
-                    required
-                  />
+              {/* 证件信息 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">证件信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="insurance_expiry">保险到期日</Label>
+                    <Input
+                      id="insurance_expiry"
+                      type="date"
+                      value={formData.insurance_expiry}
+                      onChange={(e) => setFormData({ ...formData, insurance_expiry: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="inspection_expiry">年检到期日</Label>
+                    <Input
+                      id="inspection_expiry"
+                      type="date"
+                      value={formData.inspection_expiry}
+                      onChange={(e) => setFormData({ ...formData, inspection_expiry: e.target.value })}
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="purchase_price">购车款（元）</Label>
-                <Input
-                  id="purchase_price"
-                  type="number"
-                  step="0.01"
-                  value={formData.purchase_price}
-                  onChange={(e) => setFormData({ ...formData, purchase_price: Number(e.target.value) })}
-                  required
-                />
+              {/* 价格信息 */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-primary">价格信息</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="original_price">新车指导价（元）</Label>
+                    <Input
+                      id="original_price"
+                      type="number"
+                      step="0.01"
+                      value={formData.original_price || ''}
+                      onChange={(e) => setFormData({ ...formData, original_price: Number(e.target.value) })}
+                      placeholder="新车购置价"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="purchase_price">购车款（元）*</Label>
+                    <Input
+                      id="purchase_price"
+                      type="number"
+                      step="0.01"
+                      value={formData.purchase_price}
+                      onChange={(e) => setFormData({ ...formData, purchase_price: Number(e.target.value) })}
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* 押车出资人选择 */}
@@ -384,16 +772,6 @@ export default function Vehicles() {
                 <p className="text-xs text-muted-foreground">
                   已选择 {formData.rent_investor_ids.length} 人
                 </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="condition_description">车况描述</Label>
-                <Textarea
-                  id="condition_description"
-                  value={formData.condition_description}
-                  onChange={(e) => setFormData({ ...formData, condition_description: e.target.value })}
-                  rows={3}
-                />
               </div>
 
               <div className="space-y-2">
