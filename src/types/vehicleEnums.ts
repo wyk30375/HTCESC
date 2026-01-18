@@ -37,7 +37,8 @@ export const FUEL_TYPE_MAP: Record<FuelType, string> = {
   diesel: '柴油',
   electric: '纯电动',
   hybrid: '混合动力',
-  phev: '插电混动'
+  phev: '插电混动',
+  erev: '增程式'
 };
 
 // 排放标准映射

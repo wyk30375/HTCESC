@@ -17,7 +17,7 @@ export type TransmissionType = 'manual' | 'automatic' | 'cvt' | 'dct' | 'amt';
 export type DriveType = 'fwd' | 'rwd' | 'awd' | '4wd';
 
 // 燃料类型
-export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'phev';
+export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'phev' | 'erev';
 
 // 排放标准
 export type EmissionStandard = 'national_3' | 'national_4' | 'national_5' | 'national_6a' | 'national_6b';
@@ -109,6 +109,12 @@ export interface Vehicle {
   fuel_type?: FuelType; // 燃料类型
   emission_standard?: EmissionStandard; // 排放标准
   seats?: number; // 座位数
+  
+  // 新能源车专用参数
+  battery_capacity?: number; // 电池容量（kWh）
+  endurance_range?: number; // 续航里程（km）
+  motor_power?: number; // 电机功率（kW）
+  motor_torque?: number; // 电机扭矩（N·m）
   
   // 车辆外观
   exterior_color?: string; // 车身颜色

@@ -68,6 +68,12 @@ export default function Vehicles() {
     emission_standard: '' as any,
     seats: 5,
     
+    // 新能源车专用参数
+    battery_capacity: 0,
+    endurance_range: 0,
+    motor_power: 0,
+    motor_torque: 0,
+    
     // 车辆外观
     exterior_color: '',
     interior_color: '',
@@ -194,6 +200,12 @@ export default function Vehicles() {
       emission_standard: '' as any,
       seats: 5,
       
+      // 新能源车专用参数
+      battery_capacity: 0,
+      endurance_range: 0,
+      motor_power: 0,
+      motor_torque: 0,
+      
       // 车辆外观
       exterior_color: '',
       interior_color: '',
@@ -268,6 +280,12 @@ export default function Vehicles() {
       fuel_type: vehicle.fuel_type || '' as any,
       emission_standard: vehicle.emission_standard || '' as any,
       seats: vehicle.seats || 5,
+      
+      // 新能源车专用参数
+      battery_capacity: vehicle.battery_capacity || 0,
+      endurance_range: vehicle.endurance_range || 0,
+      motor_power: vehicle.motor_power || 0,
+      motor_torque: vehicle.motor_torque || 0,
       
       // 车辆外观
       exterior_color: vehicle.exterior_color || '',
@@ -580,6 +598,58 @@ export default function Vehicles() {
                   </div>
                 </div>
               </div>
+
+              {/* 新能源车专用参数 - 根据燃料类型条件显示 */}
+              {(formData.fuel_type === 'electric' || formData.fuel_type === 'phev' || formData.fuel_type === 'erev' || formData.fuel_type === 'hybrid') && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-primary">新能源参数</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="battery_capacity">电池容量（kWh）</Label>
+                      <Input
+                        id="battery_capacity"
+                        type="number"
+                        step="0.1"
+                        value={formData.battery_capacity || ''}
+                        onChange={(e) => setFormData({ ...formData, battery_capacity: Number(e.target.value) })}
+                        placeholder="例如：60.5"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="endurance_range">续航里程（km）</Label>
+                      <Input
+                        id="endurance_range"
+                        type="number"
+                        value={formData.endurance_range || ''}
+                        onChange={(e) => setFormData({ ...formData, endurance_range: Number(e.target.value) })}
+                        placeholder="例如：500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="motor_power">电机功率（kW）</Label>
+                      <Input
+                        id="motor_power"
+                        type="number"
+                        step="0.1"
+                        value={formData.motor_power || ''}
+                        onChange={(e) => setFormData({ ...formData, motor_power: Number(e.target.value) })}
+                        placeholder="例如：150"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="motor_torque">电机扭矩（N·m）</Label>
+                      <Input
+                        id="motor_torque"
+                        type="number"
+                        step="0.1"
+                        value={formData.motor_torque || ''}
+                        onChange={(e) => setFormData({ ...formData, motor_torque: Number(e.target.value) })}
+                        placeholder="例如：310"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* 车辆外观 */}
               <div className="space-y-4">
