@@ -133,7 +133,6 @@ export interface Vehicle {
   photos: string[]; // 照片URL数组
   status: VehicleStatus; // 车辆状态
   investor_ids: string[]; // 押车出资人ID列表
-  rent_investor_ids: string[]; // 场地老板ID列表
   
   created_at: string;
   updated_at: string;
