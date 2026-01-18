@@ -39,12 +39,23 @@ export default function PublicHomeNew() {
   const { user, profile, dealership } = useAuth();
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
   
   // 车辆和车行数据
   const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
   const [selectedDealership, setSelectedDealership] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // 注册表单数据
+  const [registerForm, setRegisterForm] = useState({
+    name: '',
+    code: '',
+    contact_person: '',
+    contact_phone: '',
+    address: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -81,6 +92,71 @@ export default function PublicHomeNew() {
       console.error('加载数据失败:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 处理车行注册
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // 验证表单
+    if (!registerForm.name || !registerForm.code || !registerForm.contact_person || !registerForm.contact_phone) {
+      toast.error('请填写所有必填项');
+      return;
+    }
+
+    // 验证车行代码格式
+    const codeRegex = /^[a-zA-Z0-9_]+$/;
+    if (!codeRegex.test(registerForm.code)) {
+      toast.error('车行代码只能包含字母、数字和下划线');
+      return;
+    }
+
+    // 验证手机号格式
+    const phoneRegex = /^1[3-9]\d{9}$/;
+    if (!phoneRegex.test(registerForm.contact_phone)) {
+      toast.error('请输入正确的手机号码');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      // 提交车行注册申请
+      const { error } = await supabase
+        .from('dealerships')
+        .insert([{
+          name: registerForm.name,
+          code: registerForm.code,
+          contact_person: registerForm.contact_person,
+          contact_phone: registerForm.contact_phone,
+          address: registerForm.address || null,
+          status: 'pending' // 待审核状态
+        }]);
+
+      if (error) {
+        if (error.message?.includes('duplicate key')) {
+          toast.error('车行代码已存在，请更换');
+        } else {
+          throw error;
+        }
+        return;
+      }
+
+      toast.success('注册申请已提交，请等待平台审核');
+      setRegisterDialogOpen(false);
+      setRegisterForm({
+        name: '',
+        code: '',
+        contact_person: '',
+        contact_phone: '',
+        address: ''
+      });
+    } catch (error: any) {
+      console.error('注册失败:', error);
+      toast.error(error.message || '注册失败，请稍后重试');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -154,10 +230,20 @@ export default function PublicHomeNew() {
                 </Button>
               </>
             ) : (
-              <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
-                <LogIn className="h-4 w-4" />
-                登录
-              </Button>
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setRegisterDialogOpen(true)} 
+                  className="gap-2"
+                >
+                  <Building2 className="h-4 w-4" />
+                  注册车行
+                </Button>
+                <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  登录
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -447,6 +533,102 @@ export default function PublicHomeNew() {
           </div>
         </div>
       </footer>
+
+      {/* 注册车行对话框 */}
+      <Dialog open={registerDialogOpen} onOpenChange={setRegisterDialogOpen}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              注册车行
+            </DialogTitle>
+            <DialogDescription>
+              填写以下信息提交车行注册申请，平台审核通过后即可使用
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleRegisterSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                车行名称 <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="name"
+                placeholder="请输入车行名称"
+                value={registerForm.name}
+                onChange={(e) => setRegisterForm({ ...registerForm, name: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="code">
+                车行代码 <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="code"
+                placeholder="请输入车行代码（字母、数字、下划线）"
+                value={registerForm.code}
+                onChange={(e) => setRegisterForm({ ...registerForm, code: e.target.value })}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                车行代码用于系统识别，只能包含字母、数字和下划线
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact_person">
+                联系人 <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="contact_person"
+                placeholder="请输入联系人姓名"
+                value={registerForm.contact_person}
+                onChange={(e) => setRegisterForm({ ...registerForm, contact_person: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contact_phone">
+                联系电话 <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="contact_phone"
+                type="tel"
+                placeholder="请输入联系电话"
+                value={registerForm.contact_phone}
+                onChange={(e) => setRegisterForm({ ...registerForm, contact_phone: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address">地址</Label>
+              <Input
+                id="address"
+                placeholder="请输入车行地址（选填）"
+                value={registerForm.address}
+                onChange={(e) => setRegisterForm({ ...registerForm, address: e.target.value })}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setRegisterDialogOpen(false)}
+                disabled={isSubmitting}
+              >
+                取消
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? '提交中...' : '提交申请'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* 二维码对话框 */}
       <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
