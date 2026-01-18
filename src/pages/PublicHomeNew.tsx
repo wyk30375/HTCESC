@@ -201,7 +201,7 @@ export default function PublicHomeNew() {
           </div>
           
           {/* 第二行：登录按钮 */}
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-start gap-3">
             {user ? (
               <>
                 <Badge variant="outline" className="gap-1">
