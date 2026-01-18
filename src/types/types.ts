@@ -126,6 +126,7 @@ export interface Vehicle {
   // 价格信息
   original_price?: number; // 新车指导价
   purchase_price: number; // 购车款
+  selling_price?: number; // 预售报价
   
   // 其他
   photos: string[]; // 照片URL数组

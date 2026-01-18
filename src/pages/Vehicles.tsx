@@ -85,6 +85,7 @@ export default function Vehicles() {
     // 价格信息
     original_price: 0,
     purchase_price: 0,
+    selling_price: 0,
     
     // 其他
     photos: [] as string[],
@@ -193,6 +194,7 @@ export default function Vehicles() {
       // 价格信息
       original_price: 0,
       purchase_price: 0,
+      selling_price: 0,
       
       // 其他
       photos: [],
@@ -273,6 +275,7 @@ export default function Vehicles() {
       // 价格信息
       original_price: vehicle.original_price ? Number(vehicle.original_price) : 0,
       purchase_price: Number(vehicle.purchase_price),
+      selling_price: vehicle.selling_price ? Number(vehicle.selling_price) : 0,
       
       // 其他
       photos: vehicle.photos || [],
@@ -692,6 +695,17 @@ export default function Vehicles() {
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="selling_price">预售报价（元）</Label>
+                    <Input
+                      id="selling_price"
+                      type="number"
+                      step="0.01"
+                      value={formData.selling_price || ''}
+                      onChange={(e) => setFormData({ ...formData, selling_price: Number(e.target.value) })}
+                      placeholder="对外展示价格"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -843,6 +857,7 @@ export default function Vehicles() {
                       <TableHead>年检到期</TableHead>
                       <TableHead>新车指导价</TableHead>
                       <TableHead>购车款</TableHead>
+                      <TableHead>预售报价</TableHead>
                       <TableHead>押车出资人</TableHead>
                       <TableHead>场地老板</TableHead>
                       <TableHead>状态</TableHead>
@@ -939,6 +954,9 @@ export default function Vehicles() {
                           {vehicle.original_price ? `¥${Number(vehicle.original_price).toLocaleString()}` : '-'}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">¥{Number(vehicle.purchase_price).toLocaleString()}</TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {vehicle.selling_price ? `¥${Number(vehicle.selling_price).toLocaleString()}` : '-'}
+                        </TableCell>
                         <TableCell>
                           {investors.length > 0 ? (
                             <div className="space-y-1">
