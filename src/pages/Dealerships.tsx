@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dealershipsApi } from '@/db/api';
+import { initializeDealershipMembership } from '@/db/membershipApi';
 import type { Dealership } from '@/types/types';
 import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle, Users, UserCheck, UserX, Store } from 'lucide-react';
 import { toast } from 'sonner';
@@ -150,6 +151,16 @@ export default function Dealerships() {
         reviewed_at: new Date().toISOString(),
         reviewed_by: profile?.id || undefined,
       });
+      
+      // 初始化会员信息
+      try {
+        await initializeDealershipMembership(dealership.id);
+        console.log('会员信息初始化成功');
+      } catch (membershipError) {
+        console.error('会员信息初始化失败:', membershipError);
+        // 不影响审核通过流程，只记录错误
+      }
+      
       toast.success('车行审核通过');
       loadDealerships();
     } catch (error) {

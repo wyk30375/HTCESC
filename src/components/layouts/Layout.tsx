@@ -26,6 +26,7 @@ import {
   FileText,
   Settings,
   Building2,
+  Crown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useState } from 'react';
@@ -43,6 +44,7 @@ const navItems = [
   { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'] },
   { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'] }, // 只有管理员可以访问
   { path: '/dealership-settings', label: '车行信息', icon: Building2, roles: ['admin'] }, // 只有管理员可以访问
+  { path: '/membership', label: '会员中心', icon: Crown, roles: ['admin'] }, // 只有管理员可以访问
   { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'] },
 ];
 

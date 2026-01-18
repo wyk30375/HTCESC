@@ -22,6 +22,58 @@ export type FuelType = 'gasoline' | 'diesel' | 'electric' | 'hybrid' | 'phev' | 
 // 排放标准
 export type EmissionStandard = 'national_3' | 'national_4' | 'national_5' | 'national_6a' | 'national_6b';
 
+// 会员状态
+export type MembershipStatus = 'active' | 'expired' | 'cancelled';
+
+// 支付状态
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
+// 会员等级
+export interface MembershipTier {
+  id: string;
+  tier_name: string;
+  tier_level: number;
+  min_vehicles: number;
+  max_vehicles: number | null;
+  annual_fee: number;
+  description: string;
+  created_at: string;
+}
+
+// 会员订阅
+export interface DealershipMembership {
+  id: string;
+  dealership_id: string;
+  tier_id: string;
+  start_date: string;
+  end_date: string | null;
+  is_trial: boolean;
+  trial_end_date: string | null;
+  status: MembershipStatus;
+  created_at: string;
+  updated_at: string;
+  // 关联数据
+  tier?: MembershipTier;
+  dealership?: Dealership;
+}
+
+// 支付记录
+export interface MembershipPayment {
+  id: string;
+  membership_id: string;
+  dealership_id: string;
+  amount: number;
+  payment_method: string | null;
+  payment_status: PaymentStatus;
+  payment_date: string | null;
+  transaction_id: string | null;
+  notes: string | null;
+  created_at: string;
+  // 关联数据
+  membership?: DealershipMembership;
+  dealership?: Dealership;
+}
+
 // 车行信息
 export interface Dealership {
   id: string;
