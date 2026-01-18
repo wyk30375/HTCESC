@@ -788,10 +788,10 @@ export default function PublicHomeNew() {
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-primary">技术参数</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {selectedVehicle.displacement && (
+                    {(selectedVehicle.displacement ?? 0) > 0 && (
                       <div className="space-y-1">
                         <div className="text-xs text-muted-foreground">排量</div>
-                        <div className="font-medium">{selectedVehicle.displacement.toFixed(1)}{selectedVehicle.is_turbo ? 'T' : 'L'}</div>
+                        <div className="font-medium">{selectedVehicle.displacement!.toFixed(1)}{selectedVehicle.is_turbo ? 'T' : 'L'}</div>
                       </div>
                     )}
                     {selectedVehicle.transmission_type && (
