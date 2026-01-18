@@ -55,7 +55,7 @@ export async function getDealershipVehicleCount(dealershipId: string): Promise<n
     .from('vehicles')
     .select('*', { count: 'exact', head: true })
     .eq('dealership_id', dealershipId)
-    .eq('status', 'available');
+    .eq('status', 'in_stock');
 
   if (error) throw error;
   return count || 0;
