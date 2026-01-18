@@ -425,39 +425,72 @@ export default function MembershipCenter() {
           <CardDescription>选择会员等级，扫码支付后自动开通</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {tiers.map((tier) => (
-              <Card
-                key={tier.id}
-                className="cursor-pointer hover:border-primary transition-colors"
-                onClick={() => handleOpenPayment(tier)}
-              >
-                <CardHeader className="pb-3">
-                  <Badge className={getTierBadgeColor(tier.tier_level)}>
-                    {tier.tier_name}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div>
-                    <p className="text-2xl font-bold text-primary">
-                      ¥{tier.annual_fee}
-                    </p>
-                    <p className="text-sm text-muted-foreground">每年</p>
-                  </div>
-                  <Button className="w-full" size="sm">
-                    <QrCode className="w-4 h-4 mr-2" />
-                    扫码支付
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <Alert className="mt-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              支付成功后，会员资格将自动开通，无需等待人工审核。
-            </AlertDescription>
-          </Alert>
+          {membershipStatus?.suggestedTier ? (
+            <div className="space-y-4">
+              {/* 只显示建议的会员等级 */}
+              <div className="flex justify-center">
+                <Card
+                  className="cursor-pointer hover:border-primary transition-colors w-full max-w-sm"
+                  onClick={() => handleOpenPayment(membershipStatus.suggestedTier)}
+                >
+                  <CardHeader className="pb-3">
+                    <Badge className={getTierBadgeColor(membershipStatus.suggestedTier.tier_level)}>
+                      {membershipStatus.suggestedTier.tier_name}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div>
+                      <p className="text-2xl font-bold text-primary">
+                        ¥{membershipStatus.suggestedTier.annual_fee}
+                      </p>
+                      <p className="text-sm text-muted-foreground">每年</p>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <p>适用车辆：{membershipStatus.suggestedTier.min_vehicles}
+                      {membershipStatus.suggestedTier.max_vehicles 
+                        ? ` - ${membershipStatus.suggestedTier.max_vehicles}` 
+                        : '+'}台</p>
+                      <p className="mt-1">当前车辆：{membershipStatus.vehicleCount}台</p>
+                    </div>
+                    <Button className="w-full" size="sm">
+                      <QrCode className="w-4 h-4 mr-2" />
+                      扫码支付
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* 说明信息 */}
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <p className="mb-2">
+                    根据您当前的在售车辆数量（{membershipStatus.vehicleCount}台），系统推荐您选择
+                    <strong className="mx-1">{membershipStatus.suggestedTier.tier_name}</strong>。
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    提示：如果未来车行车辆有增减，会员等级将自动调整。您也可以根据业务发展需要，
+                    提前选择更高等级的会员。
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              {/* 支付成功说明 */}
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  支付成功后，会员资格将自动开通，无需等待人工审核。
+                </AlertDescription>
+              </Alert>
+            </div>
+          ) : (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                无法确定推荐的会员等级，请先初始化会员或联系管理员。
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
