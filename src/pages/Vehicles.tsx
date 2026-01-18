@@ -344,9 +344,9 @@ export default function Vehicles() {
                 </p>
               </div>
 
-              {/* 地租出资人选择 */}
+              {/* 场地老板选择 */}
               <div className="space-y-2">
-                <Label>地租出资人（可多选，平分18%利润）</Label>
+                <Label>场地老板（可多选，平分18%利润）</Label>
                 <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
                   {profiles.length === 0 ? (
                     <p className="text-sm text-muted-foreground">暂无员工数据</p>

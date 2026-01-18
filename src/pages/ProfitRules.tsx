@@ -159,10 +159,10 @@ export default function ProfitRules() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* 地租出资人 */}
+              {/* 场地老板 */}
               <div className="space-y-2">
                 <Label htmlFor="rent_investor_rate" className="text-sm sm:text-base">
-                  地租出资人分成比例 (%)
+                  场地老板分成比例 (%)
                 </Label>
                 <Input
                   id="rent_investor_rate"
@@ -177,7 +177,7 @@ export default function ProfitRules() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  地租出资人从每笔交易利润中获得的分成比例
+                  场地老板从每笔交易利润中获得的分成比例
                 </p>
               </div>
 

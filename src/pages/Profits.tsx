@@ -265,7 +265,7 @@ export default function Profits() {
                       <TableHead className="text-right">总利润</TableHead>
                       <TableHead>销售员</TableHead>
                       <TableHead>押车出资人</TableHead>
-                      <TableHead>地租出资人</TableHead>
+                      <TableHead>场地老板</TableHead>
                       <TableHead className="text-right">奖金池</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -408,7 +408,7 @@ export default function Profits() {
                   employeeShares.set(investor.id, existing);
                 });
 
-                // 地租出资人分成
+                // 场地老板分成
                 detail.rentInvestors.forEach((rentInvestor) => {
                   const existing = employeeShares.get(rentInvestor.id) || {
                     profile: rentInvestor,
@@ -571,7 +571,7 @@ export default function Profits() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline">地租</Badge>
-              <span>地租出资人平分 18% 利润</span>
+              <span>场地老板平分 18% 利润</span>
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline">月奖金池</Badge>
