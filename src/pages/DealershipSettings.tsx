@@ -1,14 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { supabase } from '@/db/supabase';
 import { toast } from 'sonner';
 import { Loader2, Building2, MapPin, Phone, User, FileText } from 'lucide-react';
 import type { Dealership } from '@/types/types';
+import { regions } from '@/data/regions';
 
 export default function DealershipSettings() {
   const { dealership: authDealership, refreshDealership } = useAuth();
@@ -37,6 +45,39 @@ export default function DealershipSettings() {
       });
     }
   }, [authDealership]);
+
+  // 根据选择的省份获取城市列表
+  const availableCities = useMemo(() => {
+    if (!formData.province) return [];
+    const province = regions.find(p => p.name === formData.province);
+    return province?.cities || [];
+  }, [formData.province]);
+
+  // 根据选择的城市获取区县列表
+  const availableDistricts = useMemo(() => {
+    if (!formData.city) return [];
+    const city = availableCities.find(c => c.name === formData.city);
+    return city?.districts || [];
+  }, [formData.city, availableCities]);
+
+  // 省份变化时，重置城市和区县
+  const handleProvinceChange = (value: string) => {
+    setFormData({
+      ...formData,
+      province: value,
+      city: '',
+      district: '',
+    });
+  };
+
+  // 城市变化时，重置区县
+  const handleCityChange = (value: string) => {
+    setFormData({
+      ...formData,
+      city: value,
+      district: '',
+    });
+  };
 
   const handleSave = async () => {
     if (!authDealership?.id) {
@@ -240,30 +281,56 @@ export default function DealershipSettings() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="province">省份</Label>
-                <Input
-                  id="province"
-                  value={formData.province}
-                  onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                  placeholder="请输入省份"
-                />
+                <Select value={formData.province} onValueChange={handleProvinceChange}>
+                  <SelectTrigger id="province">
+                    <SelectValue placeholder="请选择省份" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map((province) => (
+                      <SelectItem key={province.name} value={province.name}>
+                        {province.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">城市</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="请输入城市"
-                />
+                <Select 
+                  value={formData.city} 
+                  onValueChange={handleCityChange}
+                  disabled={!formData.province}
+                >
+                  <SelectTrigger id="city">
+                    <SelectValue placeholder={formData.province ? "请选择城市" : "请先选择省份"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableCities.map((city) => (
+                      <SelectItem key={city.name} value={city.name}>
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="district">区县</Label>
-                <Input
-                  id="district"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                  placeholder="请输入区县"
-                />
+                <Select 
+                  value={formData.district} 
+                  onValueChange={(value) => setFormData({ ...formData, district: value })}
+                  disabled={!formData.city}
+                >
+                  <SelectTrigger id="district">
+                    <SelectValue placeholder={formData.city ? "请选择区县" : "请先选择城市"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDistricts.map((district) => (
+                      <SelectItem key={district.name} value={district.name}>
+                        {district.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <div className="space-y-2">
