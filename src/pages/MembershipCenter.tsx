@@ -5,14 +5,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   getMembershipTiers,
   getCurrentMembership,
   checkMembershipStatus,
   getPaymentHistory
 } from '@/db/membershipApi';
+import {
+  createPaymentOrder,
+  checkOrderStatus,
+  simulatePayment
+} from '@/db/paymentApi';
 import type { MembershipTier, MembershipPayment } from '@/types/types';
-import { Crown, Calendar, Car, AlertCircle, CheckCircle, Clock, CreditCard } from 'lucide-react';
+import { Crown, Calendar, Car, AlertCircle, CheckCircle, Clock, CreditCard, QrCode, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MembershipCenter() {
@@ -21,6 +27,13 @@ export default function MembershipCenter() {
   const [membershipStatus, setMembershipStatus] = useState<any>(null);
   const [paymentHistory, setPaymentHistory] = useState<MembershipPayment[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // 支付相关状态
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedTier, setSelectedTier] = useState<MembershipTier | null>(null);
+  const [paymentOrder, setPaymentOrder] = useState<any>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -46,6 +59,100 @@ export default function MembershipCenter() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 打开支付对话框
+  const handleOpenPayment = (tier: MembershipTier) => {
+    setSelectedTier(tier);
+    setPaymentOrder(null);
+    setPaymentDialogOpen(true);
+  };
+
+  // 创建支付订单
+  const handleCreateOrder = async () => {
+    if (!profile?.dealership_id || !selectedTier) return;
+
+    try {
+      setPaymentLoading(true);
+      const order = await createPaymentOrder(
+        profile.dealership_id,
+        selectedTier.id,
+        'qrcode'
+      );
+      setPaymentOrder(order);
+      toast.success('订单创建成功，请扫码支付');
+      
+      // 开始轮询检查支付状态
+      startPaymentCheck(order.order_no);
+    } catch (error: any) {
+      console.error('创建订单失败:', error);
+      toast.error(error.message || '创建订单失败');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // 轮询检查支付状态
+  const startPaymentCheck = (orderNo: string) => {
+    setCheckingPayment(true);
+    
+    const checkInterval = setInterval(async () => {
+      try {
+        const order = await checkOrderStatus(orderNo);
+        
+        if (order?.status === 'paid') {
+          clearInterval(checkInterval);
+          setCheckingPayment(false);
+          toast.success('支付成功！会员已开通');
+          setPaymentDialogOpen(false);
+          loadData(); // 重新加载数据
+        } else if (order?.status === 'expired' || order?.status === 'cancelled') {
+          clearInterval(checkInterval);
+          setCheckingPayment(false);
+          toast.error('订单已失效');
+        }
+      } catch (error) {
+        console.error('检查支付状态失败:', error);
+      }
+    }, 3000); // 每3秒检查一次
+
+    // 30分钟后停止检查
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      setCheckingPayment(false);
+    }, 30 * 60 * 1000);
+  };
+
+  // 模拟支付（用于测试）
+  const handleSimulatePayment = async () => {
+    if (!paymentOrder) return;
+
+    try {
+      setPaymentLoading(true);
+      const result = await simulatePayment(paymentOrder.order_no);
+      
+      if (result.success) {
+        toast.success('支付成功！会员已开通');
+        setPaymentDialogOpen(false);
+        setCheckingPayment(false);
+        loadData();
+      } else {
+        toast.error(result.message || '支付失败');
+      }
+    } catch (error: any) {
+      console.error('模拟支付失败:', error);
+      toast.error(error.message || '模拟支付失败');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
+  // 关闭支付对话框
+  const handleClosePayment = () => {
+    setPaymentDialogOpen(false);
+    setCheckingPayment(false);
+    setPaymentOrder(null);
+    setSelectedTier(null);
   };
 
   const getTierBadgeColor = (tierLevel: number) => {
@@ -249,24 +356,47 @@ export default function MembershipCenter() {
         </CardContent>
       </Card>
 
-      {/* 续费按钮 */}
+      {/* 在线续费 */}
       {membershipStatus?.isActive && (
         <Card>
           <CardHeader>
-            <CardTitle>续费会员</CardTitle>
-            <CardDescription>选择会员等级进行续费</CardDescription>
+            <CardTitle>在线续费</CardTitle>
+            <CardDescription>选择会员等级，扫码支付后自动开通</CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert className="mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {tiers.map((tier) => (
+                <Card
+                  key={tier.id}
+                  className="cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => handleOpenPayment(tier)}
+                >
+                  <CardHeader className="pb-3">
+                    <Badge className={getTierBadgeColor(tier.tier_level)}>
+                      {tier.tier_name}
+                    </Badge>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div>
+                      <p className="text-2xl font-bold text-primary">
+                        ¥{tier.annual_fee}
+                      </p>
+                      <p className="text-sm text-muted-foreground">每年</p>
+                    </div>
+                    <Button className="w-full" size="sm">
+                      <QrCode className="w-4 h-4 mr-2" />
+                      扫码支付
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <Alert className="mt-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                续费功能正在开发中，请联系客服进行续费操作。
+                支付成功后，会员资格将自动开通，无需等待人工审核。
               </AlertDescription>
             </Alert>
-            <Button disabled>
-              <CreditCard className="w-4 h-4 mr-2" />
-              立即续费
-            </Button>
           </CardContent>
         </Card>
       )}
@@ -370,6 +500,122 @@ export default function MembershipCenter() {
           </p>
         </CardContent>
       </Card>
+
+      {/* 支付对话框 */}
+      <Dialog open={paymentDialogOpen} onOpenChange={handleClosePayment}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>扫码支付</DialogTitle>
+            <DialogDescription>
+              请使用微信或支付宝扫描二维码完成支付
+            </DialogDescription>
+          </DialogHeader>
+
+          {!paymentOrder ? (
+            // 创建订单阶段
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <Badge className={selectedTier ? getTierBadgeColor(selectedTier.tier_level) : ''}>
+                  {selectedTier?.tier_name}
+                </Badge>
+                <p className="text-3xl font-bold text-primary">
+                  ¥{selectedTier?.annual_fee}
+                </p>
+                <p className="text-sm text-muted-foreground">会员年费</p>
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  点击"生成支付码"后，请在30分钟内完成支付
+                </AlertDescription>
+              </Alert>
+
+              <Button
+                className="w-full"
+                onClick={handleCreateOrder}
+                disabled={paymentLoading}
+              >
+                {paymentLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    生成中...
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="w-4 h-4 mr-2" />
+                    生成支付码
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : (
+            // 显示二维码阶段
+            <div className="space-y-4">
+              <div className="text-center space-y-2">
+                <p className="text-sm text-muted-foreground">订单号：{paymentOrder.order_no}</p>
+                <p className="text-2xl font-bold text-primary">
+                  ¥{paymentOrder.amount}
+                </p>
+              </div>
+
+              {/* 二维码 */}
+              <div className="flex justify-center p-4 bg-white rounded-lg">
+                {paymentOrder.qr_code_url ? (
+                  <img
+                    src={paymentOrder.qr_code_url}
+                    alt="支付二维码"
+                    className="w-64 h-64"
+                  />
+                ) : (
+                  <div className="w-64 h-64 flex items-center justify-center bg-gray-100 rounded">
+                    <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                  </div>
+                )}
+              </div>
+
+              {checkingPayment && (
+                <Alert>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertDescription>
+                    等待支付中，支付成功后将自动开通会员...
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <p className="text-sm text-center text-muted-foreground">
+                  订单有效期：{paymentOrder.expired_at ? new Date(paymentOrder.expired_at).toLocaleString('zh-CN') : '-'}
+                </p>
+                
+                {/* 测试按钮 */}
+                <Alert className="bg-yellow-50 border-yellow-200">
+                  <AlertCircle className="h-4 w-4 text-yellow-600" />
+                  <AlertDescription className="text-yellow-800">
+                    <p className="mb-2">测试模式：点击下方按钮模拟支付成功</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSimulatePayment}
+                      disabled={paymentLoading}
+                      className="w-full"
+                    >
+                      {paymentLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          处理中...
+                        </>
+                      ) : (
+                        '模拟支付成功'
+                      )}
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

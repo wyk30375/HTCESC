@@ -28,6 +28,28 @@ export type MembershipStatus = 'active' | 'expired' | 'cancelled';
 // 支付状态
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
+// 订单状态
+export type OrderStatus = 'pending' | 'paying' | 'paid' | 'cancelled' | 'expired';
+
+// 支付订单
+export interface PaymentOrder {
+  id: string;
+  order_no: string;
+  dealership_id: string;
+  tier_id: string;
+  amount: number;
+  payment_method: string;
+  status: OrderStatus;
+  qr_code_url: string | null;
+  expired_at: string | null;
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // 关联数据
+  tier?: MembershipTier;
+  dealership?: Dealership;
+}
+
 // 会员等级
 export interface MembershipTier {
   id: string;
