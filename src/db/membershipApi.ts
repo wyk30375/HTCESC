@@ -121,17 +121,28 @@ export async function checkMembershipStatus(dealershipId: string): Promise<{
     };
   }
 
-  const now = new Date();
+  // 只比较日期，不比较时间，避免时区和时间戳问题
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // 设置为当天的00:00:00
+  
   const endDate = membership.end_date ? new Date(membership.end_date) : null;
+  if (endDate) {
+    endDate.setHours(0, 0, 0, 0); // 设置为当天的00:00:00
+  }
+  
   const trialEndDate = membership.trial_end_date ? new Date(membership.trial_end_date) : null;
+  if (trialEndDate) {
+    trialEndDate.setHours(0, 0, 0, 0); // 设置为当天的00:00:00
+  }
 
   let daysUntilExpiry: number | null = null;
   if (endDate) {
-    daysUntilExpiry = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    // 使用日期差计算，结果是整数天数
+    daysUntilExpiry = Math.round((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   }
 
-  const isExpired = endDate ? now > endDate : false;
-  const isTrial = membership.is_trial && trialEndDate ? now <= trialEndDate : false;
+  const isExpired = endDate ? today > endDate : false;
+  const isTrial = membership.is_trial && trialEndDate ? today <= trialEndDate : false;
 
   return {
     isActive: membership.status === 'active' && !isExpired,
