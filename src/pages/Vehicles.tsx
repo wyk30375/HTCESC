@@ -123,7 +123,7 @@ export default function Vehicles() {
     }
     
     try {
-      // 清理数据：将空字符串转换为null（枚举类型字段）
+      // 清理数据：将空字符串转换为null（枚举类型字段和日期字段）
       const cleanedData = {
         ...formData,
         vehicle_type: formData.vehicle_type || null,
@@ -131,10 +131,17 @@ export default function Vehicles() {
         drive_type: formData.drive_type || null,
         fuel_type: formData.fuel_type || null,
         emission_standard: formData.emission_standard || null,
+        insurance_expiry: formData.insurance_expiry || null,
+        inspection_expiry: formData.inspection_expiry || null,
+        vin_full: formData.vin_full || null,
+        engine_number: formData.engine_number || null,
+        exterior_color: formData.exterior_color || null,
+        interior_color: formData.interior_color || null,
+        condition_description: formData.condition_description || null,
       };
       
       if (editingVehicle) {
-        await vehiclesApi.update(editingVehicle.id, cleanedData);
+        await vehiclesApi.update(editingVehicle.id, cleanedData as any);
         toast.success('车辆信息已更新');
       } else {
         const vehicle = await vehiclesApi.create({ ...cleanedData, status: 'in_stock' } as any);
