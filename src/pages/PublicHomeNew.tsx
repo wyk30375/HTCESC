@@ -826,7 +826,7 @@ export default function PublicHomeNew() {
                         </div>
                       </div>
                     )}
-                    {selectedVehicle.seats && (
+                    {(selectedVehicle.seats ?? 0) > 0 && (
                       <div className="space-y-1">
                         <div className="text-xs text-muted-foreground">座位数</div>
                         <div className="font-medium">{selectedVehicle.seats}座</div>
@@ -909,7 +909,7 @@ export default function PublicHomeNew() {
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-primary">价格信息</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {selectedVehicle.original_price && (
+                  {(selectedVehicle.original_price ?? 0) > 0 && (
                     <div className="space-y-1">
                       <div className="text-xs text-muted-foreground">新车指导价</div>
                       <div className="font-medium">¥{Number(selectedVehicle.original_price).toLocaleString()}</div>
