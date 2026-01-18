@@ -357,49 +357,47 @@ export default function MembershipCenter() {
       </Card>
 
       {/* 在线续费 */}
-      {membershipStatus?.isActive && (
-        <Card>
-          <CardHeader>
-            <CardTitle>在线续费</CardTitle>
-            <CardDescription>选择会员等级，扫码支付后自动开通</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tiers.map((tier) => (
-                <Card
-                  key={tier.id}
-                  className="cursor-pointer hover:border-primary transition-colors"
-                  onClick={() => handleOpenPayment(tier)}
-                >
-                  <CardHeader className="pb-3">
-                    <Badge className={getTierBadgeColor(tier.tier_level)}>
-                      {tier.tier_name}
-                    </Badge>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div>
-                      <p className="text-2xl font-bold text-primary">
-                        ¥{tier.annual_fee}
-                      </p>
-                      <p className="text-sm text-muted-foreground">每年</p>
-                    </div>
-                    <Button className="w-full" size="sm">
-                      <QrCode className="w-4 h-4 mr-2" />
-                      扫码支付
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            <Alert className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                支付成功后，会员资格将自动开通，无需等待人工审核。
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <CardTitle>在线续费</CardTitle>
+          <CardDescription>选择会员等级，扫码支付后自动开通</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {tiers.map((tier) => (
+              <Card
+                key={tier.id}
+                className="cursor-pointer hover:border-primary transition-colors"
+                onClick={() => handleOpenPayment(tier)}
+              >
+                <CardHeader className="pb-3">
+                  <Badge className={getTierBadgeColor(tier.tier_level)}>
+                    {tier.tier_name}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div>
+                    <p className="text-2xl font-bold text-primary">
+                      ¥{tier.annual_fee}
+                    </p>
+                    <p className="text-sm text-muted-foreground">每年</p>
+                  </div>
+                  <Button className="w-full" size="sm">
+                    <QrCode className="w-4 h-4 mr-2" />
+                    扫码支付
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          <Alert className="mt-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              支付成功后，会员资格将自动开通，无需等待人工审核。
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
 
       {/* 支付历史 */}
       {paymentHistory.length > 0 && (
