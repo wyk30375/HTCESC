@@ -11,11 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dealershipsApi } from '@/db/api';
 import type { Dealership } from '@/types/types';
-import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle, Users, UserCheck, UserX, Store } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/db/supabase';
 
 export default function Dealerships() {
   const { profile } = useAuth();
@@ -28,6 +29,13 @@ export default function Dealerships() {
   const [viewingDealership, setViewingDealership] = useState<Dealership | null>(null);
   const [rejectingDealership, setRejectingDealership] = useState<Dealership | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  
+  // 在线统计数据
+  const [onlineStats, setOnlineStats] = useState({
+    activeDealerships: 0,
+    registeredUsers: 0,
+    guestUsers: 0
+  });
   
 
   // 分类车行
@@ -45,6 +53,10 @@ export default function Dealerships() {
   useEffect(() => {
     if (isSuperAdmin) {
       loadDealerships();
+      loadOnlineStats();
+      // 每30秒刷新一次在线统计
+      const interval = setInterval(loadOnlineStats, 30000);
+      return () => clearInterval(interval);
     } else {
       setLoading(false);
     }
@@ -63,6 +75,34 @@ export default function Dealerships() {
       toast.error('加载车行列表失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadOnlineStats = async () => {
+    try {
+      // 获取激活的车行数量
+      const { count: activeDealershipsCount } = await supabase
+        .from('dealerships')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'active');
+
+      // 获取注册用户数（有dealership_id的用户）
+      const { count: registeredUsersCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .not('dealership_id', 'is', null);
+
+      // 模拟未注册浏览用户数（实际应用中需要通过会话跟踪实现）
+      // 这里使用一个简单的随机数作为演示
+      const guestUsersCount = Math.floor(Math.random() * 20) + 5;
+
+      setOnlineStats({
+        activeDealerships: activeDealershipsCount || 0,
+        registeredUsers: registeredUsersCount || 0,
+        guestUsers: guestUsersCount
+      });
+    } catch (error) {
+      console.error('❌ [在线统计] 加载失败:', error);
     }
   };
 
@@ -153,6 +193,57 @@ export default function Dealerships() {
 
   return (
     <PageWrapper title="车行管理">
+      {/* 在线统计卡片 */}
+      <div className="grid gap-4 md:grid-cols-3 mb-6">
+        {/* 在线访问车行数 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              在线访问车行数
+            </CardTitle>
+            <Store className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{onlineStats.activeDealerships}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              正常运营的车行总数
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 注册用户访问数 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              注册用户访问数
+            </CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{onlineStats.registeredUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              已关联车行的用户数
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* 未注册浏览用户数 */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              未注册浏览用户数
+            </CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{onlineStats.guestUsers}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              当前访客数量（模拟数据）
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <Card>
         <CardHeader>
           <div>
