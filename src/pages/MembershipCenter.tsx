@@ -17,6 +17,7 @@ import {
   checkOrderStatus,
   simulatePayment
 } from '@/db/paymentApi';
+import { supabase } from '@/db/supabase';
 import type { MembershipTier, MembershipPayment } from '@/types/types';
 import { Crown, Calendar, Car, AlertCircle, CheckCircle, Clock, CreditCard, QrCode, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ export default function MembershipCenter() {
   const [membershipStatus, setMembershipStatus] = useState<any>(null);
   const [paymentHistory, setPaymentHistory] = useState<MembershipPayment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(false);
   
   // 支付相关状态
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
@@ -58,6 +60,35 @@ export default function MembershipCenter() {
       toast.error('加载会员信息失败');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // 初始化会员（6个月免费期）
+  const handleInitializeMembership = async () => {
+    if (!profile?.dealership_id) {
+      toast.error('无法获取车行信息');
+      return;
+    }
+
+    try {
+      setInitializing(true);
+      
+      // 调用数据库函数初始化会员
+      const { data, error } = await supabase.rpc('initialize_dealership_membership', {
+        p_dealership_id: profile.dealership_id
+      });
+
+      if (error) throw error;
+
+      toast.success('会员初始化成功！您已获得6个月免费期');
+      
+      // 重新加载数据
+      await loadData();
+    } catch (error: any) {
+      console.error('初始化会员失败:', error);
+      toast.error(error.message || '初始化会员失败，请联系管理员');
+    } finally {
+      setInitializing(false);
     }
   };
 
@@ -299,12 +330,35 @@ export default function MembershipCenter() {
                 )}
             </>
           ) : (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                您还没有会员信息，请联系管理员初始化会员。
-              </AlertDescription>
-            </Alert>
+            <div className="space-y-4">
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  您还没有会员信息。新入驻车商可享受6个月免费期，请点击下方按钮初始化会员。
+                </AlertDescription>
+              </Alert>
+              
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleInitializeMembership}
+                  disabled={initializing}
+                  size="lg"
+                  className="gap-2"
+                >
+                  {initializing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      初始化中...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      立即开通会员（6个月免费期）
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
