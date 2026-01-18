@@ -103,6 +103,7 @@ export interface Vehicle {
   
   // 车辆技术参数
   displacement?: number; // 排量（升）
+  is_turbo?: boolean; // 是否涡轮增压（T=涡轮，L=自然吸气）
   transmission_type?: TransmissionType; // 变速箱类型
   drive_type?: DriveType; // 驱动方式
   fuel_type?: FuelType; // 燃料类型

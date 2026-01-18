@@ -61,6 +61,7 @@ export default function Vehicles() {
     
     // 车辆技术参数
     displacement: 0,
+    is_turbo: false,
     transmission_type: '' as any,
     drive_type: '' as any,
     fuel_type: '' as any,
@@ -186,6 +187,7 @@ export default function Vehicles() {
       
       // 车辆技术参数
       displacement: 0,
+      is_turbo: false,
       transmission_type: '' as any,
       drive_type: '' as any,
       fuel_type: '' as any,
@@ -260,6 +262,7 @@ export default function Vehicles() {
       
       // 车辆技术参数
       displacement: vehicle.displacement || 0,
+      is_turbo: vehicle.is_turbo || false,
       transmission_type: vehicle.transmission_type || '' as any,
       drive_type: vehicle.drive_type || '' as any,
       fuel_type: vehicle.fuel_type || '' as any,
@@ -459,15 +462,31 @@ export default function Vehicles() {
                 <h3 className="text-sm font-semibold text-primary">车辆技术参数</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="displacement">排量（升）</Label>
-                    <Input
-                      id="displacement"
-                      type="number"
-                      step="0.1"
-                      value={formData.displacement || ''}
-                      onChange={(e) => setFormData({ ...formData, displacement: Number(e.target.value) })}
-                      placeholder="例如：1.5"
-                    />
+                    <Label htmlFor="displacement">排量</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="displacement"
+                        type="number"
+                        step="0.1"
+                        value={formData.displacement || ''}
+                        onChange={(e) => setFormData({ ...formData, displacement: Number(e.target.value) })}
+                        placeholder="例如：2.0"
+                        className="flex-1"
+                      />
+                      <div className="flex items-center gap-2 px-3 border rounded-md bg-muted/30">
+                        <Checkbox
+                          id="is_turbo"
+                          checked={formData.is_turbo}
+                          onCheckedChange={(checked) => setFormData({ ...formData, is_turbo: checked as boolean })}
+                        />
+                        <Label htmlFor="is_turbo" className="text-sm cursor-pointer whitespace-nowrap">
+                          涡轮增压
+                        </Label>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {formData.displacement > 0 ? `显示为：${formData.displacement}${formData.is_turbo ? 'T' : 'L'}` : '未选择涡轮时显示为自然吸气（L）'}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="transmission_type">变速箱类型</Label>
@@ -865,7 +884,7 @@ export default function Vehicles() {
                         <TableCell>{vehicle.year}</TableCell>
                         <TableCell className="whitespace-nowrap">{vehicle.mileage.toLocaleString()} km</TableCell>
                         <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
-                        <TableCell>{vehicle.displacement ? `${vehicle.displacement}L` : '-'}</TableCell>
+                        <TableCell>{vehicle.displacement ? `${vehicle.displacement}${vehicle.is_turbo ? 'T' : 'L'}` : '-'}</TableCell>
                         <TableCell>
                           {vehicle.transmission_type ? (
                             TRANSMISSION_TYPE_MAP[vehicle.transmission_type as keyof typeof TRANSMISSION_TYPE_MAP] || '-'
