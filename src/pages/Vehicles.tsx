@@ -90,7 +90,6 @@ export default function Vehicles() {
     // 其他
     photos: [] as string[],
     investor_ids: [] as string[],
-    rent_investor_ids: [] as string[],
   });
 
   useEffect(() => {
@@ -199,7 +198,6 @@ export default function Vehicles() {
       // 其他
       photos: [],
       investor_ids: [],
-      rent_investor_ids: [],
     });
     setEditingVehicle(null);
   };
@@ -215,20 +213,14 @@ export default function Vehicles() {
       return;
     }
     
-    // 解析 investor_ids 和 rent_investor_ids
+    // 解析 investor_ids
     let investorIds: string[] = [];
-    let rentInvestorIds: string[] = [];
     
     try {
       if (vehicle.investor_ids) {
         investorIds = typeof vehicle.investor_ids === 'string' 
           ? JSON.parse(vehicle.investor_ids) 
           : vehicle.investor_ids;
-      }
-      if (vehicle.rent_investor_ids) {
-        rentInvestorIds = typeof vehicle.rent_investor_ids === 'string'
-          ? JSON.parse(vehicle.rent_investor_ids)
-          : vehicle.rent_investor_ids;
       }
     } catch (error) {
       console.error('解析出资人ID失败:', error);
@@ -280,7 +272,6 @@ export default function Vehicles() {
       // 其他
       photos: vehicle.photos || [],
       investor_ids: investorIds,
-      rent_investor_ids: rentInvestorIds,
     });
     setDialogOpen(true);
   };
@@ -751,48 +742,6 @@ export default function Vehicles() {
                 </p>
               </div>
 
-              {/* 场地老板选择 */}
-              <div className="space-y-2">
-                <Label>场地老板（可多选，平分18%利润）</Label>
-                <div className="border rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
-                  {profiles.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">暂无员工数据</p>
-                  ) : (
-                    profiles.map((person) => (
-                      <div key={person.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`vehicle-rent-investor-${person.id}`}
-                          checked={formData.rent_investor_ids.includes(person.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setFormData({
-                                ...formData,
-                                rent_investor_ids: [...formData.rent_investor_ids, person.id],
-                              });
-                            } else {
-                              setFormData({
-                                ...formData,
-                                rent_investor_ids: formData.rent_investor_ids.filter((id) => id !== person.id),
-                              });
-                            }
-                          }}
-                        />
-                        <Label
-                          htmlFor={`vehicle-rent-investor-${person.id}`}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {person.username || person.email}
-                          {person.id === profile?.id && ' (我)'}
-                        </Label>
-                      </div>
-                    ))
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  已选择 {formData.rent_investor_ids.length} 人
-                </p>
-              </div>
-
               <div className="space-y-2">
                 <Label>车辆照片</Label>
                 <ImageUpload
@@ -859,7 +808,6 @@ export default function Vehicles() {
                       <TableHead>购车款</TableHead>
                       <TableHead>预售报价</TableHead>
                       <TableHead>押车出资人</TableHead>
-                      <TableHead>场地老板</TableHead>
                       <TableHead>状态</TableHead>
                       <TableHead>操作</TableHead>
                     </TableRow>
@@ -868,17 +816,11 @@ export default function Vehicles() {
                     {filteredVehicles.map((vehicle) => {
                       // 解析押车出资人ID
                       let investorIds: string[] = [];
-                      let rentInvestorIds: string[] = [];
                       try {
                         if (vehicle.investor_ids) {
                           investorIds = typeof vehicle.investor_ids === 'string' 
                             ? JSON.parse(vehicle.investor_ids) 
                             : vehicle.investor_ids;
-                        }
-                        if (vehicle.rent_investor_ids) {
-                          rentInvestorIds = typeof vehicle.rent_investor_ids === 'string'
-                            ? JSON.parse(vehicle.rent_investor_ids)
-                            : vehicle.rent_investor_ids;
                         }
                       } catch (error) {
                         console.error('解析出资人ID失败:', error);
@@ -886,7 +828,6 @@ export default function Vehicles() {
                       
                       // 获取出资人信息
                       const investors = profiles.filter(p => investorIds.includes(p.id));
-                      const rentInvestors = profiles.filter(p => rentInvestorIds.includes(p.id));
                       
                       // 车况标记
                       const conditionBadges: string[] = [];
@@ -961,19 +902,6 @@ export default function Vehicles() {
                           {investors.length > 0 ? (
                             <div className="space-y-1">
                               {investors.map((investor) => (
-                                <div key={investor.id} className="text-sm whitespace-nowrap">
-                                  {investor.username || investor.email}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">未指定</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {rentInvestors.length > 0 ? (
-                            <div className="space-y-1">
-                              {rentInvestors.map((investor) => (
                                 <div key={investor.id} className="text-sm whitespace-nowrap">
                                   {investor.username || investor.email}
                                 </div>

@@ -38,6 +38,7 @@ export interface Dealership {
   rejected_reason?: string; // 拒绝原因
   reviewed_at?: string; // 审核时间
   reviewed_by?: string; // 审核人ID
+  rent_investor_ids?: string[]; // 场地老板ID列表
   created_at: string;
   updated_at: string;
 }

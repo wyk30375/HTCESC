@@ -64,6 +64,18 @@ export const dealershipsApi = {
     return dealership as Dealership | null;
   },
 
+  // 根据ID获取车行
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('dealerships')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    
+    if (error) throw error;
+    return data as Dealership | null;
+  },
+
   // 创建新车行
   async create(dealership: Omit<Dealership, 'id' | 'created_at' | 'updated_at'>) {
     // 使用 RPC 函数来创建车行，绕过 RLS 限制
@@ -147,6 +159,17 @@ export const profilesApi = {
       .maybeSingle();
     if (error) throw error;
     return data;
+  },
+
+  // 根据车行ID获取用户列表
+  async getByDealership(dealershipId: string) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('dealership_id', dealershipId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
   },
 
   // 更新用户角色

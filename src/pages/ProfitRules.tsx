@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { profitRulesApi, getCurrentDealershipId } from '@/db/api';
-import type { ProfitRule } from '@/types/types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { profitRulesApi, getCurrentDealershipId, profilesApi, dealershipsApi } from '@/db/api';
+import type { ProfitRule, Profile } from '@/types/types';
 import { Settings, Save, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,6 +20,8 @@ export default function ProfitRules() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [currentRule, setCurrentRule] = useState<ProfitRule | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [rentInvestorIds, setRentInvestorIds] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     rent_investor_rate: 18,
@@ -34,6 +37,9 @@ export default function ProfitRules() {
   const loadData = async () => {
     try {
       setLoading(true);
+      const dealershipId = await getCurrentDealershipId();
+      
+      // 加载提成规则
       const rule = await profitRulesApi.getActive();
       if (rule) {
         setCurrentRule(rule);
@@ -43,6 +49,16 @@ export default function ProfitRules() {
           salesperson_rate: rule.salesperson_rate,
           investor_rate: rule.investor_rate,
         });
+      }
+      
+      // 加载员工列表
+      const profilesList = await profilesApi.getByDealership(dealershipId);
+      setProfiles(profilesList);
+      
+      // 加载当前车行的场地老板配置
+      const dealership = await dealershipsApi.getById(dealershipId);
+      if (dealership?.rent_investor_ids) {
+        setRentInvestorIds(dealership.rent_investor_ids);
       }
     } catch (error) {
       console.error('加载提成规则失败:', error);
@@ -74,19 +90,25 @@ export default function ProfitRules() {
 
     try {
       setSaving(true);
+      const dealershipId = await getCurrentDealershipId();
       
+      // 保存提成规则
       if (currentRule) {
         // 更新现有规则
         await profitRulesApi.update(currentRule.id, formData);
       } else {
         // 创建新规则
-        const dealershipId = await getCurrentDealershipId();
         await profitRulesApi.create({
           ...formData,
           dealership_id: dealershipId,
           is_active: true,
         });
       }
+      
+      // 保存场地老板配置
+      await dealershipsApi.update(dealershipId, {
+        rent_investor_ids: rentInvestorIds
+      });
       
       toast.success('提成规则已更新，所有利润计算将使用新规则');
       loadData();
@@ -101,6 +123,16 @@ export default function ProfitRules() {
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     const numValue = value === '' ? 0 : Number(value);
     setFormData(prev => ({ ...prev, [field]: numValue }));
+  };
+
+  const handleRentInvestorToggle = (profileId: string) => {
+    setRentInvestorIds(prev => {
+      if (prev.includes(profileId)) {
+        return prev.filter(id => id !== profileId);
+      } else {
+        return [...prev, profileId];
+      }
+    });
   };
 
   const calculateTotal = () => {
@@ -245,6 +277,48 @@ export default function ProfitRules() {
                 <p className="text-xs text-muted-foreground">
                   押车出资人从每笔交易利润中获得的分成比例
                 </p>
+              </div>
+
+              {/* 场地老板选择 */}
+              <div className="space-y-3 pt-4 border-t">
+                <Label className="text-sm sm:text-base">
+                  场地老板（从员工中选择）
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  选择担任场地老板角色的员工，可多选。场地老板将按上述比例分配利润。
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto p-3 border rounded-lg bg-muted/30">
+                  {profiles.length === 0 ? (
+                    <p className="text-sm text-muted-foreground col-span-full text-center py-4">
+                      暂无员工，请先添加员工
+                    </p>
+                  ) : (
+                    profiles.map((p) => (
+                      <div key={p.id} className="flex items-center space-x-2 p-2 rounded hover:bg-background">
+                        <Checkbox
+                          id={`rent-investor-${p.id}`}
+                          checked={rentInvestorIds.includes(p.id)}
+                          onCheckedChange={() => handleRentInvestorToggle(p.id)}
+                          disabled={!isAdmin}
+                        />
+                        <label
+                          htmlFor={`rent-investor-${p.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                        >
+                          {p.username}
+                          {p.role === 'admin' && (
+                            <span className="ml-2 text-xs text-primary">(管理员)</span>
+                          )}
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                {rentInvestorIds.length > 0 && (
+                  <p className="text-xs text-primary">
+                    已选择 {rentInvestorIds.length} 位场地老板
+                  </p>
+                )}
               </div>
 
               {/* 总计显示 */}
