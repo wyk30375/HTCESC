@@ -54,9 +54,25 @@ export default function Dealerships() {
     if (isSuperAdmin) {
       loadDealerships();
       loadOnlineStats();
+      
       // 每30秒刷新一次在线统计
       const interval = setInterval(loadOnlineStats, 30000);
-      return () => clearInterval(interval);
+      
+      // 页面可见性检测：当用户切换标签页时暂停刷新，返回时恢复
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          // 页面可见时立即刷新一次数据
+          loadOnlineStats();
+        }
+      };
+      
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      
+      // 清理函数：组件卸载或用户离开页面时清理定时器和事件监听
+      return () => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     } else {
       setLoading(false);
     }
