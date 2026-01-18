@@ -5,19 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dealershipsApi } from '@/db/api';
 import type { Dealership } from '@/types/types';
-import { Building2, Plus, Edit, Power, PowerOff, Eye, CheckCircle, XCircle, QrCode, Copy } from 'lucide-react';
+import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 
 export default function Dealerships() {
   const { profile } = useAuth();
@@ -25,23 +23,12 @@ export default function Dealerships() {
   
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [qrDialogOpen, setQrDialogOpen] = useState(false); // 平台二维码对话框
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-  const [editingDealership, setEditingDealership] = useState<Dealership | null>(null);
   const [viewingDealership, setViewingDealership] = useState<Dealership | null>(null);
   const [rejectingDealership, setRejectingDealership] = useState<Dealership | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   
-  const [formData, setFormData] = useState({
-    name: '',
-    code: '',
-    contact_person: '',
-    contact_phone: '',
-    address: '',
-    status: 'active' as 'pending' | 'active' | 'inactive' | 'rejected',
-  });
 
   // 分类车行
   const pendingDealerships = dealerships.filter(d => d.status === 'pending');
@@ -79,55 +66,6 @@ export default function Dealerships() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // 验证表单
-    if (!formData.name || !formData.code) {
-      toast.error('请填写车行名称和代码');
-      return;
-    }
-
-    // 验证车行代码格式
-    const codeRegex = /^[a-zA-Z0-9_]+$/;
-    if (!codeRegex.test(formData.code)) {
-      toast.error('车行代码只能包含字母、数字和下划线');
-      return;
-    }
-
-    try {
-      if (editingDealership) {
-        await dealershipsApi.update(editingDealership.id, formData);
-        toast.success('车行信息已更新');
-      } else {
-        await dealershipsApi.create(formData);
-        toast.success('车行已创建');
-      }
-      setDialogOpen(false);
-      resetForm();
-      loadDealerships();
-    } catch (error: any) {
-      console.error('保存车行失败:', error);
-      if (error.message?.includes('duplicate key')) {
-        toast.error('车行代码已存在，请更换');
-      } else {
-        toast.error(error.message || '保存车行失败');
-      }
-    }
-  };
-
-  const handleEdit = (dealership: Dealership) => {
-    setEditingDealership(dealership);
-    setFormData({
-      name: dealership.name,
-      code: dealership.code,
-      contact_person: dealership.contact_person || '',
-      contact_phone: dealership.contact_phone || '',
-      address: dealership.address || '',
-      status: dealership.status,
-    });
-    setDialogOpen(true);
-  };
 
   const handleView = (dealership: Dealership) => {
     setViewingDealership(dealership);
@@ -198,24 +136,6 @@ export default function Dealerships() {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      code: '',
-      contact_person: '',
-      contact_phone: '',
-      address: '',
-      status: 'active',
-    });
-    setEditingDealership(null);
-  };
-
-  const handleDialogClose = (open: boolean) => {
-    setDialogOpen(open);
-    if (!open) {
-      resetForm();
-    }
-  };
 
   // 非超级管理员无权访问
   if (!isSuperAdmin) {
@@ -235,136 +155,15 @@ export default function Dealerships() {
     <PageWrapper title="车行管理">
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                车行列表
-              </CardTitle>
-              <CardDescription className="mt-2">
-                管理平台上的所有车行，审核新车行注册申请
-              </CardDescription>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => setQrDialogOpen(true)} 
-                className="gap-2"
-              >
-                <QrCode className="h-4 w-4" />
-                平台二维码
-              </Button>
-              <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    创建车行
-                  </Button>
-                </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingDealership ? '编辑车行' : '创建新车行'}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">车行名称 *</Label>
-                      <Input
-                        id="name"
-                        placeholder="例如：易驰汽车"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="code">车行代码 *</Label>
-                      <Input
-                        id="code"
-                        placeholder="例如：yichi"
-                        value={formData.code}
-                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                        disabled={!!editingDealership}
-                        required
-                      />
-                      {editingDealership && (
-                        <p className="text-xs text-muted-foreground">
-                          车行代码创建后不可修改
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="contact_person">联系人</Label>
-                      <Input
-                        id="contact_person"
-                        placeholder="联系人姓名"
-                        value={formData.contact_person}
-                        onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="contact_phone">联系电话</Label>
-                      <Input
-                        id="contact_phone"
-                        placeholder="联系电话"
-                        value={formData.contact_phone}
-                        onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="address">车行地址</Label>
-                    <Textarea
-                      id="address"
-                      placeholder="车行详细地址"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="min-h-20"
-                    />
-                  </div>
-
-                  {editingDealership && (
-                    <div className="space-y-2">
-                      <Label htmlFor="status">状态</Label>
-                      <select
-                        id="status"
-                        value={formData.status}
-                        onChange={(e) => setFormData({ ...formData, status: e.target.value as 'pending' | 'active' | 'inactive' | 'rejected' })}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      >
-                        <option value="pending">待审核</option>
-                        <option value="active">正常</option>
-                        <option value="inactive">停用</option>
-                        <option value="rejected">审核拒绝</option>
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="flex justify-end gap-3 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => handleDialogClose(false)}
-                    >
-                      取消
-                    </Button>
-                    <Button type="submit">
-                      {editingDealership ? '保存' : '创建'}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              车行列表
+            </CardTitle>
+            <CardDescription className="mt-2">
+              管理平台上的所有车行
+            </CardDescription>
           </div>
-        </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -517,13 +316,6 @@ export default function Dealerships() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => handleEdit(dealership)}
-                                >
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
                                   onClick={() => handleToggleStatus(dealership)}
                                 >
                                   <PowerOff className="h-4 w-4 text-destructive" />
@@ -580,13 +372,6 @@ export default function Dealerships() {
                                   onClick={() => handleView(dealership)}
                                 >
                                   <Eye className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => handleEdit(dealership)}
-                                >
-                                  <Edit className="h-4 w-4" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -817,55 +602,6 @@ export default function Dealerships() {
         </DialogContent>
       </Dialog>
 
-      {/* 平台二维码对话框 */}
-      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" />
-              平台注册二维码
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex flex-col items-center gap-4 p-6 bg-muted/50 rounded-lg">
-              <QRCodeDataUrl 
-                data={`${window.location.origin}/register`}
-                size={200}
-              />
-              <p className="text-sm text-muted-foreground text-center">
-                扫描二维码或分享链接给车商，方便快速注册车行
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>注册链接</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={`${window.location.origin}/register`}
-                  readOnly
-                  className="flex-1"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/register`);
-                    toast.success('链接已复制到剪贴板');
-                  }}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button onClick={() => setQrDialogOpen(false)}>
-                关闭
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </PageWrapper>
   );
 }
