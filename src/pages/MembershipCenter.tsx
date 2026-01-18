@@ -370,42 +370,50 @@ export default function MembershipCenter() {
           <CardDescription>根据在售车辆数量自动判定会员等级</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {tiers.map((tier) => (
-              <Card
-                key={tier.id}
-                className={
-                  membershipStatus?.currentTier?.id === tier.id
-                    ? 'border-primary shadow-md'
-                    : ''
-                }
-              >
-                <CardHeader className="pb-3">
-                  <Badge className={getTierBadgeColor(tier.tier_level)}>
-                    {tier.tier_name}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div>
-                    <p className="text-2xl font-bold text-primary">
-                      ¥{tier.annual_fee}
-                    </p>
-                    <p className="text-sm text-muted-foreground">每年</p>
-                  </div>
-                  <Separator />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">车辆数量范围</p>
-                    <p className="text-sm text-muted-foreground">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium">会员等级</th>
+                  <th className="text-left py-3 px-4 font-medium">年费</th>
+                  <th className="text-left py-3 px-4 font-medium">车辆数量范围</th>
+                  <th className="text-left py-3 px-4 font-medium">说明</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tiers.map((tier) => (
+                  <tr
+                    key={tier.id}
+                    className={`border-b last:border-b-0 ${
+                      membershipStatus?.currentTier?.id === tier.id
+                        ? 'bg-primary/5'
+                        : ''
+                    }`}
+                  >
+                    <td className="py-3 px-4">
+                      <Badge className={getTierBadgeColor(tier.tier_level)}>
+                        {tier.tier_name}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="text-lg font-bold text-primary">
+                        ¥{tier.annual_fee}
+                      </span>
+                      <span className="text-sm text-muted-foreground ml-1">
+                        /年
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm">
                       {tier.min_vehicles}
                       {tier.max_vehicles ? ` - ${tier.max_vehicles}` : '+'}台
-                    </p>
-                  </div>
-                  {tier.description && (
-                    <p className="text-xs text-muted-foreground">{tier.description}</p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">
+                      {tier.description}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </CardContent>
       </Card>
