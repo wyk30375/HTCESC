@@ -26,7 +26,10 @@ import {
   Phone,
   Mail,
   QrCode,
-  Copy
+  Copy,
+  ChevronLeft,
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Vehicle, Dealership } from '@/types/types';
@@ -49,6 +52,8 @@ export default function PublicHomeNew() {
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
   const [vehicleDetailOpen, setVehicleDetailOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<(Vehicle & { dealership?: Dealership }) | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // 车辆和车行数据
   const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
@@ -722,7 +727,14 @@ export default function PublicHomeNew() {
                   <h3 className="text-sm font-semibold text-primary">车辆照片</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {selectedVehicle.photos.map((photo, index) => (
-                      <div key={index} className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                      <div 
+                        key={index} 
+                        className="relative aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer"
+                        onClick={() => {
+                          setCurrentImageIndex(index);
+                          setImageViewerOpen(true);
+                        }}
+                      >
                         <img
                           src={photo}
                           alt={`${selectedVehicle.brand} ${selectedVehicle.model} - ${index + 1}`}
@@ -980,6 +992,84 @@ export default function PublicHomeNew() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 图片查看器对话框 */}
+      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+          <div className="relative w-full h-[95vh] flex items-center justify-center">
+            {/* 关闭按钮 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
+              onClick={() => setImageViewerOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+
+            {/* 图片计数 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+                {currentImageIndex + 1} / {selectedVehicle.photos.length}
+              </div>
+            )}
+
+            {/* 左箭头 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && currentImageIndex > 0 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                onClick={() => setCurrentImageIndex(currentImageIndex - 1)}
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </Button>
+            )}
+
+            {/* 图片 */}
+            {selectedVehicle?.photos && selectedVehicle.photos[currentImageIndex] && (
+              <img
+                src={selectedVehicle.photos[currentImageIndex]}
+                alt={`${selectedVehicle.brand} ${selectedVehicle.model} - ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
+
+            {/* 右箭头 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && currentImageIndex < selectedVehicle.photos.length - 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+                onClick={() => setCurrentImageIndex(currentImageIndex + 1)}
+              >
+                <ChevronRight className="h-8 w-8" />
+              </Button>
+            )}
+
+            {/* 缩略图导航 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2 bg-black/50 rounded-lg">
+                {selectedVehicle.photos.map((photo, index) => (
+                  <div
+                    key={index}
+                    className={`relative w-16 h-16 flex-shrink-0 rounded cursor-pointer overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex ? 'border-primary scale-110' : 'border-white/30 hover:border-white/60'
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  >
+                    <img
+                      src={photo}
+                      alt={`缩略图 ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
