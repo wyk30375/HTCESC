@@ -25,6 +25,7 @@ export const DealershipSettings = lazy(() => import('@/pages/DealershipSettings'
 export const MembershipCenter = lazy(() => import('@/pages/MembershipCenter'));
 export const PlatformMembershipManagement = lazy(() => import('@/pages/PlatformMembershipManagement'));
 export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
+export const VehicleList = lazy(() => import('@/pages/VehicleList'));
 export const CustomerView = lazy(() => import('@/pages/CustomerView'));
 export const InternalReport = lazy(() => import('@/pages/InternalReport'));
 export const Login = lazy(() => import('@/pages/Login'));
@@ -105,6 +106,11 @@ export const routes: RouteConfig[] = [
     path: '/register',
     component: PublicHomeNew,
     title: '恏淘车经营管理平台',
+  },
+  {
+    path: '/vehicle-list',
+    component: VehicleList,
+    title: '全部车辆',
   },
   {
     path: '/customer-view',

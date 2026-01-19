@@ -411,8 +411,9 @@ export default function PublicHomeNew() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredVehicles.map((vehicle) => (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredVehicles.map((vehicle) => (
                 <Card 
                   key={vehicle.id} 
                   className="overflow-hidden hover:shadow-lg transition-all duration-300 group cursor-pointer"
@@ -506,6 +507,20 @@ export default function PublicHomeNew() {
                 </Card>
               ))}
             </div>
+
+            {/* 查看更多按钮 */}
+            <div className="flex justify-center mt-12">
+              <Button
+                size="lg"
+                onClick={() => navigate('/vehicle-list')}
+                className="gap-2 px-8"
+              >
+                <Car className="h-5 w-5" />
+                查看更多车辆
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </>
           )}
         </div>
       </section>
