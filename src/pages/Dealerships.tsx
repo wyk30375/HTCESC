@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { dealershipsApi } from '@/db/api';
 import { initializeDealershipMembership } from '@/db/membershipApi';
 import type { Dealership } from '@/types/types';
-import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle, Users, UserCheck, UserX, Store } from 'lucide-react';
+import { Building2, Power, PowerOff, Eye, CheckCircle, XCircle, AlertCircle, Users, UserCheck, UserX, Store, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -27,9 +27,15 @@ export default function Dealerships() {
   const [loading, setLoading] = useState(true);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [resetPasswordDialogOpen, setResetPasswordDialogOpen] = useState(false);
   const [viewingDealership, setViewingDealership] = useState<Dealership | null>(null);
   const [rejectingDealership, setRejectingDealership] = useState<Dealership | null>(null);
+  const [resettingDealership, setResettingDealership] = useState<Dealership | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [resettingPassword, setResettingPassword] = useState(false);
   
   // 在线统计数据
   const [onlineStats, setOnlineStats] = useState({
@@ -200,6 +206,85 @@ export default function Dealerships() {
     } catch (error) {
       console.error('审核拒绝失败:', error);
       toast.error('审核拒绝失败');
+    }
+  };
+
+  // 打开重置密码对话框
+  const handleOpenResetPassword = async (dealership: Dealership) => {
+    setResettingDealership(dealership);
+    setNewPassword('');
+    setConfirmPassword('');
+    setAdminEmail('');
+    
+    // 查询车行管理员邮箱
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('dealership_id', dealership.id)
+        .eq('role', 'dealership_admin')
+        .single();
+      
+      if (error) throw error;
+      if (data) {
+        setAdminEmail(data.email);
+      }
+    } catch (error) {
+      console.error('查询管理员信息失败:', error);
+      toast.error('查询管理员信息失败');
+    }
+    
+    setResetPasswordDialogOpen(true);
+  };
+
+  // 重置密码
+  const handleResetPassword = async () => {
+    if (!resettingDealership || !adminEmail) {
+      toast.error('缺少必要信息');
+      return;
+    }
+
+    // 验证密码
+    if (!newPassword || newPassword.length < 6) {
+      toast.error('密码长度至少6位');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('两次输入的密码不一致');
+      return;
+    }
+
+    try {
+      setResettingPassword(true);
+      
+      // 调用Edge Function重置密码
+      const { data, error } = await supabase.functions.invoke('reset-dealership-password', {
+        body: {
+          email: adminEmail,
+          newPassword: newPassword,
+          dealershipId: resettingDealership.id,
+          dealershipName: resettingDealership.name
+        }
+      });
+
+      if (error) {
+        console.error('重置密码失败:', error);
+        toast.error(error.message || '重置密码失败');
+        return;
+      }
+
+      toast.success('密码重置成功');
+      setResetPasswordDialogOpen(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setAdminEmail('');
+      setResettingDealership(null);
+    } catch (error) {
+      console.error('重置密码失败:', error);
+      toast.error('重置密码失败');
+    } finally {
+      setResettingPassword(false);
     }
   };
 
@@ -428,13 +513,25 @@ export default function Dealerships() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleView(dealership)}
+                                  title="查看详情"
                                 >
                                   <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleOpenResetPassword(dealership)}
+                                  className="gap-1"
+                                  title="重置管理员密码"
+                                >
+                                  <KeyRound className="h-4 w-4" />
+                                  重置密码
                                 </Button>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleToggleStatus(dealership)}
+                                  title="停用车行"
                                 >
                                   <PowerOff className="h-4 w-4 text-destructive" />
                                 </Button>
@@ -713,6 +810,90 @@ export default function Dealerships() {
                   onClick={handleReject}
                 >
                   确认拒绝
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 重置密码对话框 */}
+      <Dialog open={resetPasswordDialogOpen} onOpenChange={setResetPasswordDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5" />
+              重置管理员密码
+            </DialogTitle>
+          </DialogHeader>
+          {resettingDealership && (
+            <div className="space-y-4">
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  重置密码后，该车行管理员需要使用新密码登录系统
+                </AlertDescription>
+              </Alert>
+
+              <div>
+                <Label className="text-muted-foreground">车行名称</Label>
+                <p className="mt-1 font-medium">{resettingDealership.name}</p>
+              </div>
+
+              <div>
+                <Label className="text-muted-foreground">管理员邮箱</Label>
+                <p className="mt-1 font-mono text-sm">{adminEmail || '查询中...'}</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="new-password">新密码 *</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  placeholder="请输入新密码（至少6位）"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={resettingPassword}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">确认密码 *</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="请再次输入新密码"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={resettingPassword}
+                  required
+                />
+              </div>
+
+              {newPassword && newPassword.length < 6 && (
+                <p className="text-sm text-destructive">密码长度至少6位</p>
+              )}
+
+              {newPassword && confirmPassword && newPassword !== confirmPassword && (
+                <p className="text-sm text-destructive">两次输入的密码不一致</p>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setResetPasswordDialogOpen(false)}
+                  disabled={resettingPassword}
+                >
+                  取消
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleResetPassword}
+                  disabled={resettingPassword || !adminEmail || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6}
+                >
+                  {resettingPassword ? '重置中...' : '确认重置'}
                 </Button>
               </div>
             </div>
