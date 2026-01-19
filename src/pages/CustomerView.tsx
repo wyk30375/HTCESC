@@ -269,7 +269,7 @@ export default function CustomerView() {
             <Button
               size="lg"
               className="gap-2 shadow-lg"
-              onClick={() => navigate('/public-home')}
+              onClick={() => navigate('/register')}
             >
               <Grid3x3 className="h-5 w-5" />
               查看更多车辆
