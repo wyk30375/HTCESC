@@ -34,7 +34,7 @@ export default function Dealerships() {
   const [rejectReason, setRejectReason] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [adminEmail, setAdminEmail] = useState('');
+  const [adminUsername, setAdminUsername] = useState('');
   const [resettingPassword, setResettingPassword] = useState(false);
   
   // 在线统计数据
@@ -214,20 +214,20 @@ export default function Dealerships() {
     setResettingDealership(dealership);
     setNewPassword('');
     setConfirmPassword('');
-    setAdminEmail('');
+    setAdminUsername('');
     
-    // 查询车行管理员邮箱
+    // 查询车行管理员用户名
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('email')
+        .select('username')
         .eq('dealership_id', dealership.id)
         .eq('role', 'dealership_admin')
         .single();
       
       if (error) throw error;
       if (data) {
-        setAdminEmail(data.email);
+        setAdminUsername(data.username);
       }
     } catch (error) {
       console.error('查询管理员信息失败:', error);
@@ -239,7 +239,7 @@ export default function Dealerships() {
 
   // 重置密码
   const handleResetPassword = async () => {
-    if (!resettingDealership || !adminEmail) {
+    if (!resettingDealership || !adminUsername) {
       toast.error('缺少必要信息');
       return;
     }
@@ -261,7 +261,7 @@ export default function Dealerships() {
       // 调用Edge Function重置密码
       const { data, error } = await supabase.functions.invoke('reset-dealership-password', {
         body: {
-          email: adminEmail,
+          username: adminUsername,
           newPassword: newPassword,
           dealershipId: resettingDealership.id,
           dealershipName: resettingDealership.name
@@ -278,7 +278,7 @@ export default function Dealerships() {
       setResetPasswordDialogOpen(false);
       setNewPassword('');
       setConfirmPassword('');
-      setAdminEmail('');
+      setAdminUsername('');
       setResettingDealership(null);
     } catch (error) {
       console.error('重置密码失败:', error);
@@ -841,8 +841,8 @@ export default function Dealerships() {
               </div>
 
               <div>
-                <Label className="text-muted-foreground">管理员邮箱</Label>
-                <p className="mt-1 font-mono text-sm">{adminEmail || '查询中...'}</p>
+                <Label className="text-muted-foreground">管理员用户名</Label>
+                <p className="mt-1 font-mono text-sm">{adminUsername || '查询中...'}</p>
               </div>
 
               <div className="space-y-2">
@@ -891,7 +891,7 @@ export default function Dealerships() {
                 <Button
                   type="button"
                   onClick={handleResetPassword}
-                  disabled={resettingPassword || !adminEmail || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6}
+                  disabled={resettingPassword || !adminUsername || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6}
                 >
                   {resettingPassword ? '重置中...' : '确认重置'}
                 </Button>

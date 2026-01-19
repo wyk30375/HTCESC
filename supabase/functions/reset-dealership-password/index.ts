@@ -12,11 +12,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, newPassword, dealershipId, dealershipName } = await req.json();
+    const { username, newPassword, dealershipId, dealershipName } = await req.json();
 
-    if (!email || !newPassword || !dealershipId) {
+    if (!username || !newPassword || !dealershipId) {
       return new Response(
-        JSON.stringify({ success: false, message: '邮箱、新密码和车行ID不能为空' }),
+        JSON.stringify({ success: false, message: '用户名、新密码和车行ID不能为空' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -77,8 +77,8 @@ Deno.serve(async (req) => {
     // 查找车行管理员
     const { data: adminProfile, error: adminError } = await supabaseAdmin
       .from('profiles')
-      .select('id, email, role, username, dealership_id')
-      .eq('email', email)
+      .select('id, username, role, dealership_id')
+      .eq('username', username)
       .eq('dealership_id', dealershipId)
       .eq('role', 'dealership_admin')
       .maybeSingle();
@@ -105,13 +105,12 @@ Deno.serve(async (req) => {
     }
 
     // 记录操作日志（可选）
-    console.log(`[密码重置] 超级管理员 ${user.email} 重置了车行 ${dealershipName}(${dealershipId}) 管理员 ${email} 的密码`);
+    console.log(`[密码重置] 超级管理员 ${user.id} 重置了车行 ${dealershipName}(${dealershipId}) 管理员 ${username} 的密码`);
 
     return new Response(
       JSON.stringify({
         success: true,
         message: '车行管理员密码重置成功',
-        email: adminProfile.email,
         username: adminProfile.username,
         dealershipName: dealershipName,
       }),
