@@ -6,14 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
-import type { Vehicle } from '@/types/types';
+import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { toast } from 'sonner';
 
 export default function CustomerView() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,10 +26,12 @@ export default function CustomerView() {
   const loadVehicles = async () => {
     try {
       setLoading(true);
-      const data = await vehiclesApi.getInStock();
+      // 使用公开API，显示所有在售车辆
+      const data = await vehiclesApi.getAllInStock();
       setVehicles(data);
     } catch (error) {
       console.error('加载车辆数据失败:', error);
+      toast.error('加载车辆数据失败');
     } finally {
       setLoading(false);
     }
@@ -145,17 +147,23 @@ export default function CustomerView() {
                 )}
 
                 <div className="pt-2 border-t flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-1">
                     <p className="text-xs text-muted-foreground">价格面议</p>
+                    {vehicle.dealership && (
+                      <p className="text-xs text-muted-foreground">
+                        {vehicle.dealership.name}
+                      </p>
+                    )}
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
                     className="gap-1 shrink-0"
                     onClick={() => {
-                      if (dealership?.contact_phone) {
+                      const dealershipInfo = vehicle.dealership;
+                      if (dealershipInfo?.contact_phone) {
                         toast.success('联系方式', {
-                          description: `${dealership.name}\n联系电话：${dealership.contact_phone}${dealership.contact_person ? `\n联系人：${dealership.contact_person}` : ''}`,
+                          description: `${dealershipInfo.name}\n联系电话：${dealershipInfo.contact_phone}${dealershipInfo.contact_person ? `\n联系人：${dealershipInfo.contact_person}` : ''}`,
                           duration: 5000,
                         });
                       } else {

@@ -384,6 +384,20 @@ export const vehiclesApi = {
     return Array.isArray(data) ? data : [];
   },
 
+  // 获取所有在售车辆（公开访问，不需要登录）
+  async getAllInStock() {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select(`
+        *,
+        dealership:dealerships(*)
+      `)
+      .eq('status', 'in_stock')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
   // 获取已售车辆（仅当前车行）
   async getSold() {
     const dealershipId = await getCurrentDealershipId();
