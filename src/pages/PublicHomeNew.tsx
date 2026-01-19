@@ -258,6 +258,10 @@ export default function PublicHomeNew() {
               </>
             ) : (
               <>
+                <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
+                  <LogIn className="h-4 w-4" />
+                  登录
+                </Button>
                 <Button 
                   variant="outline" 
                   onClick={() => setRegisterDialogOpen(true)} 
@@ -265,10 +269,6 @@ export default function PublicHomeNew() {
                 >
                   <Building2 className="h-4 w-4" />
                   注册车行
-                </Button>
-                <Button variant="ghost" onClick={() => navigate('/login')} className="gap-2">
-                  <LogIn className="h-4 w-4" />
-                  登录
                 </Button>
               </>
             )}
