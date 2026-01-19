@@ -40,6 +40,7 @@ const App = () => {
   // 获取特殊路由的组件（不需要布局的页面）
   const LoginComponent = routes.find(r => r.path === '/login')?.component;
   const RegisterComponent = routes.find(r => r.path === '/register')?.component;
+  const VehicleListComponent = routes.find(r => r.path === '/vehicle-list')?.component;
   const CustomerViewComponent = routes.find(r => r.path === '/customer-view')?.component;
 
   return (
@@ -53,12 +54,15 @@ const App = () => {
               <RouteGuard>
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
-                    {/* 登录页面、注册页面和客户展示页面不需要布局 */}
+                    {/* 登录页面、注册页面、车辆列表页面和客户展示页面不需要布局 */}
                     {LoginComponent && (
                       <Route path="/login" element={<LoginComponent />} />
                     )}
                     {RegisterComponent && (
                       <Route path="/register" element={<RegisterComponent />} />
+                    )}
+                    {VehicleListComponent && (
+                      <Route path="/vehicle-list" element={<VehicleListComponent />} />
                     )}
                     {CustomerViewComponent && (
                       <Route path="/customer-view" element={<CustomerViewComponent />} />
@@ -89,6 +93,7 @@ const App = () => {
                                 .filter(r => 
                                   r.path !== '/login' && 
                                   r.path !== '/register' && 
+                                  r.path !== '/vehicle-list' &&
                                   r.path !== '/customer-view' &&
                                   r.path !== '/dealerships' // 车行管理页面移到平台后台
                                 )
