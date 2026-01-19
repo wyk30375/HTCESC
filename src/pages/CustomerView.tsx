@@ -17,6 +17,8 @@ export default function CustomerView() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [currentDealership, setCurrentDealership] = useState<Dealership | null>(null);
   const navigate = useNavigate();
   const { dealership, profile } = useAuth();
@@ -155,7 +157,14 @@ export default function CustomerView() {
 
         <div className="grid gap-6 @md:grid-cols-2 @lg:grid-cols-3">
           {vehicles.map((vehicle) => (
-            <Card key={vehicle.id} className="overflow-hidden">
+            <Card 
+              key={vehicle.id} 
+              className="overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02]"
+              onClick={() => {
+                setSelectedVehicle(vehicle);
+                setDetailDialogOpen(true);
+              }}
+            >
               {/* 车辆图片 */}
               <div className="aspect-video bg-muted relative">
                 {vehicle.photos && vehicle.photos.length > 0 ? (
@@ -209,7 +218,8 @@ export default function CustomerView() {
                     variant="outline"
                     size="sm"
                     className="gap-1 shrink-0"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation(); // 阻止事件冒泡
                       if (currentDealership?.contact_phone) {
                         toast.success('联系方式', {
                           description: `${currentDealership.name}\n联系电话：${currentDealership.contact_phone}${currentDealership.contact_person ? `\n联系人：${currentDealership.contact_person}` : ''}`,
@@ -285,6 +295,161 @@ export default function CustomerView() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 车辆详情对话框 */}
+      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">车辆详情</DialogTitle>
+          </DialogHeader>
+          
+          {selectedVehicle && (
+            <div className="space-y-6">
+              {/* 车辆图片轮播 */}
+              {selectedVehicle.photos && selectedVehicle.photos.length > 0 && (
+                <div className="space-y-2">
+                  <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                    <img
+                      src={selectedVehicle.photos[0]}
+                      alt={`${selectedVehicle.brand} ${selectedVehicle.model}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  {selectedVehicle.photos.length > 1 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {selectedVehicle.photos.slice(1, 5).map((photo, index) => (
+                        <div key={index} className="aspect-video bg-muted rounded overflow-hidden">
+                          <img
+                            src={photo}
+                            alt={`${selectedVehicle.brand} ${selectedVehicle.model} - ${index + 2}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 基本信息 */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    {selectedVehicle.brand} {selectedVehicle.model}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <Badge>在售</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      车架号后六位：{selectedVehicle.vin_last_six}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 详细参数 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">年份：</span>
+                      <span className="font-medium">{selectedVehicle.year}年</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Gauge className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">里程：</span>
+                      <span className="font-medium">{selectedVehicle.mileage?.toLocaleString()}公里</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Car className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">车牌号：</span>
+                      <span className="font-medium">{selectedVehicle.license_plate || '暂无'}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {selectedVehicle.color && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">颜色：</span>
+                        <span className="font-medium">{selectedVehicle.color}</span>
+                      </div>
+                    )}
+                    {selectedVehicle.displacement && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">排量：</span>
+                        <span className="font-medium">{selectedVehicle.displacement}</span>
+                      </div>
+                    )}
+                    {selectedVehicle.transmission && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-muted-foreground">变速箱：</span>
+                        <span className="font-medium">{selectedVehicle.transmission}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 车况描述 */}
+                {selectedVehicle.condition_description && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium">车况描述</h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {selectedVehicle.condition_description}
+                    </p>
+                  </div>
+                )}
+
+                {/* 联系方式 */}
+                <div className="pt-4 border-t space-y-3">
+                  <h4 className="font-medium">联系我们</h4>
+                  {currentDealership && (
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">车行：</span>
+                        <span className="font-medium">{currentDealership.name}</span>
+                      </div>
+                      {currentDealership.contact_phone && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">电话：</span>
+                          <span className="font-medium">{currentDealership.contact_phone}</span>
+                        </div>
+                      )}
+                      {currentDealership.contact_person && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">联系人：</span>
+                          <span className="font-medium">{currentDealership.contact_person}</span>
+                        </div>
+                      )}
+                      {currentDealership.address && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">地址：</span>
+                          <span className="font-medium">{currentDealership.address}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  
+                  <Button
+                    className="w-full"
+                    size="lg"
+                    onClick={() => {
+                      if (currentDealership?.contact_phone) {
+                        toast.success('联系方式', {
+                          description: `${currentDealership.name}\n联系电话：${currentDealership.contact_phone}${currentDealership.contact_person ? `\n联系人：${currentDealership.contact_person}` : ''}`,
+                          duration: 5000,
+                        });
+                      } else {
+                        toast.error('暂无联系方式');
+                      }
+                    }}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    联系车行
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
