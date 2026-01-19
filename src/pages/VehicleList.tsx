@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { 
   Car, 
   Building2, 
@@ -17,7 +18,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
-  X
+  X,
+  Check,
+  ChevronsUpDown
 } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Vehicle, Dealership } from '@/types/types';
@@ -41,11 +44,13 @@ export default function VehicleList() {
   const [selectedVehicle, setSelectedVehicle] = useState<(Vehicle & { dealership?: Dealership }) | null>(null);
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [comboboxOpen, setComboboxOpen] = useState(false);
   
   // 车辆和车行数据
   const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
-  const [selectedDealership, setSelectedDealership] = useState<string>(searchParams.get('dealership') || 'all');
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>(searchParams.get('city') || 'all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   
   // 分页状态
@@ -62,10 +67,10 @@ export default function VehicleList() {
     // 更新URL参数
     const params: Record<string, string> = {};
     if (currentPage > 1) params.page = currentPage.toString();
-    if (selectedDealership !== 'all') params.dealership = selectedDealership;
+    if (selectedCity !== 'all') params.city = selectedCity;
     if (searchQuery) params.search = searchQuery;
     setSearchParams(params);
-  }, [currentPage, selectedDealership, searchQuery]);
+  }, [currentPage, selectedCity, searchQuery]);
 
   const loadDealerships = async () => {
     try {
@@ -77,6 +82,13 @@ export default function VehicleList() {
 
       if (error) throw error;
       setDealerships(data || []);
+      
+      // 提取地级市列表
+      const citySet = new Set<string>();
+      data?.forEach(d => {
+        if (d.city) citySet.add(d.city);
+      });
+      setCities(Array.from(citySet).sort());
     } catch (error) {
       console.error('加载车行失败:', error);
     }
@@ -95,9 +107,20 @@ export default function VehicleList() {
         `, { count: 'exact' })
         .eq('status', 'in_stock');
 
-      // 车行筛选
-      if (selectedDealership !== 'all') {
-        query = query.eq('dealership_id', selectedDealership);
+      // 地区筛选
+      if (selectedCity !== 'all') {
+        // 先获取该地区的所有车行ID
+        const cityDealerships = dealerships.filter(d => d.city === selectedCity);
+        const dealershipIds = cityDealerships.map(d => d.id);
+        if (dealershipIds.length > 0) {
+          query = query.in('dealership_id', dealershipIds);
+        } else {
+          // 如果没有该地区的车行，返回空结果
+          setVehicles([]);
+          setTotalCount(0);
+          setLoading(false);
+          return;
+        }
       }
 
       // 搜索筛选
@@ -130,9 +153,9 @@ export default function VehicleList() {
     setCurrentPage(1); // 重置到第一页
   };
 
-  // 处理车行筛选
-  const handleDealershipChange = (value: string) => {
-    setSelectedDealership(value);
+  // 处理地区筛选
+  const handleCityChange = (value: string) => {
+    setSelectedCity(value);
     setCurrentPage(1); // 重置到第一页
   };
 
@@ -206,20 +229,65 @@ export default function VehicleList() {
               className="pl-10"
             />
           </div>
-          <Select value={selectedDealership} onValueChange={handleDealershipChange}>
-            <SelectTrigger className="w-full md:w-64">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="选择车行" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部车行</SelectItem>
-              {dealerships.map((d) => (
-                <SelectItem key={d.id} value={d.id}>
-                  {d.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={comboboxOpen}
+                className="w-full md:w-64 justify-between"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                <span className="flex-1 text-left truncate">
+                  {selectedCity === 'all' 
+                    ? '全部地区' 
+                    : cities.find((city) => city === selectedCity) || '全部地区'}
+                </span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandInput placeholder="搜索地区..." />
+                <CommandList>
+                  <CommandEmpty>未找到地区</CommandEmpty>
+                  <CommandGroup>
+                    <CommandItem
+                      value="all"
+                      onSelect={() => {
+                        handleCityChange('all');
+                        setComboboxOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${
+                          selectedCity === 'all' ? 'opacity-100' : 'opacity-0'
+                        }`}
+                      />
+                      全部地区
+                    </CommandItem>
+                    {cities.map((city) => (
+                      <CommandItem
+                        key={city}
+                        value={city}
+                        onSelect={(currentValue) => {
+                          handleCityChange(currentValue);
+                          setComboboxOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={`mr-2 h-4 w-4 ${
+                            selectedCity === city ? 'opacity-100' : 'opacity-0'
+                          }`}
+                        />
+                        {city}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* 车辆列表 */}
