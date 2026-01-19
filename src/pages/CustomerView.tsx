@@ -8,7 +8,7 @@ import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone, ChevronLeft, ChevronRight, X, Grid3x3 } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
@@ -262,6 +262,20 @@ export default function CustomerView() {
             </Card>
           ))}
         </div>
+
+        {/* 查看更多车辆按钮 */}
+        {vehicles.length > 0 && (
+          <div className="mt-8 flex justify-center">
+            <Button
+              size="lg"
+              className="gap-2 shadow-lg"
+              onClick={() => navigate('/public-home')}
+            >
+              <Grid3x3 className="h-5 w-5" />
+              查看更多车辆
+            </Button>
+          </div>
+        )}
 
         {vehicles.length === 0 && (
           <div className="rounded-lg border bg-card p-12 text-center">
