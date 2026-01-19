@@ -1,37 +1,92 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
-import type { Vehicle } from '@/types/types';
+import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { toast } from 'sonner';
+import { supabase } from '@/db/supabase';
 
 export default function CustomerView() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
+  const [currentDealership, setCurrentDealership] = useState<Dealership | null>(null);
   const navigate = useNavigate();
-  const { dealership } = useAuth();
+  const { dealership, profile } = useAuth();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     loadVehicles();
-  }, []);
+  }, [searchParams]);
 
   const loadVehicles = async () => {
     try {
       setLoading(true);
-      // 显示当前车行的在售车辆
-      const data = await vehiclesApi.getInStock();
-      setVehicles(data);
+      
+      // 1. 从URL参数获取车行ID（扫码访问场景）
+      const dealershipIdFromUrl = searchParams.get('dealership');
+      
+      let targetDealershipId: string | null = null;
+      let targetDealership: Dealership | null = null;
+      
+      if (dealershipIdFromUrl) {
+        // 扫码访问：使用URL参数中的车行ID
+        targetDealershipId = dealershipIdFromUrl;
+        
+        // 获取车行信息
+        const { data: dealershipData, error: dealershipError } = await supabase
+          .from('dealerships')
+          .select('*')
+          .eq('id', dealershipIdFromUrl)
+          .maybeSingle();
+        
+        if (dealershipError) {
+          console.error('获取车行信息失败:', dealershipError);
+        } else {
+          targetDealership = dealershipData;
+        }
+      } else if (profile?.dealership_id) {
+        // 已登录用户：使用当前用户的车行ID
+        targetDealershipId = profile.dealership_id;
+        targetDealership = dealership;
+      }
+      
+      if (!targetDealershipId) {
+        toast.error('无法获取车行信息');
+        setVehicles([]);
+        setCurrentDealership(null);
+        return;
+      }
+      
+      // 设置当前车行
+      setCurrentDealership(targetDealership);
+      
+      // 2. 查询该车行的在售车辆
+      const { data, error } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('dealership_id', targetDealershipId)
+        .eq('status', 'in_stock')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('加载车辆数据失败:', error);
+        toast.error('加载车辆数据失败');
+        setVehicles([]);
+      } else {
+        setVehicles(Array.isArray(data) ? data : []);
+      }
     } catch (error) {
       console.error('加载车辆数据失败:', error);
       toast.error('加载车辆数据失败');
+      setVehicles([]);
     } finally {
       setLoading(false);
     }
@@ -155,9 +210,9 @@ export default function CustomerView() {
                     size="sm"
                     className="gap-1 shrink-0"
                     onClick={() => {
-                      if (dealership?.contact_phone) {
+                      if (currentDealership?.contact_phone) {
                         toast.success('联系方式', {
-                          description: `${dealership.name}\n联系电话：${dealership.contact_phone}${dealership.contact_person ? `\n联系人：${dealership.contact_person}` : ''}`,
+                          description: `${currentDealership.name}\n联系电话：${currentDealership.contact_phone}${currentDealership.contact_person ? `\n联系人：${currentDealership.contact_person}` : ''}`,
                           duration: 5000,
                         });
                       } else {
@@ -200,7 +255,7 @@ export default function CustomerView() {
             
             <div className="flex flex-col items-center justify-center py-6 bg-muted/30 rounded-lg">
               <QRCodeDataUrl
-                data={`${window.location.origin}/customer-view`}
+                data={`${window.location.origin}/customer-view?dealership=${currentDealership?.id || profile?.dealership_id || ''}`}
                 size={200}
               />
             </div>
@@ -208,7 +263,7 @@ export default function CustomerView() {
             <div className="space-y-2 text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
               <p className="font-medium text-foreground">展示页面链接：</p>
               <p className="break-all font-mono bg-background px-2 py-1 rounded">
-                {`${window.location.origin}/customer-view`}
+                {`${window.location.origin}/customer-view?dealership=${currentDealership?.id || profile?.dealership_id || ''}`}
               </p>
               <p className="text-xs">可复制此链接发送给客户</p>
             </div>
@@ -217,7 +272,7 @@ export default function CustomerView() {
               <Button
                 variant="outline"
                 onClick={() => {
-                  const url = `${window.location.origin}/customer-view`;
+                  const url = `${window.location.origin}/customer-view?dealership=${currentDealership?.id || profile?.dealership_id || ''}`;
                   navigator.clipboard.writeText(url);
                   toast.success('链接已复制到剪贴板');
                 }}
