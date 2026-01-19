@@ -414,7 +414,7 @@ export default function PublicHomeNew() {
               <Car className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
               <h3 className="text-xl font-semibold mb-2">暂无车辆</h3>
               <p className="text-muted-foreground">
-                {searchQuery || selectedDealership !== 'all' 
+                {searchQuery || selectedCity !== 'all' 
                   ? '没有找到符合条件的车辆' 
                   : '平台暂无在售车辆'}
               </p>
