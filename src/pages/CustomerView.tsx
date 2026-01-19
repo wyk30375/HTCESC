@@ -8,7 +8,7 @@ import { vehiclesApi } from '@/db/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone } from 'lucide-react';
+import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
@@ -19,6 +19,8 @@ export default function CustomerView() {
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [imageViewerOpen, setImageViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentDealership, setCurrentDealership] = useState<Dealership | null>(null);
   const navigate = useNavigate();
   const { dealership, profile } = useAuth();
@@ -92,6 +94,28 @@ export default function CustomerView() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 图片导航函数
+  const handlePrevImage = () => {
+    if (selectedVehicle?.photos && selectedVehicle.photos.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? selectedVehicle.photos.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleNextImage = () => {
+    if (selectedVehicle?.photos && selectedVehicle.photos.length > 0) {
+      setCurrentImageIndex((prev) => 
+        prev === selectedVehicle.photos.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const openImageViewer = (index: number) => {
+    setCurrentImageIndex(index);
+    setImageViewerOpen(true);
   };
 
   if (loading) {
@@ -310,25 +334,43 @@ export default function CustomerView() {
               {/* 车辆图片轮播 */}
               {selectedVehicle.photos && selectedVehicle.photos.length > 0 && (
                 <div className="space-y-2">
-                  <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+                  <div 
+                    className="aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer relative group"
+                    onClick={() => openImageViewer(0)}
+                  >
                     <img
                       src={selectedVehicle.photos[0]}
                       alt={`${selectedVehicle.brand} ${selectedVehicle.model}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
                     />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity text-sm bg-black/50 px-3 py-1 rounded">
+                        点击查看大图
+                      </span>
+                    </div>
                   </div>
                   {selectedVehicle.photos.length > 1 && (
                     <div className="grid grid-cols-4 gap-2">
                       {selectedVehicle.photos.slice(1, 5).map((photo, index) => (
-                        <div key={index} className="aspect-video bg-muted rounded overflow-hidden">
+                        <div 
+                          key={index} 
+                          className="aspect-video bg-muted rounded overflow-hidden cursor-pointer relative group"
+                          onClick={() => openImageViewer(index + 1)}
+                        >
                           <img
                             src={photo}
                             alt={`${selectedVehicle.brand} ${selectedVehicle.model} - ${index + 2}`}
-                            className="h-full w-full object-cover"
+                            className="h-full w-full object-cover transition-transform group-hover:scale-110"
                           />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                         </div>
                       ))}
                     </div>
+                  )}
+                  {selectedVehicle.photos.length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      共 {selectedVehicle.photos.length} 张照片，点击查看全部
+                    </p>
                   )}
                 </div>
               )}
@@ -450,6 +492,87 @@ export default function CustomerView() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 图片查看器 */}
+      <Dialog open={imageViewerOpen} onOpenChange={setImageViewerOpen}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+          <div className="relative w-full h-[95vh] flex items-center justify-center">
+            {/* 关闭按钮 */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
+              onClick={() => setImageViewerOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+
+            {/* 图片计数 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 0 && (
+              <div className="absolute top-4 left-4 z-50 text-white bg-black/50 px-3 py-1 rounded text-sm">
+                {currentImageIndex + 1} / {selectedVehicle.photos.length}
+              </div>
+            )}
+
+            {/* 主图片 */}
+            {selectedVehicle?.photos && selectedVehicle.photos[currentImageIndex] && (
+              <img
+                src={selectedVehicle.photos[currentImageIndex]}
+                alt={`${selectedVehicle.brand} ${selectedVehicle.model} - ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
+
+            {/* 左箭头 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                onClick={handlePrevImage}
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </Button>
+            )}
+
+            {/* 右箭头 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
+                onClick={handleNextImage}
+              >
+                <ChevronRight className="h-8 w-8" />
+              </Button>
+            )}
+
+            {/* 缩略图导航 */}
+            {selectedVehicle?.photos && selectedVehicle.photos.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 py-2 bg-black/50 rounded-lg">
+                {selectedVehicle.photos.map((photo, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`flex-shrink-0 w-16 h-16 rounded overflow-hidden border-2 transition-all ${
+                      index === currentImageIndex
+                        ? 'border-white scale-110'
+                        : 'border-transparent opacity-60 hover:opacity-100'
+                    }`}
+                    onClick={() => setCurrentImageIndex(index)}
+                  >
+                    <img
+                      src={photo}
+                      alt={`缩略图 ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
