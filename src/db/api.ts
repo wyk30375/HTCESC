@@ -359,65 +359,38 @@ export const employeesApi = {
 
 // ==================== 车辆 API ====================
 export const vehiclesApi = {
-  // 获取所有车辆
+  // 获取所有车辆（仅当前车行）
   async getAll() {
+    const dealershipId = await getCurrentDealershipId();
     const { data, error } = await supabase
       .from('vehicles')
       .select('*')
+      .eq('dealership_id', dealershipId)
       .order('created_at', { ascending: false });
     if (error) throw error;
     return Array.isArray(data) ? data : [];
   },
 
-  // 获取在售车辆
+  // 获取在售车辆（仅当前车行）
   async getInStock() {
-    console.log('🚗 [简化版] 开始查询在库车辆...');
-    console.log('🔑 当前用户会话:', await supabase.auth.getSession());
-    
-    try {
-      // 直接查询所有车辆，不使用任何条件
-      console.log('🔍 查询所有车辆（无条件）');
-      const { data: allVehicles, error } = await supabase
-        .from('vehicles')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('❌ 查询失败:', error);
-        console.error('错误详情:', JSON.stringify(error, null, 2));
-        throw error;
-      }
-      
-      console.log('✅ 查询成功，总车辆数:', allVehicles?.length || 0);
-      console.log('📋 所有车辆数据:', allVehicles);
-      
-      if (!allVehicles || allVehicles.length === 0) {
-        console.warn('⚠️ 数据库中没有任何车辆数据');
-        return [];
-      }
-      
-      // 在前端过滤在库车辆
-      console.log('🔄 在前端过滤 status=in_stock 的车辆');
-      const inStockVehicles = allVehicles.filter(v => {
-        console.log(`  - 车辆 ${v.brand} ${v.model}: status=${v.status}`);
-        return v.status === 'in_stock';
-      });
-      
-      console.log('✅ 过滤完成，在库车辆数:', inStockVehicles.length);
-      console.log('📋 在库车辆列表:', inStockVehicles);
-      
-      return inStockVehicles;
-    } catch (err) {
-      console.error('❌ 发生异常:', err);
-      return [];
-    }
-  },
-
-  // 获取已售车辆
-  async getSold() {
+    const dealershipId = await getCurrentDealershipId();
     const { data, error } = await supabase
       .from('vehicles')
       .select('*')
+      .eq('dealership_id', dealershipId)
+      .eq('status', 'in_stock')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  },
+
+  // 获取已售车辆（仅当前车行）
+  async getSold() {
+    const dealershipId = await getCurrentDealershipId();
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .eq('dealership_id', dealershipId)
       .eq('status', 'sold')
       .order('created_at', { ascending: false });
     if (error) throw error;
