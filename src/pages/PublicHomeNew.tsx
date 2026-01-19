@@ -58,7 +58,8 @@ export default function PublicHomeNew() {
   // 车辆和车行数据
   const [vehicles, setVehicles] = useState<(Vehicle & { dealership?: Dealership })[]>([]);
   const [dealerships, setDealerships] = useState<Dealership[]>([]);
-  const [selectedDealership, setSelectedDealership] = useState<string>('all');
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   
   // 注册表单数据
@@ -88,6 +89,14 @@ export default function PublicHomeNew() {
 
       if (dealershipsError) throw dealershipsError;
       setDealerships(dealershipsData || []);
+
+      // 提取地级市列表（去重）
+      const cityList = Array.from(new Set(
+        (dealershipsData || [])
+          .map(d => d.city)
+          .filter(city => city && city.trim() !== '')
+      )).sort();
+      setCities(cityList);
 
       // 获取所有在售车辆
       const { data: vehiclesData, error: vehiclesError } = await supabase
@@ -176,12 +185,12 @@ export default function PublicHomeNew() {
 
   // 筛选车辆
   const filteredVehicles = vehicles.filter((vehicle) => {
-    const matchesDealership = selectedDealership === 'all' || vehicle.dealership_id === selectedDealership;
+    const matchesCity = selectedCity === 'all' || vehicle.dealership?.city === selectedCity;
     const matchesSearch = searchQuery === '' || 
       vehicle.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
       vehicle.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
       vehicle.plate_number?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesDealership && matchesSearch;
+    return matchesCity && matchesSearch;
   });
 
   return (
@@ -370,16 +379,16 @@ export default function PublicHomeNew() {
                   className="pl-10"
                 />
               </div>
-              <Select value={selectedDealership} onValueChange={setSelectedDealership}>
+              <Select value={selectedCity} onValueChange={setSelectedCity}>
                 <SelectTrigger className="w-full sm:w-48">
                   <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="选择车行" />
+                  <SelectValue placeholder="选择地区" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">全部车行</SelectItem>
-                  {dealerships.map((d) => (
-                    <SelectItem key={d.id} value={d.id}>
-                      {d.name}
+                  <SelectItem value="all">全部地区</SelectItem>
+                  {cities.map((city) => (
+                    <SelectItem key={city} value={city}>
+                      {city}
                     </SelectItem>
                   ))}
                 </SelectContent>
