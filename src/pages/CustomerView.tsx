@@ -10,6 +10,7 @@ import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Car, Calendar, Gauge, ArrowLeft, QrCode, Phone, ChevronLeft, ChevronRight, X, Grid3x3 } from 'lucide-react';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
+import DealershipName from '@/components/DealershipName';
 import { toast } from 'sonner';
 import { supabase } from '@/db/supabase';
 
@@ -142,9 +143,14 @@ export default function CustomerView() {
             <div className="flex items-center gap-3">
               <Car className="h-8 w-8 text-primary" />
               <div>
-                <h1 className="text-2xl font-bold">
-                  {dealership?.name || '二手车展示'}
-                </h1>
+                {dealership ? (
+                  <DealershipName 
+                    name={dealership.name} 
+                    variant="large" 
+                  />
+                ) : (
+                  <h1 className="text-2xl font-bold">二手车展示</h1>
+                )}
                 <p className="text-sm text-muted-foreground">优质车源，诚信经营</p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import DealershipName from '@/components/DealershipName';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,14 +101,16 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex h-16 items-center border-b px-6">
             <Link to="/" className="flex items-center gap-2 font-semibold text-sidebar-foreground">
               <Car className="h-6 w-6 text-sidebar-primary" />
-              <div className="flex flex-col">
-                <span className="text-lg">{dealership?.name || '车行管理系统'}</span>
-                {dealership && (
-                  <span className="text-xs text-muted-foreground font-normal">
-                    {dealership.code}
-                  </span>
-                )}
-              </div>
+              {dealership ? (
+                <DealershipName 
+                  name={dealership.name} 
+                  variant="sidebar" 
+                  showCode={true} 
+                  code={dealership.code} 
+                />
+              ) : (
+                <span className="text-lg">车行管理系统</span>
+              )}
             </Link>
           </div>
 
@@ -311,9 +314,16 @@ export default function Layout({ children }: LayoutProps) {
 
           {/* 中间标题 */}
           <div className="flex-1 flex justify-center">
-            <h1 className="text-xl font-bold text-primary-foreground">
-              {dealership?.name || '二手车销售管理系统'}
-            </h1>
+            {dealership ? (
+              <DealershipName 
+                name={dealership.name} 
+                variant="header" 
+              />
+            ) : (
+              <h1 className="text-xl font-bold text-primary-foreground">
+                二手车销售管理系统
+              </h1>
+            )}
           </div>
 
           {/* 用户菜单 */}
