@@ -27,6 +27,7 @@ export default function Login() {
   // 管理员密码重置
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [resetUsername, setResetUsername] = useState('');
+  const [resetOldPassword, setResetOldPassword] = useState('');
   const [resetNewPassword, setResetNewPassword] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   
@@ -157,13 +158,18 @@ export default function Login() {
   const handleAdminResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!resetUsername || !resetNewPassword) {
-      toast.error('请输入用户名和新密码');
+    if (!resetUsername || !resetOldPassword || !resetNewPassword) {
+      toast.error('请输入用户名、旧密码和新密码');
       return;
     }
 
     if (resetNewPassword.length < 6) {
       toast.error('新密码长度至少为6位');
+      return;
+    }
+
+    if (resetOldPassword === resetNewPassword) {
+      toast.error('新密码不能与旧密码相同');
       return;
     }
 
@@ -173,6 +179,7 @@ export default function Login() {
       const { data, error } = await supabase.functions.invoke('reset-admin-password', {
         body: {
           username: resetUsername,
+          oldPassword: resetOldPassword,
           newPassword: resetNewPassword,
         },
       });
@@ -185,6 +192,7 @@ export default function Login() {
         toast.success('管理员密码重置成功！请使用新密码登录');
         setResetDialogOpen(false);
         setResetUsername('');
+        setResetOldPassword('');
         setResetNewPassword('');
       } else {
         toast.error(data?.message || '密码重置失败');
@@ -428,7 +436,7 @@ export default function Login() {
               <DialogHeader>
                 <DialogTitle>管理员密码重置</DialogTitle>
                 <DialogDescription>
-                  只有管理员账号可以使用此功能重置密码
+                  为了安全，需要验证您的旧密码才能重置
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleAdminResetPassword} className="space-y-4">
@@ -448,11 +456,26 @@ export default function Login() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="reset-password" className="text-sm sm:text-base">
+                  <Label htmlFor="reset-old-password" className="text-sm sm:text-base">
+                    旧密码 *
+                  </Label>
+                  <Input
+                    id="reset-old-password"
+                    type="password"
+                    placeholder="请输入当前密码"
+                    value={resetOldPassword}
+                    onChange={(e) => setResetOldPassword(e.target.value)}
+                    disabled={resetLoading}
+                    className="h-11 sm:h-10"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reset-new-password" className="text-sm sm:text-base">
                     新密码 *
                   </Label>
                   <Input
-                    id="reset-password"
+                    id="reset-new-password"
                     type="password"
                     placeholder="请输入新密码（至少6位）"
                     value={resetNewPassword}

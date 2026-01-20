@@ -12,11 +12,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { username, newPassword } = await req.json();
+    const { username, oldPassword, newPassword } = await req.json();
 
-    if (!username || !newPassword) {
+    if (!username || !oldPassword || !newPassword) {
       return new Response(
-        JSON.stringify({ success: false, message: '用户名和新密码不能为空' }),
+        JSON.stringify({ success: false, message: '用户名、旧密码和新密码不能为空' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+
+    if (oldPassword === newPassword) {
+      return new Response(
+        JSON.stringify({ success: false, message: '新密码不能与旧密码相同' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -48,10 +55,28 @@ Deno.serve(async (req) => {
     }
 
     // 检查是否为管理员
-    if (profile.role !== 'admin') {
+    if (profile.role !== 'admin' && profile.role !== 'super_admin') {
       return new Response(
         JSON.stringify({ success: false, message: '只有管理员可以使用此功能' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+      );
+    }
+
+    // 验证旧密码（通过尝试登录）
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+      email: profile.email,
+      password: oldPassword,
+    });
+
+    if (signInError) {
+      return new Response(
+        JSON.stringify({ success: false, message: '旧密码错误，请重新输入' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
       );
     }
 
