@@ -3,7 +3,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T14:46:00Z - Vehicles 页面改为直接导入 -->
+    <!-- Build: 2026-01-20T14:48:00Z - 请硬刷新浏览器 (Ctrl+Shift+R 或 Cmd+Shift+R) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- 强制禁用所有缓存 -->
@@ -43,6 +43,24 @@
   <body>
     <div id="root"></div>
     
+    <!-- 硬刷新提示 -->
+    <div id="hard-refresh-notice" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 99999; color: white; font-family: system-ui, -apple-system, sans-serif;">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 40px; background: #1a1a1a; border-radius: 12px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+        <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+        <h2 style="font-size: 24px; margin-bottom: 16px; font-weight: 600;">检测到旧版本缓存</h2>
+        <p style="font-size: 16px; color: #999; margin-bottom: 24px; line-height: 1.6;">
+          请按以下快捷键硬刷新浏览器：<br/>
+          <strong style="color: #3b82f6; font-size: 20px; display: block; margin-top: 12px;">
+            Windows/Linux: Ctrl + Shift + R<br/>
+            Mac: Cmd + Shift + R
+          </strong>
+        </p>
+        <p style="font-size: 14px; color: #666; margin-top: 20px;">
+          或者点击浏览器地址栏的刷新按钮并选择"硬性重新加载"
+        </p>
+      </div>
+    </div>
+    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     
     <script type="module" src="/src/main.tsx"></script>
@@ -72,7 +90,7 @@
         }
         
         // 3. 清除 localStorage 中的旧版本标记
-        const currentVersion = '2026-01-20T14:46:00Z';
+        const currentVersion = '2026-01-20T14:48:00Z';
         const lastVersion = localStorage.getItem('app_version');
         
         if (lastVersion && lastVersion !== currentVersion) {
@@ -99,15 +117,16 @@
       window.addEventListener('error', function(e) {
         if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
           console.error('❌ 动态模块加载失败:', e.message);
-          console.warn('⚠️ 正在清理缓存并刷新页面...');
+          console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
+          
+          // 显示硬刷新提示
+          const notice = document.getElementById('hard-refresh-notice');
+          if (notice) {
+            notice.style.display = 'block';
+          }
           
           // 清除版本标记，强制下次重新检查
           localStorage.removeItem('app_version');
-          
-          // 延迟刷新，避免无限循环
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
         }
       }, true);
     </script>
