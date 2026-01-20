@@ -53,6 +53,10 @@ export default function VehicleList() {
   const [selectedCity, setSelectedCity] = useState<string>(searchParams.get('city') || 'all');
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   
+  // 分享者信息（从URL参数获取）
+  const sharerId = searchParams.get('sharer_id');
+  const [sharerInfo, setSharerInfo] = useState<{ name: string; phone: string } | null>(null);
+  
   // 分页状态
   const [currentPage, setCurrentPage] = useState(Number.parseInt(searchParams.get('page') || '1'));
   const [totalCount, setTotalCount] = useState(0);
@@ -60,7 +64,30 @@ export default function VehicleList() {
 
   useEffect(() => {
     loadDealerships();
+    if (sharerId) {
+      loadSharerInfo(sharerId);
+    }
   }, []);
+
+  const loadSharerInfo = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username, phone')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSharerInfo({
+          name: data.username || '',
+          phone: data.phone || '',
+        });
+      }
+    } catch (error) {
+      console.error('加载分享者信息失败:', error);
+    }
+  };
 
   useEffect(() => {
     loadVehicles();
@@ -375,8 +402,9 @@ export default function VehicleList() {
                         className="h-7 text-xs gap-1 shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          const displayPhone = vehicle.dealership?.display_contact_phone || vehicle.dealership?.contact_phone;
-                          const displayName = vehicle.dealership?.display_contact_name || vehicle.dealership?.contact_person;
+                          // 优先使用分享者信息，其次使用车行设置的展示联系人，最后使用车行默认联系人
+                          const displayPhone = sharerInfo?.phone || vehicle.dealership?.display_contact_phone || vehicle.dealership?.contact_phone;
+                          const displayName = sharerInfo?.name || vehicle.dealership?.display_contact_name || vehicle.dealership?.contact_person;
                           
                           if (displayPhone && vehicle.dealership) {
                             toast.success(
@@ -581,8 +609,8 @@ export default function VehicleList() {
                         <span className="font-semibold text-lg">{selectedVehicle.dealership.name}</span>
                       </div>
                       <div className="space-y-1 text-sm text-muted-foreground">
-                        <div>联系人：{selectedVehicle.dealership.display_contact_name || selectedVehicle.dealership.contact_person}</div>
-                        <div>电话：{selectedVehicle.dealership.display_contact_phone || selectedVehicle.dealership.contact_phone}</div>
+                        <div>联系人：{sharerInfo?.name || selectedVehicle.dealership.display_contact_name || selectedVehicle.dealership.contact_person}</div>
+                        <div>电话：{sharerInfo?.phone || selectedVehicle.dealership.display_contact_phone || selectedVehicle.dealership.contact_phone}</div>
                         {selectedVehicle.dealership.address && (
                           <div>地址：{selectedVehicle.dealership.address}</div>
                         )}
@@ -590,7 +618,7 @@ export default function VehicleList() {
                     </div>
                     <Button
                       onClick={() => {
-                        const phone = selectedVehicle.dealership?.display_contact_phone || selectedVehicle.dealership?.contact_phone;
+                        const phone = sharerInfo?.phone || selectedVehicle.dealership?.display_contact_phone || selectedVehicle.dealership?.contact_phone;
                         if (phone) {
                           window.location.href = `tel:${phone}`;
                         }

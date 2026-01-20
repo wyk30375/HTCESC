@@ -5,6 +5,7 @@ import { vehiclesApi, vehicleSalesApi, profilesApi } from '@/db/api';
 import { Car, DollarSign, TrendingUp, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -199,6 +200,22 @@ export default function Dashboard() {
             >
               <h3 className="font-semibold">费用管理</h3>
               <p className="text-sm text-muted-foreground">记录车行运营费用</p>
+            </div>
+            <div
+              onClick={() => {
+                const shareUrl = `${window.location.origin}/vehicle-list?sharer_id=${profile?.id}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                  toast.success('分享链接已复制到剪贴板！', {
+                    description: '客户通过此链接查看车辆时，将显示您的联系方式',
+                  });
+                }).catch(() => {
+                  toast.error('复制失败，请手动复制链接');
+                });
+              }}
+              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer"
+            >
+              <h3 className="font-semibold">分享车辆展示</h3>
+              <p className="text-sm text-muted-foreground">复制专属链接给客户</p>
             </div>
           </CardContent>
         </Card>

@@ -337,7 +337,7 @@ export default function ProfitRules() {
                     公共展示联系人信息
                   </Label>
                   <p className="text-xs text-muted-foreground mt-1">
-                    设置在公共车辆展示页面显示的联系方式。如果不设置，将默认显示管理员的名字和电话。
+                    设置在公共车辆展示页面显示的联系方式。如果不设置，将默认显示当前登录人的名字和电话。
                   </p>
                 </div>
                 
@@ -349,7 +349,7 @@ export default function ProfitRules() {
                     <Input
                       id="display_contact_name"
                       type="text"
-                      placeholder="留空则显示管理员名字"
+                      placeholder={`留空则显示：${profile?.username || '当前登录人名字'}`}
                       value={displayContactName}
                       onChange={(e) => setDisplayContactName(e.target.value)}
                       disabled={!isAdmin}
@@ -364,7 +364,7 @@ export default function ProfitRules() {
                     <Input
                       id="display_contact_phone"
                       type="tel"
-                      placeholder="留空则显示管理员电话"
+                      placeholder={`留空则显示：${profile?.phone || '当前登录人电话'}`}
                       value={displayContactPhone}
                       onChange={(e) => setDisplayContactPhone(e.target.value)}
                       disabled={!isAdmin}
