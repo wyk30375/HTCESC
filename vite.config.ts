@@ -23,8 +23,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
     },
     dedupe: ['react', 'react-dom'],
   },
@@ -34,6 +32,7 @@ export default defineConfig({
       'react-dom',
       'react/jsx-runtime',
       'react-router-dom',
+      'next-themes',
       '@radix-ui/react-tabs',
       '@radix-ui/react-dialog',
       '@radix-ui/react-select',
@@ -48,6 +47,7 @@ export default defineConfig({
       '@radix-ui/react-popover',
       '@radix-ui/react-avatar',
       '@radix-ui/react-separator',
+      '@radix-ui/react-toast',
     ],
     esbuildOptions: {
       resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
