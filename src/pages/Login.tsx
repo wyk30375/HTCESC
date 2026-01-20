@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Car, KeyRound, Shield, Zap, TrendingUp } from 'lucide-react';
 import { supabase } from '@/db/supabase';
+import BrandLogo from '@/components/BrandLogo';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -200,14 +201,8 @@ export default function Login() {
     <div className="flex min-h-screen w-full">
       {/* 左侧：品牌展示区 */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-12 flex-col justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
-            <Car className="h-6 w-6 text-white" />
-          </div>
-          <div className="text-white">
-            <h1 className="text-xl font-bold">恏淘车</h1>
-            <p className="text-sm text-white/80">二手车车行经营销售管理</p>
-          </div>
+        <div>
+          <BrandLogo size="lg" showSubtitle={true} className="[&_span]:!text-white [&_p]:!text-white/90" />
         </div>
 
         <div className="space-y-8">
@@ -265,11 +260,8 @@ export default function Login() {
         <Card className="w-full max-w-md border-0 shadow-none">
           <CardHeader className="space-y-2 pb-6">
             {/* 移动端 Logo */}
-            <div className="flex lg:hidden items-center justify-center mb-4 gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-                <Car className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <span className="text-2xl font-bold">恏淘车</span>
+            <div className="flex lg:hidden items-center justify-center mb-4">
+              <BrandLogo size="lg" showSubtitle={false} />
             </div>
             <CardTitle className="text-2xl text-center lg:text-left">欢迎回来</CardTitle>
             <CardDescription className="text-center lg:text-left">

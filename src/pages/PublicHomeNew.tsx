@@ -39,6 +39,7 @@ import type { Vehicle, Dealership } from '@/types/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/db/supabase';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
+import BrandLogo from '@/components/BrandLogo';
 import {
   VEHICLE_TYPE_MAP,
   TRANSMISSION_TYPE_MAP,
@@ -343,15 +344,7 @@ export default function PublicHomeNew() {
         <div className="container px-4 py-3">
           {/* 第一行：品牌logo */}
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                <Car className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <span className="text-xl font-bold">恏淘车</span>
-                <p className="text-xs text-muted-foreground">二手车经营管理平台</p>
-              </div>
-            </div>
+            <BrandLogo size="md" showSubtitle={true} />
             
             {!user && (
               <Button 
@@ -732,11 +725,8 @@ export default function PublicHomeNew() {
         <div className="container px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-                  <Car className="h-6 w-6 text-primary" />
-                </div>
-                <span className="text-xl font-bold">恏淘车</span>
+              <div className="mb-4">
+                <BrandLogo size="md" showSubtitle={false} />
               </div>
               <p className="text-sm text-muted-foreground">
                 专业的二手车经营管理平台，为车行提供安全、便捷的管理服务。
