@@ -1014,110 +1014,110 @@ export default function Vehicles() {
                       
                       return (
                         <TableRow key={vehicle.id}>
-                        <TableCell className="font-medium">{vehicle.vin_last_six}</TableCell>
-                        <TableCell>{vehicle.plate_number}</TableCell>
-                        <TableCell className="whitespace-nowrap">{vehicle.brand} {vehicle.model}</TableCell>
-                        <TableCell>
-                          {vehicle.vehicle_type ? (
-                            VEHICLE_TYPE_MAP[vehicle.vehicle_type as keyof typeof VEHICLE_TYPE_MAP] || '-'
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>{vehicle.year}</TableCell>
-                        <TableCell className="whitespace-nowrap">{vehicle.mileage.toLocaleString()} km</TableCell>
-                        <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
-                        <TableCell>{vehicle.displacement ? `${vehicle.displacement.toFixed(1)}${vehicle.is_turbo ? 'T' : 'L'}` : '-'}</TableCell>
-                        <TableCell>
-                          {vehicle.transmission_type ? (
-                            TRANSMISSION_TYPE_MAP[vehicle.transmission_type as keyof typeof TRANSMISSION_TYPE_MAP] || '-'
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {vehicle.drive_type ? (
-                            DRIVE_TYPE_MAP[vehicle.drive_type as keyof typeof DRIVE_TYPE_MAP] || '-'
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {vehicle.fuel_type ? (
-                            FUEL_TYPE_MAP[vehicle.fuel_type as keyof typeof FUEL_TYPE_MAP] || '-'
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {vehicle.emission_standard ? (
-                            EMISSION_STANDARD_MAP[vehicle.emission_standard as keyof typeof EMISSION_STANDARD_MAP] || '-'
-                          ) : '-'}
-                        </TableCell>
-                        <TableCell>{vehicle.seats ? `${vehicle.seats}座` : '-'}</TableCell>
-                        <TableCell>{vehicle.exterior_color || '-'}</TableCell>
-                        <TableCell>{vehicle.interior_color || '-'}</TableCell>
-                        <TableCell>
-                          {conditionBadges.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {conditionBadges.map((badge) => (
-                                <Badge key={badge} variant="destructive" className="text-xs">
-                                  {badge}
-                                </Badge>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-green-600 text-sm">正常</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {vehicle.insurance_expiry || '-'}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {vehicle.inspection_expiry || '-'}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {vehicle.original_price ? `¥${Number(vehicle.original_price).toLocaleString()}` : '-'}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap">¥{Number(vehicle.purchase_price).toLocaleString()}</TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          {vehicle.selling_price ? `¥${Number(vehicle.selling_price).toLocaleString()}` : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {investors.length > 0 ? (
-                            <div className="space-y-1">
-                              {investors.map((investor) => (
-                                <div key={investor.id} className="text-sm whitespace-nowrap">
-                                  {investor.username || investor.email}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground text-sm">未指定</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={vehicle.status === 'in_stock' ? 'default' : 'secondary'}>
-                            {vehicle.status === 'in_stock' ? '在售' : '已售'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex gap-2">
-                            {isAdmin ? (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => openEditDialog(vehicle)}
-                                title="编辑车辆"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                          <TableCell className="font-medium">{vehicle.vin_last_six}</TableCell>
+                          <TableCell>{vehicle.plate_number}</TableCell>
+                          <TableCell className="whitespace-nowrap">{vehicle.brand} {vehicle.model}</TableCell>
+                          <TableCell>
+                            {vehicle.vehicle_type ? (
+                              VEHICLE_TYPE_MAP[vehicle.vehicle_type as keyof typeof VEHICLE_TYPE_MAP] || '-'
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>{vehicle.year}</TableCell>
+                          <TableCell className="whitespace-nowrap">{vehicle.mileage.toLocaleString()} km</TableCell>
+                          <TableCell>{vehicle.transfer_count || 0} 次</TableCell>
+                          <TableCell>{vehicle.displacement ? `${vehicle.displacement.toFixed(1)}${vehicle.is_turbo ? 'T' : 'L'}` : '-'}</TableCell>
+                          <TableCell>
+                            {vehicle.transmission_type ? (
+                              TRANSMISSION_TYPE_MAP[vehicle.transmission_type as keyof typeof TRANSMISSION_TYPE_MAP] || '-'
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {vehicle.drive_type ? (
+                              DRIVE_TYPE_MAP[vehicle.drive_type as keyof typeof DRIVE_TYPE_MAP] || '-'
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {vehicle.fuel_type ? (
+                              FUEL_TYPE_MAP[vehicle.fuel_type as keyof typeof FUEL_TYPE_MAP] || '-'
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {vehicle.emission_standard ? (
+                              EMISSION_STANDARD_MAP[vehicle.emission_standard as keyof typeof EMISSION_STANDARD_MAP] || '-'
+                            ) : '-'}
+                          </TableCell>
+                          <TableCell>{vehicle.seats ? `${vehicle.seats}座` : '-'}</TableCell>
+                          <TableCell>{vehicle.exterior_color || '-'}</TableCell>
+                          <TableCell>{vehicle.interior_color || '-'}</TableCell>
+                          <TableCell>
+                            {conditionBadges.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {conditionBadges.map((badge) => (
+                                  <Badge key={badge} variant="destructive" className="text-xs">
+                                    {badge}
+                                  </Badge>
+                                ))}
+                              </div>
                             ) : (
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled
-                                title="只有管理员可以编辑"
-                              >
-                                <Lock className="h-4 w-4 text-muted-foreground" />
-                              </Button>
+                              <span className="text-green-600 text-sm">正常</span>
                             )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {vehicle.insurance_expiry || '-'}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {vehicle.inspection_expiry || '-'}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {vehicle.original_price ? `¥${Number(vehicle.original_price).toLocaleString()}` : '-'}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap">¥{Number(vehicle.purchase_price).toLocaleString()}</TableCell>
+                          <TableCell className="whitespace-nowrap">
+                            {vehicle.selling_price ? `¥${Number(vehicle.selling_price).toLocaleString()}` : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {investors.length > 0 ? (
+                              <div className="space-y-1">
+                                {investors.map((investor) => (
+                                  <div key={investor.id} className="text-sm whitespace-nowrap">
+                                    {investor.username || investor.email}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">未指定</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={vehicle.status === 'in_stock' ? 'default' : 'secondary'}>
+                              {vehicle.status === 'in_stock' ? '在售' : '已售'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              {isAdmin ? (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => openEditDialog(vehicle)}
+                                  title="编辑车辆"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled
+                                  title="只有管理员可以编辑"
+                                >
+                                  <Lock className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
                   })}
                   </TableBody>
                 </Table>
