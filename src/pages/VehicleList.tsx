@@ -254,7 +254,11 @@ export default function VehicleList() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => {
+                // 分享链接模式：返回平台公共主页
+                // 普通浏览模式：返回车行内部 Dashboard
+                navigate(sharedDealershipId ? '/register' : '/');
+              }}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
