@@ -129,6 +129,8 @@ export interface Profile {
   dealership_id: string;
   status?: 'active' | 'inactive';
   default_password?: string;
+  id_card_front_photo?: string;
+  id_card_back_photo?: string;
   created_at: string;
   updated_at: string;
   dealership?: Dealership;

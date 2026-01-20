@@ -10,13 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { profilesApi } from '@/db/api';
 import type { Profile } from '@/types/types';
-import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X, ShieldAlert, CheckCircle, XCircle } from 'lucide-react';
+import { Edit, UserX, UserCheck, KeyRound, QrCode, ArrowLeft, X, ShieldAlert, CheckCircle, XCircle, Upload, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
 import { PageWrapper } from '@/components/common/PageWrapper';
 import QRCodeDataUrl from '@/components/ui/qrcodedataurl';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/db/supabase';
 
 export default function Employees() {
   const { profile, dealership } = useAuth();
@@ -59,11 +60,17 @@ export default function Employees() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [qrDialogOpen, setQrDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Profile | null>(null);
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
+  const [idCardFrontPreview, setIdCardFrontPreview] = useState<string>('');
+  const [idCardBackPreview, setIdCardBackPreview] = useState<string>('');
 
   const [formData, setFormData] = useState({
     username: '',
     phone: '',
     password: '123456',
+    id_card_front_photo: '',
+    id_card_back_photo: '',
   });
 
   useEffect(() => {
@@ -105,6 +112,72 @@ export default function Employees() {
     }
   };
 
+  // 上传身份证照片
+  const handleIdCardPhotoUpload = async (file: File, type: 'front' | 'back') => {
+    // 验证文件大小（最大 1MB）
+    if (file.size > 1024 * 1024) {
+      toast.error('图片大小不能超过 1MB');
+      return;
+    }
+
+    // 验证文件类型
+    if (!file.type.startsWith('image/')) {
+      toast.error('请上传图片文件');
+      return;
+    }
+
+    // 验证文件名格式（使用 snake_case）
+    const fileName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, '_');
+    
+    try {
+      if (type === 'front') {
+        setUploadingFront(true);
+      } else {
+        setUploadingBack(true);
+      }
+
+      // 生成唯一文件名
+      const timestamp = Date.now();
+      const fileExt = fileName.split('.').pop();
+      const uniqueFileName = `${profile?.dealership_id}_${timestamp}_${type}.${fileExt}`;
+
+      // 上传到 Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('employee_id_cards')
+        .upload(uniqueFileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // 获取公共 URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('employee_id_cards')
+        .getPublicUrl(data.path);
+
+      // 更新表单数据和预览
+      if (type === 'front') {
+        setFormData({ ...formData, id_card_front_photo: publicUrl });
+        setIdCardFrontPreview(publicUrl);
+      } else {
+        setFormData({ ...formData, id_card_back_photo: publicUrl });
+        setIdCardBackPreview(publicUrl);
+      }
+
+      toast.success(`身份证${type === 'front' ? '正面' : '反面'}照片上传成功`);
+    } catch (error) {
+      console.error('上传失败:', error);
+      toast.error('图片上传失败，请重试');
+    } finally {
+      if (type === 'front') {
+        setUploadingFront(false);
+      } else {
+        setUploadingBack(false);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -134,6 +207,8 @@ export default function Employees() {
         await profilesApi.update(editingEmployee.id, {
           username: formData.username,
           phone: formData.phone || undefined,
+          id_card_front_photo: formData.id_card_front_photo || undefined,
+          id_card_back_photo: formData.id_card_back_photo || undefined,
         });
         toast.success('员工信息更新成功');
       } else {
@@ -141,7 +216,9 @@ export default function Employees() {
         await profilesApi.createUser(
           formData.username,
           formData.password,
-          formData.phone || undefined
+          formData.phone || undefined,
+          formData.id_card_front_photo || undefined,
+          formData.id_card_back_photo || undefined
         );
         toast.success('员工添加成功，账号密码已派发');
       }
@@ -161,7 +238,11 @@ export default function Employees() {
       username: employee.username,
       phone: employee.phone || '',
       password: '123456',
+      id_card_front_photo: employee.id_card_front_photo || '',
+      id_card_back_photo: employee.id_card_back_photo || '',
     });
+    setIdCardFrontPreview(employee.id_card_front_photo || '');
+    setIdCardBackPreview(employee.id_card_back_photo || '');
     setDialogOpen(true);
   };
 
@@ -239,8 +320,12 @@ export default function Employees() {
       username: '',
       phone: '',
       password: '123456',
+      id_card_front_photo: '',
+      id_card_back_photo: '',
     });
     setEditingEmployee(null);
+    setIdCardFrontPreview('');
+    setIdCardBackPreview('');
   };
 
   const handleDialogClose = (open: boolean) => {
@@ -651,6 +736,128 @@ export default function Employees() {
                   </p>
                 </div>
               )}
+
+              {/* 身份证照片上传 */}
+              <div className="space-y-4 pt-2 border-t">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <ImageIcon className="h-4 w-4" />
+                  <span>身份证照片（可选）</span>
+                </div>
+
+                {/* 身份证正面 */}
+                <div>
+                  <Label htmlFor="id-card-front" className="text-sm">身份证正面</Label>
+                  <div className="mt-2 flex items-start gap-4">
+                    {idCardFrontPreview ? (
+                      <div className="relative w-40 h-24 border rounded-lg overflow-hidden">
+                        <img
+                          src={idCardFrontPreview}
+                          alt="身份证正面"
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0"
+                          onClick={() => {
+                            setIdCardFrontPreview('');
+                            setFormData({ ...formData, id_card_front_photo: '' });
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="id-card-front"
+                        className="flex flex-col items-center justify-center w-40 h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
+                      >
+                        {uploadingFront ? (
+                          <div className="text-xs text-muted-foreground">上传中...</div>
+                        ) : (
+                          <>
+                            <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                            <span className="text-xs text-muted-foreground">点击上传</span>
+                          </>
+                        )}
+                      </label>
+                    )}
+                    <input
+                      id="id-card-front"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleIdCardPhotoUpload(file, 'front');
+                      }}
+                      disabled={uploadingFront}
+                    />
+                    <div className="flex-1 text-xs text-muted-foreground">
+                      <p>• 支持 JPG、PNG 格式</p>
+                      <p>• 文件大小不超过 1MB</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 身份证反面 */}
+                <div>
+                  <Label htmlFor="id-card-back" className="text-sm">身份证反面</Label>
+                  <div className="mt-2 flex items-start gap-4">
+                    {idCardBackPreview ? (
+                      <div className="relative w-40 h-24 border rounded-lg overflow-hidden">
+                        <img
+                          src={idCardBackPreview}
+                          alt="身份证反面"
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0"
+                          onClick={() => {
+                            setIdCardBackPreview('');
+                            setFormData({ ...formData, id_card_back_photo: '' });
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label
+                        htmlFor="id-card-back"
+                        className="flex flex-col items-center justify-center w-40 h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary transition-colors"
+                      >
+                        {uploadingBack ? (
+                          <div className="text-xs text-muted-foreground">上传中...</div>
+                        ) : (
+                          <>
+                            <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                            <span className="text-xs text-muted-foreground">点击上传</span>
+                          </>
+                        )}
+                      </label>
+                    )}
+                    <input
+                      id="id-card-back"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleIdCardPhotoUpload(file, 'back');
+                      }}
+                      disabled={uploadingBack}
+                    />
+                    <div className="flex-1 text-xs text-muted-foreground">
+                      <p>• 支持 JPG、PNG 格式</p>
+                      <p>• 文件大小不超过 1MB</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={() => handleDialogClose(false)} className="h-11 sm:h-10 w-full sm:w-auto">
