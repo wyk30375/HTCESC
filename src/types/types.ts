@@ -131,6 +131,8 @@ export interface Profile {
   default_password?: string;
   id_card_front_photo?: string;
   id_card_back_photo?: string;
+  has_base_salary?: boolean;
+  base_salary?: number;
   created_at: string;
   updated_at: string;
   dealership?: Dealership;

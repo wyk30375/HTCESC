@@ -71,6 +71,8 @@ export default function Employees() {
     password: '123456',
     id_card_front_photo: '',
     id_card_back_photo: '',
+    has_base_salary: false,
+    base_salary: 0,
   });
 
   useEffect(() => {
@@ -209,6 +211,8 @@ export default function Employees() {
           phone: formData.phone || undefined,
           id_card_front_photo: formData.id_card_front_photo || undefined,
           id_card_back_photo: formData.id_card_back_photo || undefined,
+          has_base_salary: formData.has_base_salary,
+          base_salary: formData.has_base_salary ? formData.base_salary : 0,
         });
         toast.success('员工信息更新成功');
       } else {
@@ -218,7 +222,9 @@ export default function Employees() {
           formData.password,
           formData.phone || undefined,
           formData.id_card_front_photo || undefined,
-          formData.id_card_back_photo || undefined
+          formData.id_card_back_photo || undefined,
+          formData.has_base_salary,
+          formData.has_base_salary ? formData.base_salary : 0
         );
         toast.success('员工添加成功，账号密码已派发');
       }
@@ -240,6 +246,8 @@ export default function Employees() {
       password: '123456',
       id_card_front_photo: employee.id_card_front_photo || '',
       id_card_back_photo: employee.id_card_back_photo || '',
+      has_base_salary: employee.has_base_salary || false,
+      base_salary: employee.base_salary || 0,
     });
     setIdCardFrontPreview(employee.id_card_front_photo || '');
     setIdCardBackPreview(employee.id_card_back_photo || '');
@@ -322,6 +330,8 @@ export default function Employees() {
       password: '123456',
       id_card_front_photo: '',
       id_card_back_photo: '',
+      has_base_salary: false,
+      base_salary: 0,
     });
     setEditingEmployee(null);
     setIdCardFrontPreview('');
@@ -857,6 +867,53 @@ export default function Employees() {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* 底薪设置 */}
+              <div className="space-y-4 pt-2 border-t">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <span>底薪设置</span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="has-base-salary"
+                    checked={formData.has_base_salary}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      has_base_salary: e.target.checked,
+                      base_salary: e.target.checked ? formData.base_salary : 0
+                    })}
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <Label htmlFor="has-base-salary" className="text-sm cursor-pointer">
+                    该员工有底薪
+                  </Label>
+                </div>
+
+                {formData.has_base_salary && (
+                  <div>
+                    <Label htmlFor="base-salary" className="text-sm">底薪金额（元/月）*</Label>
+                    <Input
+                      id="base-salary"
+                      type="number"
+                      min="0"
+                      step="100"
+                      placeholder="请输入底薪金额"
+                      value={formData.base_salary || ''}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        base_salary: Number.parseFloat(e.target.value) || 0 
+                      })}
+                      className="h-11 sm:h-10 mt-2"
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      底薪将作为员工的固定月收入
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-2 pt-2">

@@ -185,7 +185,7 @@ export const profilesApi = {
   },
 
   // 更新用户资料（通用方法）
-  async update(id: string, updates: Partial<{ username: string; role: string; phone: string; status: string; default_password: string; id_card_front_photo: string; id_card_back_photo: string }>) {
+  async update(id: string, updates: Partial<{ username: string; role: string; phone: string; status: string; default_password: string; id_card_front_photo: string; id_card_back_photo: string; has_base_salary: boolean; base_salary: number }>) {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
@@ -197,7 +197,7 @@ export const profilesApi = {
   },
 
   // 创建新用户（管理员添加员工）
-  async createUser(username: string, password: string, phone?: string, id_card_front_photo?: string, id_card_back_photo?: string) {
+  async createUser(username: string, password: string, phone?: string, id_card_front_photo?: string, id_card_back_photo?: string, has_base_salary?: boolean, base_salary?: number) {
     // 自动生成内部邮箱（使用用户名）
     const email = `${username.toLowerCase().replace(/\s+/g, '')}@yichi.internal`;
     
@@ -216,7 +216,7 @@ export const profilesApi = {
     if (authError) throw authError;
     if (!authData.user) throw new Error('创建用户失败');
 
-    // 2. 更新 profiles 表，添加默认密码标记和身份证照片
+    // 2. 更新 profiles 表，添加默认密码标记、身份证照片和底薪信息
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .update({
@@ -227,6 +227,8 @@ export const profilesApi = {
         default_password: password === '123456' ? '123456' : null,
         id_card_front_photo: id_card_front_photo || null,
         id_card_back_photo: id_card_back_photo || null,
+        has_base_salary: has_base_salary || false,
+        base_salary: (has_base_salary && base_salary) ? base_salary : 0,
       })
       .eq('id', authData.user.id)
       .select()
