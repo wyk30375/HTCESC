@@ -415,7 +415,7 @@ export default function DealershipSettings() {
         <Card>
           <CardHeader>
             <CardTitle>账号安全</CardTitle>
-            <CardDescription>修改您的登录密码</CardDescription>
+            <CardDescription>管理员密码重置</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleChangePassword} className="space-y-4">
