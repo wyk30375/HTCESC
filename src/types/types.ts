@@ -289,13 +289,13 @@ export interface ProfitDistribution {
   employee?: Employee;
 }
 
-// 月度奖金池
+// 月度车行运营费
 export interface MonthlyBonus {
   id: string;
   dealership_id: string;
   year: number;
   month: number;
-  total_bonus_pool: number; // 总奖金池金额
+  total_bonus_pool: number; // 总车行运营费金额
   distributed_amount: number; // 已分配金额
   remaining_amount: number; // 剩余金额
   champion_employee_id?: string; // 月度销售冠军ID

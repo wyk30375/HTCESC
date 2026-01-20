@@ -222,10 +222,10 @@ export default function ProfitRules() {
                 </p>
               </div>
 
-              {/* 月奖金池 */}
+              {/* 车行运营费 */}
               <div className="space-y-2">
                 <Label htmlFor="bonus_pool_rate" className="text-sm sm:text-base">
-                  月奖金池分成比例 (%)
+                  车行运营费比例 (%)
                 </Label>
                 <Input
                   id="bonus_pool_rate"
@@ -240,7 +240,7 @@ export default function ProfitRules() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  进入月奖金池的比例，仅用于统计
+                  用于车行运营费的比例，仅用于统计
                 </p>
               </div>
 

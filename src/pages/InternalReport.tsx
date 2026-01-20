@@ -79,7 +79,7 @@ export default function InternalReport() {
   }).filter(item => item.count > 0)
     .sort((a, b) => b.totalProfit - a.totalProfit);
 
-  // 计算奖金池（月度总利润的10%）
+  // 计算车行运营费（月度总利润的10%）
   const bonusPool = monthlyStats.totalProfit * 0.1;
   const champion = employeeRanking.length > 0 ? employeeRanking[0] : null;
 
@@ -253,7 +253,7 @@ export default function InternalReport() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">奖金池</CardTitle>
+                <CardTitle className="text-sm font-medium">车行运营费</CardTitle>
                 <Award className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>

@@ -74,7 +74,7 @@ export default function Profits() {
         const salespersonShare = totalProfit * 0.36; // 销售提成 36%
         const investorShare = totalProfit * 0.36; // 押车出资人 36%
         const rentInvestorShare = totalProfit * 0.18; // 地租 18%
-        const bonusPoolShare = totalProfit * 0.10; // 月奖金池 10%
+        const bonusPoolShare = totalProfit * 0.10; // 车行运营费 10%
         
         // 获取相关人员信息
         const salesperson = profilesData.find(p => p.id === sale.salesperson_id);
@@ -231,7 +231,7 @@ export default function Profits() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">月奖金池 (10%)</CardTitle>
+              <CardTitle className="text-sm font-medium">车行运营费 (10%)</CardTitle>
               <Award className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -266,7 +266,7 @@ export default function Profits() {
                       <TableHead>销售员</TableHead>
                       <TableHead>押车出资人</TableHead>
                       <TableHead>场地老板</TableHead>
-                      <TableHead className="text-right">奖金池</TableHead>
+                      <TableHead className="text-right">运营费</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -426,14 +426,14 @@ export default function Profits() {
                 });
               });
 
-              // 注意：奖金池不再分配给销售冠军，仅用于统计
+              // 注意：车行运营费不再分配给销售冠军，仅用于统计
               // 找出实现利润最高的员工（用于统计展示）
               const employeesArray = Array.from(employeeShares.values());
               const topProfitEmployee = employeesArray.reduce((max, current) => 
                 current.totalProfit > max.totalProfit ? current : max
               , employeesArray[0]);
 
-              // 计算奖金池余额（仅用于统计展示，不分配给员工）
+              // 计算车行运营费余额（仅用于统计展示，不分配给员工）
               const bonusPoolAmount = profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0);
 
               // 转换为数组并按总计降序排序
@@ -539,30 +539,30 @@ export default function Profits() {
           </CardContent>
         </Card>
 
-        {/* 奖金池统计卡片 */}
+        {/* 车行运营费统计卡片 */}
         <Card>
           <CardHeader>
-            <CardTitle>月度奖金池统计</CardTitle>
+            <CardTitle>月度车行运营费统计</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm text-muted-foreground">本月奖金池总额</p>
+                  <p className="text-sm text-muted-foreground">本月车行运营费总额</p>
                   <p className="text-2xl font-bold text-primary">
                     ¥{profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0).toLocaleString()}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">说明</p>
-                  <p className="text-sm">每笔销售利润的 10% 进入奖金池</p>
+                  <p className="text-sm">每笔销售利润的 10% 用于车行运营费</p>
                 </div>
               </div>
               <div className="text-sm text-muted-foreground p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                <p className="font-medium mb-2">💡 奖金池说明：</p>
+                <p className="font-medium mb-2">💡 车行运营费说明：</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>奖金池金额仅用于统计，不自动分配给员工</li>
-                  <li>可用于车行运营费用支出或其他用途</li>
+                  <li>车行运营费金额仅用于统计，不自动分配给员工</li>
+                  <li>用于车行日常运营支出和管理费用</li>
                   <li>具体使用方式由车行管理者决定</li>
                 </ul>
               </div>
@@ -589,8 +589,8 @@ export default function Profits() {
               <span>场地老板平分 18% 利润</span>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="outline">月奖金池</Badge>
-              <span>10% 利润进入月奖金池，仅用于统计</span>
+              <Badge variant="outline">车行运营费</Badge>
+              <span>10% 利润用于车行运营费，仅用于统计</span>
             </div>
             <p className="text-muted-foreground mt-2">
               💡 总利润 = 成交价 - 总成本（购车款 + 整备费 + 过户费 + 杂费）+ 贷款返利
