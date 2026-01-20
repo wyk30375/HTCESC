@@ -297,14 +297,8 @@ export default function Sales() {
     if (!editingSale) return;
 
     try {
-      // 计算总利润
-      const vehicle = vehicles.find(v => v.id === formData.vehicle_id);
-      if (!vehicle) {
-        toast.error('车辆信息不存在');
-        return;
-      }
-
       // 获取车辆总成本（不包括销售成本）
+      // 注意：已售车辆不在 vehicles 数组中，所以直接获取成本，不需要检查车辆是否存在
       const costs = await vehicleCostsApi.getByVehicleId(formData.vehicle_id);
       const purchaseCosts = costs.filter(cost => 
         cost.cost_type === 'purchase' || 
