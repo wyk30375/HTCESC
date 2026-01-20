@@ -49,47 +49,67 @@
     
     <!-- PWA Service Worker - 已禁用 -->
     <script>
-      // Service Worker 已禁用，避免干扰模块加载
-      // 如果之前有注册的 Service Worker，静默注销它
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          registrations.forEach((registration) => {
-            registration.unregister();
-          });
-        });
+      // 立即执行：清理所有旧缓存
+      (async function() {
+        console.log('🔍 正在检查并清理旧缓存...');
         
-        // 清除所有缓存
-        if ('caches' in window) {
-          caches.keys().then((cacheNames) => {
-            cacheNames.forEach((cacheName) => {
-              caches.delete(cacheName);
-            });
-          });
-        }
-      }
-      
-      // 检测是否有旧的模块缓存（通过检查错误）
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
-          console.warn('⚠️ 检测到旧模块缓存，正在清理并刷新...');
-          // 清除所有缓存后强制刷新
-          if ('caches' in window) {
-            caches.keys().then((cacheNames) => {
-              return Promise.all(
-                cacheNames.map((cacheName) => caches.delete(cacheName))
-              );
-            }).then(() => {
-              console.log('✅ 缓存已清除，正在刷新页面...');
-              // 使用 location.reload(true) 强制从服务器重新加载
-              window.location.reload();
-            });
-          } else {
-            window.location.reload();
+        // 1. 注销所有 Service Worker
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          for (const registration of registrations) {
+            await registration.unregister();
+            console.log('🗑️ 已注销 Service Worker');
           }
         }
-      }, true);
+        
+        // 2. 清除所有缓存
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          for (const cacheName of cacheNames) {
+            await caches.delete(cacheName);
+            console.log('🗑️ 已清除缓存:', cacheName);
+          }
+        }
+        
+        // 3. 清除 localStorage 中的旧版本标记
+        const currentVersion = '2026-01-20T14:40:00Z';
+        const lastVersion = localStorage.getItem('app_version');
+        
+        if (lastVersion && lastVersion !== currentVersion) {
+          console.log('⚠️ 检测到版本更新，从', lastVersion, '到', currentVersion);
+          localStorage.clear();
+          sessionStorage.clear();
+          console.log('✅ 已清除所有本地存储');
+          
+          // 如果不是第一次加载（有 lastVersion），则刷新页面
+          if (lastVersion !== null) {
+            localStorage.setItem('app_version', currentVersion);
+            console.log('🔄 正在刷新页面以加载新版本...');
+            window.location.reload();
+            return; // 停止执行后续代码
+          }
+        }
+        
+        // 4. 设置当前版本
+        localStorage.setItem('app_version', currentVersion);
+        console.log('✅ 缓存清理完成，应用版本:', currentVersion);
+      })();
       
-      console.log('✅ Service Worker 已禁用，应用将直接从网络加载所有资源');
+      // 错误监听器：捕获动态导入失败
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
+          console.error('❌ 动态模块加载失败:', e.message);
+          console.warn('⚠️ 正在清理缓存并刷新页面...');
+          
+          // 清除版本标记，强制下次重新检查
+          localStorage.removeItem('app_version');
+          
+          // 延迟刷新，避免无限循环
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      }, true);
     </script>
   </body>
 </html>
