@@ -163,8 +163,8 @@ export default function DealershipSettings() {
 
     setChangingPassword(true);
     try {
-      // 调用 Edge Function 修改密码
-      const { data, error } = await supabase.functions.invoke('reset-admin-password', {
+      // 调用 Edge Function 修改密码（适用于所有员工）
+      const { data, error } = await supabase.functions.invoke('change-password', {
         body: {
           username: profile.username,
           oldPassword: oldPassword,

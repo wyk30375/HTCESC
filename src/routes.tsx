@@ -5,6 +5,7 @@ import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 import Employees from '@/pages/Employees';
+import EmployeeProfile from '@/pages/EmployeeProfile';
 import Vehicles from '@/pages/Vehicles';
 import Sales from '@/pages/Sales';
 import Expenses from '@/pages/Expenses';
@@ -49,6 +50,7 @@ export {
   Login,
   NotFound,
   Employees,
+  EmployeeProfile,
   Vehicles,
   Sales,
   Expenses,
@@ -92,6 +94,11 @@ export const routes: RouteConfig[] = [
     path: '/employees',
     component: Employees,
     title: '员工管理',
+  },
+  {
+    path: '/profile',
+    component: EmployeeProfile,
+    title: '个人设置',
   },
   {
     path: '/vehicles',
