@@ -3,13 +3,14 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T14:20:00Z - Service Worker 已禁用，请硬刷新浏览器 -->
+    <!-- Build: 2026-01-20T14:40:00Z - 强制刷新，清除旧缓存 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
-    <!-- 强制禁用缓存 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <!-- 强制禁用所有缓存 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
     <title>二手车销售管理系统</title>
     <meta name="description" content="专业的二手车销售管理平台，支持车辆管理、销售管理、财务管理等功能" />
@@ -66,6 +67,27 @@
           });
         }
       }
+      
+      // 检测是否有旧的模块缓存（通过检查错误）
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
+          console.warn('⚠️ 检测到旧模块缓存，正在清理并刷新...');
+          // 清除所有缓存后强制刷新
+          if ('caches' in window) {
+            caches.keys().then((cacheNames) => {
+              return Promise.all(
+                cacheNames.map((cacheName) => caches.delete(cacheName))
+              );
+            }).then(() => {
+              console.log('✅ 缓存已清除，正在刷新页面...');
+              // 使用 location.reload(true) 强制从服务器重新加载
+              window.location.reload();
+            });
+          } else {
+            window.location.reload();
+          }
+        }
+      }, true);
       
       console.log('✅ Service Worker 已禁用，应用将直接从网络加载所有资源');
     </script>
