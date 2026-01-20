@@ -14,6 +14,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
     include: [
@@ -24,8 +25,9 @@ export default defineConfig({
       '@radix-ui/react-dialog',
       '@radix-ui/react-select',
       '@radix-ui/react-label',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-portal',
     ],
-    force: true,
   },
   build: {
     // 生产构建优化

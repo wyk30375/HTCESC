@@ -432,68 +432,68 @@ export default function Login() {
                 管理员密码重置
               </Button>
             </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>管理员密码重置</DialogTitle>
-            <DialogDescription>
-              只有管理员账号可以使用此功能重置密码
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleAdminResetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reset-username" className="text-sm sm:text-base">
-                管理员用户名 *
-              </Label>
-              <Input
-                id="reset-username"
-                type="text"
-                placeholder="请输入管理员用户名"
-                value={resetUsername}
-                onChange={(e) => setResetUsername(e.target.value)}
-                disabled={resetLoading}
-                className="h-11 sm:h-10"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="reset-password" className="text-sm sm:text-base">
-                新密码 *
-              </Label>
-              <Input
-                id="reset-password"
-                type="password"
-                placeholder="请输入新密码（至少6位）"
-                value={resetNewPassword}
-                onChange={(e) => setResetNewPassword(e.target.value)}
-                disabled={resetLoading}
-                className="h-11 sm:h-10"
-                required
-              />
-              <p className="text-xs text-muted-foreground">
-                密码长度至少为6位，建议使用字母、数字和符号组合
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setResetDialogOpen(false)}
-                disabled={resetLoading}
-                className="h-11 sm:h-10 w-full sm:w-auto"
-              >
-                取消
-              </Button>
-              <Button
-                type="submit"
-                disabled={resetLoading}
-                className="h-11 sm:h-10 w-full sm:w-auto"
-              >
-                {resetLoading ? '重置中...' : '重置密码'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>管理员密码重置</DialogTitle>
+                <DialogDescription>
+                  只有管理员账号可以使用此功能重置密码
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAdminResetPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-username" className="text-sm sm:text-base">
+                    管理员用户名 *
+                  </Label>
+                  <Input
+                    id="reset-username"
+                    type="text"
+                    placeholder="请输入管理员用户名"
+                    value={resetUsername}
+                    onChange={(e) => setResetUsername(e.target.value)}
+                    disabled={resetLoading}
+                    className="h-11 sm:h-10"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="reset-password" className="text-sm sm:text-base">
+                    新密码 *
+                  </Label>
+                  <Input
+                    id="reset-password"
+                    type="password"
+                    placeholder="请输入新密码（至少6位）"
+                    value={resetNewPassword}
+                    onChange={(e) => setResetNewPassword(e.target.value)}
+                    disabled={resetLoading}
+                    className="h-11 sm:h-10"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    密码长度至少为6位，建议使用字母、数字和符号组合
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setResetDialogOpen(false)}
+                    disabled={resetLoading}
+                    className="h-11 sm:h-10 w-full sm:w-auto"
+                  >
+                    取消
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={resetLoading}
+                    className="h-11 sm:h-10 w-full sm:w-auto"
+                  >
+                    {resetLoading ? '重置中...' : '重置密码'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </Card>
       </div>
