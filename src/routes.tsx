@@ -1,4 +1,6 @@
 import { lazy, type ComponentType } from 'react';
+// 直接导入 Vehicles 页面，避免动态导入失败
+import VehiclesPage from '@/pages/Vehicles';
 
 export interface RouteConfig {
   path: string;
@@ -9,7 +11,8 @@ export interface RouteConfig {
 // 懒加载页面组件
 export const Dashboard = lazy(() => import('@/pages/Dashboard'));
 export const Employees = lazy(() => import('@/pages/Employees'));
-export const Vehicles = lazy(() => import('@/pages/Vehicles'));
+// Vehicles 使用直接导入，避免动态导入问题
+export const Vehicles = VehiclesPage;
 export const Sales = lazy(() => import('@/pages/Sales'));
 export const Expenses = lazy(() => import('@/pages/Expenses'));
 export const Profits = lazy(() => import('@/pages/Profits'));
