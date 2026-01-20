@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "tsgo -p tsconfig.check.json; npx biome lint;rules/check.sh;npx tailwindcss -i ./src/index.css -o /dev/null 2>&1| grep -E '^(CssSyntaxError|Error):.*' || true;vite build --minify false --logLevel error --outDir /tmp/outdir"
+    "lint": "tsgo -p tsconfig.check.json; npx biome lint;rules/check.sh;npx tailwindcss -i ./src/index.css -o /dev/null 2>&1| grep -E '^(CssSyntaxError|Error):.*' || true;vite build --minify false --logLevel error --outDir /tmp/outdir",
+    "clear-cache": "rm -rf node_modules/.vite dist tsconfig.tsbuildinfo && echo '✅ 缓存已清除！请重新运行 npm run dev'",
+    "clear-cache:win": "rmdir /s /q node_modules\\.vite dist & del /f /q tsconfig.tsbuildinfo & echo ✅ 缓存已清除！请重新运行 npm run dev",
+    "dev:fresh": "npm run clear-cache && npm run dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
