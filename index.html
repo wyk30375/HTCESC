@@ -3,7 +3,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T13:55:00Z - Force cache clear to fix React Hooks issue -->
+    <!-- Build: 2026-01-20T14:20:00Z - Service Worker 已禁用，请硬刷新浏览器 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- 强制禁用缓存 -->
@@ -41,16 +41,51 @@
 
   <body>
     <div id="root"></div>
+    
+    <!-- 缓存清理提示 -->
+    <div id="cache-clear-notice" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 99999; color: white; font-family: system-ui, -apple-system, sans-serif;">
+      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 40px; background: #1a1a1a; border-radius: 12px; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+        <div style="font-size: 64px; margin-bottom: 20px;">🔄</div>
+        <h2 style="font-size: 24px; margin-bottom: 16px; font-weight: 600;">正在清理缓存...</h2>
+        <p style="font-size: 16px; color: #999; margin-bottom: 24px; line-height: 1.6;">
+          检测到旧的缓存文件，正在自动清理。<br/>
+          请稍候，页面将自动刷新。
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; margin-top: 24px;">
+          <div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; animation: pulse 1.5s ease-in-out infinite;"></div>
+          <div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; animation: pulse 1.5s ease-in-out 0.2s infinite;"></div>
+          <div style="width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; animation: pulse 1.5s ease-in-out 0.4s infinite;"></div>
+        </div>
+      </div>
+    </div>
+    <style>
+      @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+    </style>
+    
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     
     <script type="module" src="/src/main.tsx"></script>
     
     <!-- PWA Service Worker Registration - 暂时禁用以修复模块加载问题 -->
     <script>
+      // 显示清理提示
+      const notice = document.getElementById('cache-clear-notice');
+      let hasServiceWorker = false;
+      let hasCaches = false;
+      
       // Service Worker 暂时禁用，避免干扰模块加载
       // 如果之前有注册的 Service Worker，先注销它
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
+          if (registrations.length > 0) {
+            hasServiceWorker = true;
+            notice.style.display = 'block';
+            console.log('🔍 发现 ' + registrations.length + ' 个 Service Worker，正在注销...');
+          }
+          
           registrations.forEach((registration) => {
             registration.unregister().then(() => {
               console.log('🗑️ 已注销 Service Worker，避免缓存干扰');
@@ -61,16 +96,35 @@
         // 清除所有缓存
         if ('caches' in window) {
           caches.keys().then((cacheNames) => {
+            if (cacheNames.length > 0) {
+              hasCaches = true;
+              notice.style.display = 'block';
+              console.log('🔍 发现 ' + cacheNames.length + ' 个缓存，正在清除...');
+            }
+            
             cacheNames.forEach((cacheName) => {
               caches.delete(cacheName).then(() => {
-                console.log('🗑️ 已清除缓存:', cacheName);
+                console.log('🗑️ 已清除缓存: ' + cacheName);
               });
             });
+            
+            // 如果清理了缓存，3秒后自动刷新
+            if (hasCaches || hasServiceWorker) {
+              setTimeout(() => {
+                console.log('🔄 缓存已清理，正在刷新页面...');
+                window.location.reload();
+              }, 3000);
+            }
           });
         }
       }
       
-      console.log('✅ Service Worker 已禁用，应用将直接从网络加载所有资源');
+      // 如果没有需要清理的内容，隐藏提示
+      setTimeout(() => {
+        if (!hasServiceWorker && !hasCaches) {
+          console.log('✅ Service Worker 已禁用，应用将直接从网络加载所有资源');
+        }
+      }, 1000);
     </script>
   </body>
 </html>
