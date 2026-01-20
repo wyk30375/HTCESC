@@ -323,7 +323,7 @@ export default function Sales() {
         sale_price: formData.sale_price,
         customer_name: formData.customer_name,
         customer_contact: formData.customer_contact,
-        customer_id_number: formData.customer_id_number || null,
+        customer_id_number: formData.customer_id_number || undefined,
         has_loan: formData.has_loan,
         loan_rebate: formData.loan_rebate,
         sale_preparation_cost: formData.sale_preparation_cost,
@@ -331,9 +331,9 @@ export default function Sales() {
         sale_misc_cost: formData.sale_misc_cost,
         total_cost: saleTotalCost,
         total_profit: totalProfit,
-        sales_employee_id: formData.salesperson_id || null,
-        salesperson_id: formData.salesperson_id || null,
-        notes: formData.notes || null,
+        sales_employee_id: formData.salesperson_id || undefined,
+        salesperson_id: formData.salesperson_id || undefined,
+        notes: formData.notes || undefined,
       };
 
       await vehicleSalesApi.update(editingSale.id, updateData);

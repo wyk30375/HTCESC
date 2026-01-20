@@ -47,8 +47,8 @@ const App = () => {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <BrowserRouter>
+        <BrowserRouter>
+          <TooltipProvider>
             <Toaster />
             <Sonner />
             <PWAInstallPrompt />
@@ -118,8 +118,8 @@ const App = () => {
                 </Suspense>
               </RouteGuard>
             </AuthProvider>
-          </BrowserRouter>
-        </TooltipProvider>
+          </TooltipProvider>
+        </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
   );
