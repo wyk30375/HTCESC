@@ -1,7 +1,6 @@
 import { lazy, type ComponentType } from 'react';
-// 常用页面直接导入，避免动态加载失败
+// 核心页面直接导入，其他页面懒加载
 import Dashboard from '@/pages/Dashboard';
-import Vehicles from '@/pages/Vehicles';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
 
@@ -11,11 +10,12 @@ export interface RouteConfig {
   title?: string;
 }
 
-// 常用页面直接导入
-export { Dashboard, Vehicles, Login, NotFound };
+// 核心页面直接导入
+export { Dashboard, Login, NotFound };
 
-// 其他页面使用懒加载
+// 其他页面使用懒加载（Service Worker 已禁用，不会有缓存问题）
 export const Employees = lazy(() => import('@/pages/Employees'));
+export const Vehicles = lazy(() => import('@/pages/Vehicles'));
 export const Sales = lazy(() => import('@/pages/Sales'));
 export const Expenses = lazy(() => import('@/pages/Expenses'));
 export const Profits = lazy(() => import('@/pages/Profits'));
