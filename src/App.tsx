@@ -12,7 +12,15 @@ import { DealershipGuard } from './components/common/DealershipGuard';
 import Layout from './components/layouts/Layout';
 import PlatformLayout from './components/layouts/PlatformLayout';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
-import { routes, Dealerships, PlatformStatistics, PlatformSettings, PlatformEmployees, PlatformMembershipManagement } from './routes';
+import { 
+  routes, 
+  Login,
+  Dealerships, 
+  PlatformStatistics, 
+  PlatformSettings, 
+  PlatformEmployees, 
+  PlatformMembershipManagement 
+} from './routes';
 import { Skeleton } from './components/ui/skeleton';
 
 const queryClient = new QueryClient({
@@ -38,8 +46,7 @@ function LoadingFallback() {
 }
 
 const App = () => {
-  // 获取特殊路由的组件（不需要布局的页面）
-  const LoginComponent = routes.find(r => r.path === '/login')?.component;
+  // 获取特殊路由的组件(不需要布局的页面)
   const RegisterComponent = routes.find(r => r.path === '/register')?.component;
   const VehicleListComponent = routes.find(r => r.path === '/vehicle-list')?.component;
   const CustomerViewComponent = routes.find(r => r.path === '/customer-view')?.component;
@@ -57,9 +64,7 @@ const App = () => {
                 <Suspense fallback={<LoadingFallback />}>
                   <Routes>
                     {/* 登录页面、注册页面、车辆列表页面和客户展示页面不需要布局 */}
-                    {LoginComponent && (
-                      <Route path="/login" element={<LoginComponent />} />
-                    )}
+                    <Route path="/login" element={<Login />} />
                     {RegisterComponent && (
                       <Route path="/register" element={<RegisterComponent />} />
                     )}
