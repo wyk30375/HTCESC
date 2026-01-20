@@ -57,6 +57,7 @@ export default function VehicleList() {
   const sharerId = searchParams.get('sharer_id');
   const sharedDealershipId = searchParams.get('dealership_id'); // 分享链接指定的车行ID
   const [sharerInfo, setSharerInfo] = useState<{ name: string; phone: string } | null>(null);
+  const [sharedDealership, setSharedDealership] = useState<Dealership | null>(null); // 分享链接对应的车行信息
   
   // 分页状态
   const [currentPage, setCurrentPage] = useState(Number.parseInt(searchParams.get('page') || '1'));
@@ -68,7 +69,30 @@ export default function VehicleList() {
     if (sharerId) {
       loadSharerInfo(sharerId);
     }
+    if (sharedDealershipId) {
+      console.log('🔍 分享链接模式，车行ID:', sharedDealershipId);
+      loadSharedDealership(sharedDealershipId);
+    } else {
+      console.log('📋 普通浏览模式');
+    }
   }, []);
+
+  const loadSharedDealership = async (dealershipId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('dealerships')
+        .select('*')
+        .eq('id', dealershipId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSharedDealership(data);
+      }
+    } catch (error) {
+      console.error('加载车行信息失败:', error);
+    }
+  };
 
   const loadSharerInfo = async (userId: string) => {
     try {
@@ -241,7 +265,9 @@ export default function VehicleList() {
                 <Car className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-lg font-bold">全部车辆</h1>
+                <h1 className="text-lg font-bold">
+                  {sharedDealership ? `${sharedDealership.name} 在售车辆` : '全部车辆'}
+                </h1>
                 <p className="text-xs text-muted-foreground">共 {totalCount} 辆在售</p>
               </div>
             </div>
