@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { vehiclesApi, vehicleSalesApi, vehicleCostsApi, employeesApi, profitDistributionsApi, profilesApi, getCurrentDealershipId } from '@/db/api';
 import type { Vehicle, VehicleSale, Employee, Profile } from '@/types/types';
-import { Plus, Eye, Lock } from 'lucide-react';
+import { Plus, Eye, Lock, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -27,8 +27,10 @@ export default function Sales() {
   const [salespeople, setSalespeople] = useState<Profile[]>([]); // 所有用户作为销售员选项
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedSale, setSelectedSale] = useState<VehicleSale | null>(null);
+  const [editingSale, setEditingSale] = useState<VehicleSale | null>(null);
 
   const [formData, setFormData] = useState({
     vehicle_id: '',
@@ -265,6 +267,91 @@ export default function Sales() {
       // 显示更详细的错误信息
       const errorMessage = error?.message || error?.hint || '创建销售记录失败';
       toast.error(errorMessage);
+    }
+  };
+
+  // 打开编辑对话框
+  const openEditDialog = (sale: VehicleSale) => {
+    setEditingSale(sale);
+    setFormData({
+      vehicle_id: sale.vehicle_id,
+      sale_date: sale.sale_date,
+      sale_price: sale.sale_price,
+      customer_name: sale.customer_name,
+      customer_contact: sale.customer_contact,
+      customer_id_number: sale.customer_id_number || '',
+      salesperson_id: sale.sales_employee_id || '',
+      has_loan: sale.has_loan,
+      loan_rebate: sale.loan_rebate || 0,
+      sale_preparation_cost: sale.sale_preparation_cost || 0,
+      sale_transfer_cost: sale.sale_transfer_cost || 0,
+      sale_misc_cost: sale.sale_misc_cost || 0,
+      notes: sale.notes || '',
+    });
+    setEditDialogOpen(true);
+  };
+
+  // 处理编辑提交
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSale) return;
+
+    try {
+      // 计算总利润
+      const vehicle = vehicles.find(v => v.id === formData.vehicle_id);
+      if (!vehicle) {
+        toast.error('车辆信息不存在');
+        return;
+      }
+
+      // 获取车辆总成本（不包括销售成本）
+      const costs = await vehicleCostsApi.getByVehicleId(formData.vehicle_id);
+      const purchaseCosts = costs.filter(cost => 
+        cost.cost_type === 'purchase' || 
+        cost.cost_type === 'preparation' || 
+        cost.cost_type === 'transfer' || 
+        cost.cost_type === 'misc'
+      );
+      const totalCost = purchaseCosts.reduce((sum, cost) => sum + Number(cost.amount), 0);
+      
+      // 计算销售总成本
+      const saleTotalCost = totalCost + 
+        formData.sale_preparation_cost + 
+        formData.sale_transfer_cost + 
+        formData.sale_misc_cost;
+      
+      // 计算总利润
+      const totalProfit = formData.sale_price - saleTotalCost + (formData.has_loan ? formData.loan_rebate : 0);
+
+      // 更新销售记录
+      const updateData = {
+        sale_date: formData.sale_date,
+        sale_price: formData.sale_price,
+        customer_name: formData.customer_name,
+        customer_contact: formData.customer_contact,
+        customer_id_number: formData.customer_id_number || null,
+        has_loan: formData.has_loan,
+        loan_rebate: formData.loan_rebate,
+        sale_preparation_cost: formData.sale_preparation_cost,
+        sale_transfer_cost: formData.sale_transfer_cost,
+        sale_misc_cost: formData.sale_misc_cost,
+        total_cost: saleTotalCost,
+        total_profit: totalProfit,
+        sales_employee_id: formData.salesperson_id || null,
+        salesperson_id: formData.salesperson_id || null,
+        notes: formData.notes || null,
+      };
+
+      await vehicleSalesApi.update(editingSale.id, updateData);
+
+      toast.success('销售记录已更新');
+      setEditDialogOpen(false);
+      setEditingSale(null);
+      resetForm();
+      loadData();
+    } catch (error: any) {
+      console.error('更新销售记录失败:', error);
+      toast.error(error?.message || '更新销售记录失败');
     }
   };
 
@@ -648,14 +735,26 @@ export default function Sales() {
                     </TableCell>
                     <TableCell>{getSalespersonName(sale.sales_employee_id)}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDetailDialog(sale)}
-                        title="查看详情"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openDetailDialog(sale)}
+                          title="查看详情"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openEditDialog(sale)}
+                            title="编辑销售记录"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 );
@@ -732,6 +831,196 @@ export default function Sales() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 编辑对话框 */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>编辑销售记录</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleEditSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 col-span-2">
+                <Label>车辆信息</Label>
+                <div className="p-3 bg-muted rounded-md">
+                  {editingSale && (() => {
+                    const vehicle = getVehicleInfo(editingSale.vehicle_id);
+                    return vehicle ? (
+                      <p className="font-medium">
+                        {vehicle.brand} {vehicle.model} ({vehicle.vin_last_six})
+                      </p>
+                    ) : (
+                      <p className="text-muted-foreground">车辆信息不可用</p>
+                    );
+                  })()}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  车辆信息不可修改
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_sale_date">销售日期</Label>
+                <Input
+                  id="edit_sale_date"
+                  type="date"
+                  value={formData.sale_date}
+                  onChange={(e) => setFormData({ ...formData, sale_date: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_sale_price">成交价格（元）</Label>
+                <Input
+                  id="edit_sale_price"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  value={formData.sale_price || ''}
+                  onChange={(e) => setFormData({ ...formData, sale_price: e.target.value ? Number(e.target.value) : '' as any })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_customer_name">客户姓名</Label>
+                <Input
+                  id="edit_customer_name"
+                  value={formData.customer_name}
+                  onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_customer_contact">客户联系方式</Label>
+                <Input
+                  id="edit_customer_contact"
+                  value={formData.customer_contact}
+                  onChange={(e) => setFormData({ ...formData, customer_contact: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="edit_customer_id_number">客户身份证号</Label>
+                <Input
+                  id="edit_customer_id_number"
+                  value={formData.customer_id_number}
+                  onChange={(e) => setFormData({ ...formData, customer_id_number: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="edit_salesperson_id">销售员</Label>
+                <Select
+                  value={formData.salesperson_id || 'none'}
+                  onValueChange={(value) => setFormData({ ...formData, salesperson_id: value === 'none' ? '' : value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择销售员（可选）" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">无</SelectItem>
+                    {salespeople.map((person) => (
+                      <SelectItem key={person.id} value={person.id}>
+                        {person.username || person.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="edit_has_loan"
+                    checked={formData.has_loan}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_loan: checked as boolean })}
+                  />
+                  <Label htmlFor="edit_has_loan" className="cursor-pointer">
+                    有贷款
+                  </Label>
+                </div>
+              </div>
+
+              {formData.has_loan && (
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="edit_loan_rebate">贷款返利（元）</Label>
+                  <Input
+                    id="edit_loan_rebate"
+                    type="number"
+                    step="0.01"
+                    placeholder="0"
+                    value={formData.loan_rebate || ''}
+                    onChange={(e) => setFormData({ ...formData, loan_rebate: e.target.value ? Number(e.target.value) : '' as any })}
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_sale_preparation_cost">销售整备费（元）</Label>
+                <Input
+                  id="edit_sale_preparation_cost"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  value={formData.sale_preparation_cost || ''}
+                  onChange={(e) => setFormData({ ...formData, sale_preparation_cost: e.target.value ? Number(e.target.value) : '' as any })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit_sale_transfer_cost">销售过户费（元）</Label>
+                <Input
+                  id="edit_sale_transfer_cost"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  value={formData.sale_transfer_cost || ''}
+                  onChange={(e) => setFormData({ ...formData, sale_transfer_cost: e.target.value ? Number(e.target.value) : '' as any })}
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="edit_sale_misc_cost">销售杂费（元）</Label>
+                <Input
+                  id="edit_sale_misc_cost"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                  value={formData.sale_misc_cost || ''}
+                  onChange={(e) => setFormData({ ...formData, sale_misc_cost: e.target.value ? Number(e.target.value) : '' as any })}
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="edit_notes">备注</Label>
+                <Textarea
+                  id="edit_notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => {
+                setEditDialogOpen(false);
+                setEditingSale(null);
+                resetForm();
+              }}>
+                取消
+              </Button>
+              <Button type="submit" className="primary-gradient">
+                保存修改
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
       </div>
