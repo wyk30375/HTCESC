@@ -76,6 +76,26 @@ export default function PublicHomeNew() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 车辆评估相关状态
+  const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
+  const [evaluationForm, setEvaluationForm] = useState({
+    brand: '',
+    model: '',
+    year: new Date().getFullYear(),
+    mileage: 0,
+    condition: 'good' as 'excellent' | 'good' | 'fair' | 'poor',
+    displacement: 0,
+    transmission: 'automatic' as 'automatic' | 'manual',
+    fuelType: 'gasoline' as 'gasoline' | 'diesel' | 'electric' | 'hybrid'
+  });
+  const [evaluationResult, setEvaluationResult] = useState<{
+    estimatedPrice: number;
+    priceRange: { min: number; max: number };
+    depreciationRate: number;
+    brandFactor: number;
+    conditionFactor: number;
+  } | null>(null);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -179,12 +199,131 @@ export default function PublicHomeNew() {
         contact_phone: '',
         address: ''
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('注册失败:', error);
-      toast.error(error.message || '注册失败，请稍后重试');
+      toast.error('注册失败，请稍后重试');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // 车辆评估算法
+  const calculateVehicleValue = () => {
+    const { brand, model, year, mileage, condition, displacement, transmission, fuelType } = evaluationForm;
+
+    // 验证必填字段
+    if (!brand || !model || year < 1990 || year > new Date().getFullYear()) {
+      toast.error('请填写完整的车辆信息');
+      return;
+    }
+
+    // 1. 品牌保值率系数（基于市场数据）
+    const brandFactors: Record<string, number> = {
+      '奔驰': 0.75, '宝马': 0.73, '奥迪': 0.70, '雷克萨斯': 0.80,
+      '丰田': 0.75, '本田': 0.73, '日产': 0.68, '马自达': 0.65,
+      '大众': 0.68, '别克': 0.60, '福特': 0.58, '雪佛兰': 0.55,
+      '现代': 0.60, '起亚': 0.58, '长城': 0.55, '吉利': 0.53,
+      '比亚迪': 0.60, '特斯拉': 0.65, '蔚来': 0.55, '理想': 0.58
+    };
+    
+    const brandFactor = brandFactors[brand] || 0.60; // 默认保值率 60%
+
+    // 2. 车况系数
+    const conditionFactors = {
+      'excellent': 1.0,  // 优秀
+      'good': 0.9,       // 良好
+      'fair': 0.75,      // 一般
+      'poor': 0.55       // 较差
+    };
+    const conditionFactor = conditionFactors[condition];
+
+    // 3. 年份折旧率（每年折旧）
+    const currentYear = new Date().getFullYear();
+    const vehicleAge = currentYear - year;
+    let yearDepreciation = 1.0;
+    
+    // 前3年每年折旧15%，之后每年折旧10%
+    for (let i = 0; i < vehicleAge; i++) {
+      if (i < 3) {
+        yearDepreciation *= 0.85; // 前3年折旧15%
+      } else {
+        yearDepreciation *= 0.90; // 之后每年折旧10%
+      }
+    }
+
+    // 4. 里程折旧（每万公里折旧）
+    const mileageInWan = mileage / 10000;
+    const mileageDepreciation = Math.max(0.5, 1 - (mileageInWan * 0.03)); // 每万公里折旧3%，最低50%
+
+    // 5. 排量系数（大排量车型折旧更快）
+    let displacementFactor = 1.0;
+    if (displacement > 3.0) {
+      displacementFactor = 0.85;
+    } else if (displacement > 2.0) {
+      displacementFactor = 0.92;
+    }
+
+    // 6. 变速箱系数
+    const transmissionFactor = transmission === 'automatic' ? 1.0 : 0.92;
+
+    // 7. 燃料类型系数
+    const fuelFactors = {
+      'electric': 0.85,  // 电动车折旧快
+      'hybrid': 0.95,    // 混动保值
+      'gasoline': 1.0,   // 汽油标准
+      'diesel': 0.95     // 柴油略低
+    };
+    const fuelFactor = fuelFactors[fuelType];
+
+    // 8. 基础价格估算（根据排量和品牌）
+    let basePrice = 100000; // 默认基础价 10万
+    if (displacement >= 3.0) {
+      basePrice = 300000; // 大排量 30万
+    } else if (displacement >= 2.0) {
+      basePrice = 200000; // 中排量 20万
+    } else if (displacement >= 1.5) {
+      basePrice = 150000; // 小排量 15万
+    }
+
+    // 豪华品牌基础价提升
+    if (['奔驰', '宝马', '奥迪', '雷克萨斯', '特斯拉'].includes(brand)) {
+      basePrice *= 2.5;
+    } else if (['丰田', '本田', '大众'].includes(brand)) {
+      basePrice *= 1.3;
+    }
+
+    // 综合计算最终价格
+    const estimatedPrice = Math.round(
+      basePrice * 
+      brandFactor * 
+      conditionFactor * 
+      yearDepreciation * 
+      mileageDepreciation * 
+      displacementFactor * 
+      transmissionFactor * 
+      fuelFactor
+    );
+
+    // 价格区间（±15%）
+    const priceRange = {
+      min: Math.round(estimatedPrice * 0.85),
+      max: Math.round(estimatedPrice * 1.15)
+    };
+
+    // 总折旧率
+    const depreciationRate = Math.round(
+      (1 - (yearDepreciation * mileageDepreciation * displacementFactor * transmissionFactor * fuelFactor)) * 100
+    );
+
+    setEvaluationResult({
+      estimatedPrice,
+      priceRange,
+      depreciationRate,
+      brandFactor: Math.round(brandFactor * 100),
+      conditionFactor: Math.round(conditionFactor * 100)
+    });
+
+    toast.success('评估完成！');
   };
 
   // 筛选车辆
@@ -290,7 +429,13 @@ export default function PublicHomeNew() {
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               汇聚多家优质车行，精选在售车辆，为您提供安全、便捷、透明的二手车经营管理服务
             </p>
-            <div className="flex justify-center pt-6">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-6">
+              <Button size="lg" variant="default" className="gap-2 text-lg h-12" onClick={() => {
+                setEvaluationDialogOpen(true);
+              }}>
+                <TrendingUp className="h-5 w-5" />
+                车辆评估
+              </Button>
               <Button size="lg" variant="outline" className="gap-2 text-lg h-12" onClick={() => {
                 document.getElementById('vehicles-section')?.scrollIntoView({ behavior: 'smooth' });
               }}>
@@ -1145,6 +1290,183 @@ export default function PublicHomeNew() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* 车辆评估对话框 */}
+      <Dialog open={evaluationDialogOpen} onOpenChange={setEvaluationDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              车辆价值评估
+            </DialogTitle>
+            <DialogDescription>
+              根据车况、里程、品牌等因素智能评估车辆价值
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* 评估表单 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="eval-brand">品牌 *</Label>
+                <Input
+                  id="eval-brand"
+                  placeholder="例如：奔驰、宝马、丰田"
+                  value={evaluationForm.brand}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, brand: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-model">车型 *</Label>
+                <Input
+                  id="eval-model"
+                  placeholder="例如：C200L、5系、凯美瑞"
+                  value={evaluationForm.model}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, model: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-year">年份 *</Label>
+                <Input
+                  id="eval-year"
+                  type="number"
+                  min="1990"
+                  max={new Date().getFullYear()}
+                  value={evaluationForm.year}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, year: Number.parseInt(e.target.value) })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-mileage">里程数（公里）*</Label>
+                <Input
+                  id="eval-mileage"
+                  type="number"
+                  min="0"
+                  placeholder="例如：50000"
+                  value={evaluationForm.mileage || ''}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, mileage: Number.parseInt(e.target.value) || 0 })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-displacement">排量（L）*</Label>
+                <Input
+                  id="eval-displacement"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  placeholder="例如：2.0"
+                  value={evaluationForm.displacement || ''}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, displacement: Number.parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-condition">车况 *</Label>
+                <select
+                  id="eval-condition"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={evaluationForm.condition}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, condition: e.target.value as any })}
+                >
+                  <option value="excellent">优秀（无事故，保养良好）</option>
+                  <option value="good">良好（小剐蹭，正常使用）</option>
+                  <option value="fair">一般（有维修记录）</option>
+                  <option value="poor">较差（事故车或大修）</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-transmission">变速箱 *</Label>
+                <select
+                  id="eval-transmission"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={evaluationForm.transmission}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, transmission: e.target.value as any })}
+                >
+                  <option value="automatic">自动挡</option>
+                  <option value="manual">手动挡</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="eval-fuelType">燃料类型 *</Label>
+                <select
+                  id="eval-fuelType"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  value={evaluationForm.fuelType}
+                  onChange={(e) => setEvaluationForm({ ...evaluationForm, fuelType: e.target.value as any })}
+                >
+                  <option value="gasoline">汽油</option>
+                  <option value="diesel">柴油</option>
+                  <option value="electric">纯电动</option>
+                  <option value="hybrid">混合动力</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 评估按钮 */}
+            <Button 
+              onClick={calculateVehicleValue} 
+              className="w-full"
+              size="lg"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              开始评估
+            </Button>
+
+            {/* 评估结果 */}
+            {evaluationResult && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-primary">评估结果</CardTitle>
+                  <CardDescription>
+                    基于市场数据和车辆信息的智能评估
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* 估值价格 */}
+                  <div className="text-center p-6 bg-background rounded-lg border">
+                    <p className="text-sm text-muted-foreground mb-2">预估价值</p>
+                    <p className="text-4xl font-bold text-primary">
+                      ¥{evaluationResult.estimatedPrice.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      价格区间：¥{evaluationResult.priceRange.min.toLocaleString()} - ¥{evaluationResult.priceRange.max.toLocaleString()}
+                    </p>
+                  </div>
+
+                  {/* 评估因素 */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-background rounded-lg border">
+                      <p className="text-sm text-muted-foreground mb-1">品牌保值率</p>
+                      <p className="text-2xl font-semibold">{evaluationResult.brandFactor}%</p>
+                    </div>
+                    <div className="p-4 bg-background rounded-lg border">
+                      <p className="text-sm text-muted-foreground mb-1">车况系数</p>
+                      <p className="text-2xl font-semibold">{evaluationResult.conditionFactor}%</p>
+                    </div>
+                    <div className="p-4 bg-background rounded-lg border col-span-2">
+                      <p className="text-sm text-muted-foreground mb-1">综合折旧率</p>
+                      <p className="text-2xl font-semibold">{evaluationResult.depreciationRate}%</p>
+                    </div>
+                  </div>
+
+                  {/* 说明 */}
+                  <div className="text-xs text-muted-foreground space-y-1 p-4 bg-muted/50 rounded-lg">
+                    <p>• 评估价格仅供参考，实际成交价格可能因市场行情、车辆具体状况等因素有所差异</p>
+                    <p>• 建议到专业检测机构进行详细检测后再做最终决定</p>
+                    <p>• 评估算法基于市场平均数据，不同地区价格可能有所不同</p>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
         </DialogContent>
