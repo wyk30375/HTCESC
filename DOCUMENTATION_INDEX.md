@@ -26,6 +26,14 @@
 | [PAYMENT_TUTORIAL.md](PAYMENT_TUTORIAL.md) | 完整教程（8000字） | 60分钟 |
 | [PAYMENT_CHECKLIST.md](PAYMENT_CHECKLIST.md) | 功能检查清单 | 20分钟 |
 
+### 🧪 系统测试
+
+| 文档 | 说明 | 阅读时间 |
+|------|------|---------|
+| [TESTING_SUMMARY.md](TESTING_SUMMARY.md) | 测试完成总结 | 10分钟 |
+| [TESTING_REPORT.md](TESTING_REPORT.md) | 完整测试报告 | 30分钟 |
+| [TESTING_CASES.md](TESTING_CASES.md) | 测试用例清单（104个） | 60分钟 |
+
 ### 📦 源代码管理
 
 | 文档 | 说明 | 适用场景 |
@@ -172,6 +180,11 @@
    - 理解支付流程
    - 实现模拟支付
 
+4. **了解系统测试**
+   - 阅读 [TESTING_SUMMARY.md](TESTING_SUMMARY.md)
+   - 了解测试结果
+   - 学习测试方法
+
 ### 进阶学习（第2-4周）
 
 1. **深入支付系统**
@@ -247,6 +260,15 @@
 4. 配置环境变量
 5. 启动开发服务器
 
+### 场景5：我要测试系统质量
+
+**步骤：**
+1. 阅读 [TESTING_SUMMARY.md](TESTING_SUMMARY.md) 了解测试概况
+2. 查看 [TESTING_REPORT.md](TESTING_REPORT.md) 了解详细测试结果
+3. 参考 [TESTING_CASES.md](TESTING_CASES.md) 执行测试用例
+4. 运行 `npm run lint` 进行代码质量检查
+5. 根据测试报告进行优化
+
 ---
 
 ## 📊 文档统计
@@ -255,8 +277,9 @@
 |------|------|--------|
 | 手机App部署 | 4篇 | ~15,000字 |
 | 线上支付 | 3篇 | ~12,000字 |
+| 系统测试 | 3篇 | ~18,000字 |
 | 项目管理 | 2篇 | ~5,000字 |
-| **总计** | **9篇** | **~32,000字** |
+| **总计** | **12篇** | **~50,000字** |
 
 ---
 
