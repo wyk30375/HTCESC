@@ -191,9 +191,31 @@ export default function DealershipRegister() {
         // 不影响注册流程，继续执行
       }
 
+      // 5. 发送实时通知（企业微信/短信）
+      try {
+        const notificationContent = `**车行名称：** ${dealership.name}\n**车行代码：** ${dealership.code}\n**联系人：** ${createForm.contactPerson}\n**联系电话：** ${createForm.contactPhone}\n**注册时间：** ${new Date().toLocaleString('zh-CN')}\n\n请登录平台管理后台及时审核该车行的注册申请。`;
+        
+        const { data: notificationResult, error: notificationError } = await supabase.functions.invoke('send-notification', {
+          body: {
+            title: '🔔 新车行注册申请',
+            content: notificationContent,
+            notificationType: 'wechat', // 可选: 'wechat', 'sms', 'both'
+          },
+        });
+
+        if (notificationError) {
+          console.error('发送实时通知失败:', notificationError);
+        } else {
+          console.log('实时通知发送结果:', notificationResult);
+        }
+      } catch (notificationError) {
+        console.error('发送实时通知异常:', notificationError);
+        // 不影响注册流程，继续执行
+      }
+
       toast.success('车行注册成功！请等待平台审核...');
       
-      // 5. 自动登录
+      // 6. 自动登录
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password: createForm.password,
