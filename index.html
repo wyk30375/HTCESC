@@ -3,7 +3,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T15:00:00Z - 添加自动硬刷新机制 -->
+    <!-- Build: 2026-01-20T15:06:00Z - 移除自动刷新，只保留手动提示 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- 强制禁用所有缓存 -->
@@ -99,8 +99,11 @@
         }
         
         // 3. 清除 localStorage 中的旧版本标记
-        const currentVersion = '2026-01-20T15:00:00Z';
+        const currentVersion = '2026-01-20T15:06:00Z';
         const lastVersion = localStorage.getItem('app_version');
+        
+        // 清除可能残留的自动刷新标记
+        sessionStorage.removeItem('auto_refresh_attempted');
         
         if (lastVersion && lastVersion !== currentVersion) {
           console.log('⚠️ 检测到版本更新，从', lastVersion, '到', currentVersion);
@@ -145,31 +148,16 @@
         const errorMsg = e.reason?.message || e.reason || '';
         if (errorMsg.toString().includes('Failed to fetch dynamically imported module')) {
           console.error('❌ 动态模块加载失败 (Promise):', errorMsg);
-          console.warn('⚠️ 检测到旧模块缓存，正在自动硬刷新...');
+          console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
           
-          // 检查是否已经尝试过自动刷新
-          const autoRefreshAttempted = sessionStorage.getItem('auto_refresh_attempted');
-          
-          if (!autoRefreshAttempted) {
-            // 标记已尝试自动刷新
-            sessionStorage.setItem('auto_refresh_attempted', 'true');
-            
-            // 清除所有缓存
-            localStorage.removeItem('app_version');
-            
-            // 延迟 500ms 后执行硬刷新
-            setTimeout(() => {
-              console.log('🔄 正在执行自动硬刷新...');
-              window.location.reload(true);
-            }, 500);
-          } else {
-            // 如果自动刷新失败，显示手动提示
-            console.error('⚠️ 自动刷新失败，请手动硬刷新浏览器');
-            const notice = document.getElementById('hard-refresh-notice');
-            if (notice) {
-              notice.style.display = 'block';
-            }
+          // 显示硬刷新提示
+          const notice = document.getElementById('hard-refresh-notice');
+          if (notice) {
+            notice.style.display = 'block';
           }
+          
+          // 清除版本标记，强制下次重新检查
+          localStorage.removeItem('app_version');
           
           // 阻止错误继续传播
           e.preventDefault();
