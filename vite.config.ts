@@ -24,6 +24,8 @@ export default defineConfig({
         drop_debugger: true, // 移除 debugger
       },
     },
+    // 强制重新生成所有文件的哈希值
+    assetsInlineLimit: 4096,
     // 代码分割优化
     rollupOptions: {
       output: {
