@@ -41,6 +41,11 @@ export default defineConfig({
       '@radix-ui/react-primitive',
       '@radix-ui/react-checkbox',
       '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-tooltip',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-separator',
     ],
     esbuildOptions: {
       resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
