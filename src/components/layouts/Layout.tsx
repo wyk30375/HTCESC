@@ -67,6 +67,14 @@ const mobileNavItems = [
   { path: '/internal-report', label: '内部通报', icon: FileText },
 ];
 
+// 平台管理员专用菜单
+const platformNavItems = [
+  { path: '/dealerships', label: '车行管理', icon: Building2 },
+  { path: '/platform-membership', label: '会员管理', icon: Crown },
+  { path: '/platform-feedback', label: '反馈管理', icon: MessageSquare },
+  { path: '/admin', label: '用户管理', icon: UserCog },
+];
+
 export default function Layout({ children }: LayoutProps) {
   const { user, profile, dealership, signOut } = useAuth();
   const location = useLocation();
@@ -182,7 +190,41 @@ export default function Layout({ children }: LayoutProps) {
                 );
               })}
 
-              {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+              {/* 平台管理员专用菜单 */}
+              {profile?.role === 'super_admin' && (
+                <>
+                  <div className="my-4 border-t border-sidebar-border" />
+                  <div className="px-3 py-2 text-xs font-semibold text-sidebar-foreground/60">
+                    平台管理
+                  </div>
+                  {platformNavItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item.path);
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                          active
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                            : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" />
+                        <span className="flex-1">{item.label}</span>
+                        {item.path === '/platform-feedback' && unreadCount > 0 && (
+                          <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                            {unreadCount}
+                          </Badge>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* 车行管理员专用菜单 */}
+              {profile?.role === 'admin' && (
                 <>
                   <div className="my-4 border-t border-sidebar-border" />
                   <div className="px-3 py-2 text-xs font-semibold text-sidebar-foreground/60">
@@ -294,6 +336,41 @@ export default function Layout({ children }: LayoutProps) {
                       );
                     })}
 
+                    {/* 平台管理员专用菜单 */}
+                    {profile?.role === 'super_admin' && (
+                      <>
+                        <div className="my-4 border-t" />
+                        <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                          平台管理
+                        </div>
+                        {platformNavItems.map((item) => {
+                          const Icon = item.icon;
+                          const active = isActive(item.path);
+                          return (
+                            <Link
+                              key={item.path}
+                              to={item.path}
+                              onClick={closeMobileMenu}
+                              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                                active
+                                  ? 'bg-accent text-accent-foreground'
+                                  : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                              }`}
+                            >
+                              <Icon className="h-4 w-4" />
+                              <span className="flex-1">{item.label}</span>
+                              {item.path === '/platform-feedback' && unreadCount > 0 && (
+                                <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                                  {unreadCount}
+                                </Badge>
+                              )}
+                            </Link>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    {/* 车行管理员专用菜单 */}
                     {profile?.role === 'admin' && (
                       <>
                         <div className="my-4 border-t" />
