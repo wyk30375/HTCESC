@@ -120,6 +120,17 @@ export const dealershipsApi = {
     
     if (error) throw error;
   },
+
+  // 获取待审核车行数量
+  async getPendingCount() {
+    const { count, error } = await supabase
+      .from('dealerships')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+    
+    if (error) throw error;
+    return count || 0;
+  },
 };
 
 // ==================== 用户资料 API ====================

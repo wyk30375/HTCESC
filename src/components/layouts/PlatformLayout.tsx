@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useState, useEffect } from 'react';
-import { feedbackApi } from '@/db/api';
+import { feedbackApi, dealershipsApi } from '@/db/api';
 
 export default function PlatformLayout() {
   const { profile, signOut } = useAuth();
@@ -13,6 +13,7 @@ export default function PlatformLayout() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pendingDealershipsCount, setPendingDealershipsCount] = useState(0);
 
   // 加载未读消息数量
   useEffect(() => {
@@ -30,6 +31,22 @@ export default function PlatformLayout() {
     return () => clearInterval(interval);
   }, []);
 
+  // 加载待审核车行数量
+  useEffect(() => {
+    const loadPendingCount = async () => {
+      try {
+        const count = await dealershipsApi.getPendingCount();
+        setPendingDealershipsCount(count);
+      } catch (error) {
+        console.error('加载待审核车行数量失败:', error);
+      }
+    };
+    loadPendingCount();
+    // 每30秒刷新一次
+    const interval = setInterval(loadPendingCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/login');
@@ -40,7 +57,7 @@ export default function PlatformLayout() {
   };
 
   const navigation = [
-    { name: '车行管理', path: '/platform/dealerships', icon: Building2 },
+    { name: '车行管理', path: '/platform/dealerships', icon: Building2, badge: pendingDealershipsCount },
     { name: '会员管理', path: '/platform/membership', icon: Crown },
     { name: '反馈管理', path: '/platform/feedback', icon: MessageSquare, badge: unreadCount },
     { name: '员工管理', path: '/platform/employees', icon: Users },

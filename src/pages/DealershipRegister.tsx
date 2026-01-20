@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { dealershipsApi } from '@/db/api';
+import { dealershipsApi, feedbackApi } from '@/db/api';
 import { supabase } from '@/db/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { Car, Building2, UserPlus, AlertCircle, Home, LogOut } from 'lucide-react';
@@ -136,7 +136,7 @@ export default function DealershipRegister() {
         contact_person: createForm.contactPerson,
         contact_phone: createForm.contactPhone,
         address: createForm.address,
-        status: 'active',
+        status: 'pending', // 修改为待审核状态
       });
       console.log('车行创建成功:', dealership);
 
@@ -176,9 +176,24 @@ export default function DealershipRegister() {
 
       console.log('用户资料更新成功');
 
-      toast.success('车行创建成功！正在登录...');
+      // 4. 发送反馈消息通知平台管理员
+      try {
+        await feedbackApi.create({
+          dealership_id: dealership.id,
+          sender_type: 'platform',
+          message_type: 'reminder',
+          title: '新车行注册申请',
+          content: `车行名称：${dealership.name}\n车行代码：${dealership.code}\n联系人：${createForm.contactPerson}\n联系电话：${createForm.contactPhone}\n注册时间：${new Date().toLocaleString('zh-CN')}\n\n请及时审核该车行的注册申请。`,
+        });
+        console.log('已发送反馈消息通知平台管理员');
+      } catch (feedbackError) {
+        console.error('发送反馈消息失败:', feedbackError);
+        // 不影响注册流程，继续执行
+      }
+
+      toast.success('车行注册成功！请等待平台审核...');
       
-      // 4. 自动登录
+      // 5. 自动登录
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password: createForm.password,
