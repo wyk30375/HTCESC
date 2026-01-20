@@ -1,15 +1,34 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, BarChart3, Settings, LogOut, Menu, Users, Crown } from 'lucide-react';
+import { Building2, BarChart3, Settings, LogOut, Menu, Users, Crown, MessageSquare } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { feedbackApi } from '@/db/api';
 
 export default function PlatformLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // 加载未读消息数量
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const count = await feedbackApi.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('加载未读消息数量失败:', error);
+      }
+    };
+    loadUnreadCount();
+    // 每30秒刷新一次
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -23,6 +42,7 @@ export default function PlatformLayout() {
   const navigation = [
     { name: '车行管理', path: '/platform/dealerships', icon: Building2 },
     { name: '会员管理', path: '/platform/membership', icon: Crown },
+    { name: '反馈管理', path: '/platform-feedback', icon: MessageSquare, badge: unreadCount },
     { name: '员工管理', path: '/platform/employees', icon: Users },
     { name: '平台统计', path: '/platform/statistics', icon: BarChart3 },
     { name: '系统设置', path: '/platform/settings', icon: Settings },
@@ -44,7 +64,12 @@ export default function PlatformLayout() {
             }`}
           >
             <Icon className="h-4 w-4" />
-            {item.name}
+            <span className="flex-1">{item.name}</span>
+            {item.badge && item.badge > 0 && (
+              <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                {item.badge}
+              </Badge>
+            )}
           </Link>
         );
       })}
@@ -68,7 +93,12 @@ export default function PlatformLayout() {
             }`}
           >
             <Icon className="h-4 w-4" />
-            {item.name}
+            <span className="flex-1">{item.name}</span>
+            {item.badge && item.badge > 0 && (
+              <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                {item.badge}
+              </Badge>
+            )}
           </Link>
         );
       })}
