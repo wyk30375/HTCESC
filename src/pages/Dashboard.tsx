@@ -203,10 +203,10 @@ export default function Dashboard() {
             </div>
             <div
               onClick={() => {
-                const shareUrl = `${window.location.origin}/vehicle-list?sharer_id=${profile?.id}`;
+                const shareUrl = `${window.location.origin}/vehicle-list?sharer_id=${profile?.id}&dealership_id=${profile?.dealership_id}`;
                 navigator.clipboard.writeText(shareUrl).then(() => {
                   toast.success('分享链接已复制到剪贴板！', {
-                    description: '客户通过此链接查看车辆时，将显示您的联系方式',
+                    description: '客户通过此链接查看车辆时，将显示您的联系方式和本车行的在售车辆',
                   });
                 }).catch(() => {
                   toast.error('复制失败，请手动复制链接');

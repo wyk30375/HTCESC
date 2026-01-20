@@ -55,6 +55,7 @@ export default function VehicleList() {
   
   // 分享者信息（从URL参数获取）
   const sharerId = searchParams.get('sharer_id');
+  const sharedDealershipId = searchParams.get('dealership_id'); // 分享链接指定的车行ID
   const [sharerInfo, setSharerInfo] = useState<{ name: string; phone: string } | null>(null);
   
   // 分页状态
@@ -134,19 +135,24 @@ export default function VehicleList() {
         `, { count: 'exact' })
         .eq('status', 'in_stock');
 
-      // 地区筛选
-      if (selectedCity !== 'all') {
-        // 先获取该地区的所有车行ID
-        const cityDealerships = dealerships.filter(d => d.city === selectedCity);
-        const dealershipIds = cityDealerships.map(d => d.id);
-        if (dealershipIds.length > 0) {
-          query = query.in('dealership_id', dealershipIds);
-        } else {
-          // 如果没有该地区的车行，返回空结果
-          setVehicles([]);
-          setTotalCount(0);
-          setLoading(false);
-          return;
+      // 如果是通过分享链接访问，只显示指定车行的车辆
+      if (sharedDealershipId) {
+        query = query.eq('dealership_id', sharedDealershipId);
+      } else {
+        // 地区筛选（仅在非分享链接模式下生效）
+        if (selectedCity !== 'all') {
+          // 先获取该地区的所有车行ID
+          const cityDealerships = dealerships.filter(d => d.city === selectedCity);
+          const dealershipIds = cityDealerships.map(d => d.id);
+          if (dealershipIds.length > 0) {
+            query = query.in('dealership_id', dealershipIds);
+          } else {
+            // 如果没有该地区的车行，返回空结果
+            setVehicles([]);
+            setTotalCount(0);
+            setLoading(false);
+            return;
+          }
         }
       }
 
@@ -256,65 +262,68 @@ export default function VehicleList() {
               className="pl-10"
             />
           </div>
-          <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={comboboxOpen}
-                className="w-full md:w-64 justify-between"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                <span className="flex-1 text-left truncate">
-                  {selectedCity === 'all' 
-                    ? '全部地区' 
-                    : cities.find((city) => city === selectedCity) || '全部地区'}
-                </span>
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command>
-                <CommandInput placeholder="搜索地区..." />
-                <CommandList>
-                  <CommandEmpty>未找到地区</CommandEmpty>
-                  <CommandGroup>
-                    <CommandItem
-                      value="all"
-                      onSelect={() => {
-                        handleCityChange('all');
-                        setComboboxOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={`mr-2 h-4 w-4 ${
-                          selectedCity === 'all' ? 'opacity-100' : 'opacity-0'
-                        }`}
-                      />
-                      全部地区
-                    </CommandItem>
-                    {cities.map((city) => (
+          {/* 地区筛选器（仅在非分享链接模式下显示） */}
+          {!sharedDealershipId && (
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboboxOpen}
+                  className="w-full md:w-64 justify-between"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  <span className="flex-1 text-left truncate">
+                    {selectedCity === 'all' 
+                      ? '全部地区' 
+                      : cities.find((city) => city === selectedCity) || '全部地区'}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="搜索地区..." />
+                  <CommandList>
+                    <CommandEmpty>未找到地区</CommandEmpty>
+                    <CommandGroup>
                       <CommandItem
-                        key={city}
-                        value={city}
-                        onSelect={(currentValue) => {
-                          handleCityChange(currentValue);
+                        value="all"
+                        onSelect={() => {
+                          handleCityChange('all');
                           setComboboxOpen(false);
                         }}
                       >
                         <Check
                           className={`mr-2 h-4 w-4 ${
-                            selectedCity === city ? 'opacity-100' : 'opacity-0'
+                            selectedCity === 'all' ? 'opacity-100' : 'opacity-0'
                           }`}
                         />
-                        {city}
+                        全部地区
                       </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                      {cities.map((city) => (
+                        <CommandItem
+                          key={city}
+                          value={city}
+                          onSelect={(currentValue) => {
+                            handleCityChange(currentValue);
+                            setComboboxOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${
+                              selectedCity === city ? 'opacity-100' : 'opacity-0'
+                            }`}
+                          />
+                          {city}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         {/* 车辆列表 */}
