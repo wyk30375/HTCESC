@@ -115,7 +115,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="stat-card-orange border-2 shadow-md hover:shadow-xl transition-shadow">
+        <Card 
+          className="stat-card-orange border-2 shadow-md hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+          onClick={() => navigate('/sales')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm sm:text-base font-medium text-orange-700">本月销售</CardTitle>
             <TrendingUp className="h-5 w-5 text-orange-600" />
@@ -128,7 +131,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="stat-card-green border-2 shadow-md hover:shadow-xl transition-shadow">
+        <Card 
+          className="stat-card-green border-2 shadow-md hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+          onClick={() => navigate('/profits')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm sm:text-base font-medium text-green-700">本月营收</CardTitle>
             <DollarSign className="h-5 w-5 text-green-600" />
@@ -143,7 +149,10 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="stat-card-purple border-2 shadow-md hover:shadow-xl transition-shadow">
+        <Card 
+          className="stat-card-purple border-2 shadow-md hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+          onClick={() => navigate('/employees')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm sm:text-base font-medium text-purple-700">活跃员工</CardTitle>
             <Users className="h-5 w-5 text-purple-600" />
@@ -163,27 +172,27 @@ export default function Dashboard() {
             <CardTitle className="text-primary">快速操作</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <a
-              href="/vehicles"
-              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all"
+            <div
+              onClick={() => navigate('/vehicles')}
+              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer"
             >
               <h3 className="font-semibold">车辆入库</h3>
               <p className="text-sm text-muted-foreground">添加新车辆到库存</p>
-            </a>
-            <a
-              href="/sales"
-              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all"
+            </div>
+            <div
+              onClick={() => navigate('/sales')}
+              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer"
             >
               <h3 className="font-semibold">记录销售</h3>
               <p className="text-sm text-muted-foreground">登记车辆销售信息</p>
-            </a>
-            <a
-              href="/employees"
-              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all"
+            </div>
+            <div
+              onClick={() => navigate('/employees')}
+              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer"
             >
               <h3 className="font-semibold">员工管理</h3>
               <p className="text-sm text-muted-foreground">管理员工信息和角色</p>
-            </a>
+            </div>
           </CardContent>
         </Card>
 
