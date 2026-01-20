@@ -3,7 +3,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T15:06:00Z - 移除自动刷新，只保留手动提示 -->
+    <!-- Build: 2026-01-20T15:10:00Z - 移除所有缓存检测，改为直接导入 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- 强制禁用所有缓存 -->
@@ -42,127 +42,6 @@
 
   <body>
     <div id="root"></div>
-    
-    <!-- 硬刷新提示 - 确保在最顶层 -->
-    <div id="hard-refresh-notice" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.98); z-index: 2147483647; color: white; font-family: system-ui, -apple-system, sans-serif;">
-      <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 40px; background: #1a1a1a; border-radius: 16px; max-width: 600px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 2px solid #3b82f6;">
-        <div style="font-size: 72px; margin-bottom: 24px; animation: pulse 2s ease-in-out infinite;">⚠️</div>
-        <h2 style="font-size: 28px; margin-bottom: 20px; font-weight: 700; color: #3b82f6;">检测到旧版本缓存</h2>
-        <p style="font-size: 18px; color: #ccc; margin-bottom: 32px; line-height: 1.8;">
-          应用已更新，请硬刷新浏览器以加载最新版本：
-        </p>
-        <div style="background: #2a2a2a; padding: 24px; border-radius: 12px; margin-bottom: 24px;">
-          <div style="font-size: 16px; color: #999; margin-bottom: 12px;">Windows / Linux 用户：</div>
-          <div style="color: #3b82f6; font-size: 24px; font-weight: 700; margin-bottom: 20px; font-family: 'Courier New', monospace;">Ctrl + Shift + R</div>
-          <div style="font-size: 16px; color: #999; margin-bottom: 12px;">Mac 用户：</div>
-          <div style="color: #3b82f6; font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace;">Cmd + Shift + R</div>
-        </div>
-        <p style="font-size: 14px; color: #666; line-height: 1.6;">
-          或者点击浏览器地址栏的刷新按钮<br/>
-          选择"硬性重新加载"或"清空缓存并硬性重新加载"
-        </p>
-      </div>
-    </div>
-    <style>
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.1); opacity: 0.8; }
-      }
-    </style>
-    
-    <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
-    
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- PWA Service Worker - 已禁用 -->
-    <script>
-      // 立即执行：清理所有旧缓存
-      (async function() {
-        console.log('🔍 正在检查并清理旧缓存...');
-        
-        // 1. 注销所有 Service Worker
-        if ('serviceWorker' in navigator) {
-          const registrations = await navigator.serviceWorker.getRegistrations();
-          for (const registration of registrations) {
-            await registration.unregister();
-            console.log('🗑️ 已注销 Service Worker');
-          }
-        }
-        
-        // 2. 清除所有缓存
-        if ('caches' in window) {
-          const cacheNames = await caches.keys();
-          for (const cacheName of cacheNames) {
-            await caches.delete(cacheName);
-            console.log('🗑️ 已清除缓存:', cacheName);
-          }
-        }
-        
-        // 3. 清除 localStorage 中的旧版本标记
-        const currentVersion = '2026-01-20T15:06:00Z';
-        const lastVersion = localStorage.getItem('app_version');
-        
-        // 清除可能残留的自动刷新标记
-        sessionStorage.removeItem('auto_refresh_attempted');
-        
-        if (lastVersion && lastVersion !== currentVersion) {
-          console.log('⚠️ 检测到版本更新，从', lastVersion, '到', currentVersion);
-          localStorage.clear();
-          sessionStorage.clear();
-          console.log('✅ 已清除所有本地存储');
-          
-          // 如果不是第一次加载（有 lastVersion），则刷新页面
-          if (lastVersion !== null) {
-            localStorage.setItem('app_version', currentVersion);
-            console.log('🔄 正在刷新页面以加载新版本...');
-            window.location.reload();
-            return; // 停止执行后续代码
-          }
-        }
-        
-        // 4. 设置当前版本
-        localStorage.setItem('app_version', currentVersion);
-        console.log('✅ 缓存清理完成，应用版本:', currentVersion);
-      })();
-      
-      // 错误监听器：捕获动态导入失败
-      window.addEventListener('error', function(e) {
-        const errorMsg = e.message || e.error?.message || '';
-        if (errorMsg.includes('Failed to fetch dynamically imported module')) {
-          console.error('❌ 动态模块加载失败:', errorMsg);
-          console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
-          
-          // 显示硬刷新提示
-          const notice = document.getElementById('hard-refresh-notice');
-          if (notice) {
-            notice.style.display = 'block';
-          }
-          
-          // 清除版本标记，强制下次重新检查
-          localStorage.removeItem('app_version');
-        }
-      }, true);
-      
-      // 捕获 Promise 错误（动态导入失败通常是 Promise 错误）
-      window.addEventListener('unhandledrejection', function(e) {
-        const errorMsg = e.reason?.message || e.reason || '';
-        if (errorMsg.toString().includes('Failed to fetch dynamically imported module')) {
-          console.error('❌ 动态模块加载失败 (Promise):', errorMsg);
-          console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
-          
-          // 显示硬刷新提示
-          const notice = document.getElementById('hard-refresh-notice');
-          if (notice) {
-            notice.style.display = 'block';
-          }
-          
-          // 清除版本标记，强制下次重新检查
-          localStorage.removeItem('app_version');
-          
-          // 阻止错误继续传播
-          e.preventDefault();
-        }
-      });
-    </script>
   </body>
 </html>

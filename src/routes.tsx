@@ -1,8 +1,38 @@
-import { lazy, type ComponentType } from 'react';
-// 只保留最基本的页面直接导入
+import type { ComponentType } from 'react';
+
+// 所有页面直接导入，不使用懒加载
 import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/Login';
 import NotFound from '@/pages/NotFound';
+import Employees from '@/pages/Employees';
+import Vehicles from '@/pages/Vehicles';
+import Sales from '@/pages/Sales';
+import Expenses from '@/pages/Expenses';
+import Profits from '@/pages/Profits';
+import ProfitRules from '@/pages/ProfitRules';
+import Statistics from '@/pages/Statistics';
+import Dealerships from '@/pages/Dealerships';
+import DealershipRegister from '@/pages/DealershipRegister';
+import DealershipSettings from '@/pages/DealershipSettings';
+import PlatformStatistics from '@/pages/PlatformStatistics';
+import PlatformSettings from '@/pages/PlatformSettings';
+import PlatformEmployees from '@/pages/PlatformEmployees';
+import PlatformMembershipManagement from '@/pages/PlatformMembershipManagement';
+import MembershipCenter from '@/pages/MembershipCenter';
+import InternalReport from '@/pages/InternalReport';
+import VehicleList from '@/pages/VehicleList';
+import CustomerView from '@/pages/CustomerView';
+import PublicHome from '@/pages/PublicHome';
+import PublicHomeNew from '@/pages/PublicHomeNew';
+import Index from '@/pages/Index';
+import AdminUsers from '@/pages/AdminUsers';
+import UserDebug from '@/pages/UserDebug';
+import CarListings from '@/pages/CarListings';
+import CarDetail from '@/pages/CarDetail';
+import Appointment from '@/pages/Appointment';
+import AboutUs from '@/pages/AboutUs';
+import Contact from '@/pages/Contact';
+import GarageServices from '@/pages/GarageServices';
 
 export interface RouteConfig {
   path: string;
@@ -10,30 +40,41 @@ export interface RouteConfig {
   title?: string;
 }
 
-// 基本页面直接导入
-export { Dashboard, Login, NotFound };
-
-// 所有业务页面使用懒加载
-export const Employees = lazy(() => import('@/pages/Employees'));
-export const Vehicles = lazy(() => import('@/pages/Vehicles'));
-export const Sales = lazy(() => import('@/pages/Sales'));
-export const Expenses = lazy(() => import('@/pages/Expenses'));
-export const Profits = lazy(() => import('@/pages/Profits'));
-export const ProfitRules = lazy(() => import('@/pages/ProfitRules'));
-export const Statistics = lazy(() => import('@/pages/Statistics'));
-export const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
-export const UserDebug = lazy(() => import('@/pages/UserDebug'));
-export const Dealerships = lazy(() => import('@/pages/Dealerships'));
-export const PlatformStatistics = lazy(() => import('@/pages/PlatformStatistics'));
-export const PlatformSettings = lazy(() => import('@/pages/PlatformSettings'));
-export const PlatformEmployees = lazy(() => import('@/pages/PlatformEmployees'));
-export const DealershipSettings = lazy(() => import('@/pages/DealershipSettings'));
-export const MembershipCenter = lazy(() => import('@/pages/MembershipCenter'));
-export const PlatformMembershipManagement = lazy(() => import('@/pages/PlatformMembershipManagement'));
-export const PublicHomeNew = lazy(() => import('@/pages/PublicHomeNew'));
-export const VehicleList = lazy(() => import('@/pages/VehicleList'));
-export const CustomerView = lazy(() => import('@/pages/CustomerView'));
-export const InternalReport = lazy(() => import('@/pages/InternalReport'));
+// 导出所有页面组件
+export {
+  Dashboard,
+  Login,
+  NotFound,
+  Employees,
+  Vehicles,
+  Sales,
+  Expenses,
+  Profits,
+  ProfitRules,
+  Statistics,
+  Dealerships,
+  DealershipRegister,
+  DealershipSettings,
+  PlatformStatistics,
+  PlatformSettings,
+  PlatformEmployees,
+  PlatformMembershipManagement,
+  MembershipCenter,
+  InternalReport,
+  VehicleList,
+  CustomerView,
+  PublicHome,
+  PublicHomeNew,
+  Index,
+  AdminUsers,
+  UserDebug,
+  CarListings,
+  CarDetail,
+  Appointment,
+  AboutUs,
+  Contact,
+  GarageServices,
+};
 
 export const routes: RouteConfig[] = [
   {
