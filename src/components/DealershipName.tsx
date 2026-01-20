@@ -26,7 +26,7 @@ export default function DealershipName({
     },
     header: {
       container: 'flex flex-col items-center',
-      name: 'text-xl font-black tracking-tight text-white drop-shadow-md',
+      name: 'text-xl font-black tracking-tight bg-gradient-to-r from-amber-300 via-orange-300 to-red-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]',
       code: 'text-xs text-white/80 font-normal mt-0.5',
     },
     large: {
