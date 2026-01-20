@@ -39,6 +39,8 @@ export default defineConfig({
       '@radix-ui/react-slot',
       '@radix-ui/react-portal',
       '@radix-ui/react-primitive',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-alert-dialog',
     ],
     esbuildOptions: {
       resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
