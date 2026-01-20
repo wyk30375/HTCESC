@@ -48,10 +48,10 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PWAInstallPrompt />
           <BrowserRouter>
+            <Toaster />
+            <Sonner />
+            <PWAInstallPrompt />
             <AuthProvider>
               <RouteGuard>
                 <Suspense fallback={<LoadingFallback />}>
