@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>生成App图标</title>
+</head>
+<body>
+  <canvas id="canvas192" width="192" height="192"></canvas>
+  <canvas id="canvas512" width="512" height="512"></canvas>
+  
+  <script>
+    // 生成192x192图标
+    const canvas192 = document.getElementById('canvas192');
+    const ctx192 = canvas192.getContext('2d');
+    
+    // 背景
+    ctx192.fillStyle = '#2563eb';
+    ctx192.fillRect(0, 0, 192, 192);
+    
+    // 绘制车辆图标
+    ctx192.strokeStyle = '#ffffff';
+    ctx192.lineWidth = 8;
+    ctx192.lineCap = 'round';
+    ctx192.lineJoin = 'round';
+    
+    // 车身
+    ctx192.beginPath();
+    ctx192.moveTo(40, 120);
+    ctx192.lineTo(60, 80);
+    ctx192.lineTo(132, 80);
+    ctx192.lineTo(152, 120);
+    ctx192.lineTo(152, 140);
+    ctx192.lineTo(40, 140);
+    ctx192.closePath();
+    ctx192.stroke();
+    
+    // 车窗
+    ctx192.beginPath();
+    ctx192.moveTo(65, 80);
+    ctx192.lineTo(75, 100);
+    ctx192.lineTo(117, 100);
+    ctx192.lineTo(127, 80);
+    ctx192.stroke();
+    
+    // 车轮
+    ctx192.beginPath();
+    ctx192.arc(70, 140, 15, 0, Math.PI * 2);
+    ctx192.stroke();
+    
+    ctx192.beginPath();
+    ctx192.arc(122, 140, 15, 0, Math.PI * 2);
+    ctx192.stroke();
+    
+    // 生成512x512图标
+    const canvas512 = document.getElementById('canvas512');
+    const ctx512 = canvas512.getContext('2d');
+    
+    // 背景
+    ctx512.fillStyle = '#2563eb';
+    ctx512.fillRect(0, 0, 512, 512);
+    
+    // 绘制车辆图标（放大）
+    ctx512.strokeStyle = '#ffffff';
+    ctx512.lineWidth = 20;
+    ctx512.lineCap = 'round';
+    ctx512.lineJoin = 'round';
+    
+    // 车身
+    ctx512.beginPath();
+    ctx512.moveTo(106, 320);
+    ctx512.lineTo(160, 213);
+    ctx512.lineTo(352, 213);
+    ctx512.lineTo(406, 320);
+    ctx512.lineTo(406, 373);
+    ctx512.lineTo(106, 373);
+    ctx512.closePath();
+    ctx512.stroke();
+    
+    // 车窗
+    ctx512.beginPath();
+    ctx512.moveTo(173, 213);
+    ctx512.lineTo(200, 267);
+    ctx512.lineTo(312, 267);
+    ctx512.lineTo(339, 213);
+    ctx512.stroke();
+    
+    // 车轮
+    ctx512.beginPath();
+    ctx512.arc(187, 373, 40, 0, Math.PI * 2);
+    ctx512.stroke();
+    
+    ctx512.beginPath();
+    ctx512.arc(325, 373, 40, 0, Math.PI * 2);
+    ctx512.stroke();
+    
+    // 下载图标
+    setTimeout(() => {
+      // 下载192x192
+      const link192 = document.createElement('a');
+      link192.download = 'icon-192.png';
+      link192.href = canvas192.toDataURL();
+      link192.click();
+      
+      // 下载512x512
+      setTimeout(() => {
+        const link512 = document.createElement('a');
+        link512.download = 'icon-512.png';
+        link512.href = canvas512.toDataURL();
+        link512.click();
+      }, 500);
+    }, 100);
+  </script>
+</body>
+</html>

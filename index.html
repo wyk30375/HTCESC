@@ -1,27 +1,56 @@
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Auto Verkoop & Garage Diensten</title>
-    <meta name="description" content="Professionele autodealer en garage diensten. Bekijk onze selectie auto's en maak een afspraak voor onderhoud." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>二手车销售管理系统</title>
+    <meta name="description" content="专业的二手车销售管理平台，支持车辆管理、销售管理、财务管理等功能" />
     <meta name="author" content="miaoda"/>
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="车行管理" />
 
-    <meta property="og:title" content="Auto Verkoop & Garage Diensten" />
-    <meta property="og:description" content="Professionele autodealer en garage diensten. Bekijk onze selectie auto's en maak een afspraak voor onderhoud." />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icon-192.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="二手车销售管理系统" />
+    <meta property="og:description" content="专业的二手车销售管理平台，支持车辆管理、销售管理、财务管理等功能" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://resource-static.cdn.bcebos.com/portal/online/1.0.0/static/portal/home.Bm1Ji8MZ.png" />
+    <meta property="og:image" content="/icon-512.png" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://resource-static.cdn.bcebos.com/portal/online/1.0.0/static/portal/home.Bm1Ji8MZ.png" />
-
-              </head>
+    <meta name="twitter:image" content="/icon-512.png" />
+  </head>
 
   <body>
     <div id="root"></div>
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker 注册成功:', registration.scope);
+            })
+            .catch((error) => {
+              console.log('❌ Service Worker 注册失败:', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

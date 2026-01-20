@@ -11,6 +11,7 @@ import { PlatformGuard } from './components/common/PlatformGuard';
 import { DealershipGuard } from './components/common/DealershipGuard';
 import Layout from './components/layouts/Layout';
 import PlatformLayout from './components/layouts/PlatformLayout';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 import { routes, Dealerships, PlatformStatistics, PlatformSettings, PlatformEmployees, PlatformMembershipManagement } from './routes';
 import { Skeleton } from './components/ui/skeleton';
 
@@ -49,6 +50,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <PWAInstallPrompt />
           <BrowserRouter>
             <AuthProvider>
               <RouteGuard>
