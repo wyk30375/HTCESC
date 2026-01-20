@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { vehiclesApi, vehicleSalesApi, profilesApi } from '@/db/api';
 import { Car, DollarSign, TrendingUp, Users } from 'lucide-react';
@@ -7,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalVehicles: 0,
@@ -97,7 +99,10 @@ export default function Dashboard() {
 
       {/* 统计卡片 - 使用不同颜色的渐变背景 */}
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="stat-card-blue border-2 shadow-md hover:shadow-xl transition-shadow">
+        <Card 
+          className="stat-card-blue border-2 shadow-md hover:shadow-xl transition-all cursor-pointer hover:scale-105"
+          onClick={() => navigate('/vehicles')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm sm:text-base font-medium text-blue-700">在售车辆</CardTitle>
             <Car className="h-5 w-5 text-blue-600" />
