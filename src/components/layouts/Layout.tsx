@@ -36,16 +36,24 @@ interface LayoutProps {
 }
 
 const navItems = [
-  { path: '/', label: '仪表盘', icon: LayoutDashboard, roles: ['admin', 'employee'] },
-  { path: '/employees', label: '员工管理', icon: Users, roles: ['admin'] }, // 只有管理员可以访问
-  { path: '/vehicles', label: '车辆管理', icon: Car, roles: ['admin', 'employee'] },
-  { path: '/sales', label: '销售管理', icon: ShoppingCart, roles: ['admin', 'employee'] },
-  { path: '/expenses', label: '费用管理', icon: Receipt, roles: ['admin', 'employee'] },
-  { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'] },
-  { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'] }, // 只有管理员可以访问
-  { path: '/dealership-settings', label: '车行信息', icon: Building2, roles: ['admin'] }, // 只有管理员可以访问
-  { path: '/membership', label: '会员中心', icon: Crown, roles: ['admin'] }, // 只有管理员可以访问
-  { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'] },
+  { path: '/', label: '仪表盘', icon: LayoutDashboard, roles: ['admin', 'employee'], group: 'overview' },
+  { path: '/employees', label: '员工管理', icon: Users, roles: ['admin'], group: 'business' },
+  { path: '/vehicles', label: '车辆管理', icon: Car, roles: ['admin', 'employee'], group: 'business' },
+  { path: '/sales', label: '销售管理', icon: ShoppingCart, roles: ['admin', 'employee'], group: 'business' },
+  { path: '/expenses', label: '费用管理', icon: Receipt, roles: ['admin', 'employee'], group: 'finance' },
+  { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'], group: 'finance' },
+  { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'], group: 'analytics' },
+  { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'], group: 'settings' },
+  { path: '/dealership-settings', label: '车行信息', icon: Building2, roles: ['admin'], group: 'settings' },
+  { path: '/membership', label: '会员中心', icon: Crown, roles: ['admin'], group: 'settings' },
+];
+
+const navGroups = [
+  { key: 'overview', label: '概览' },
+  { key: 'business', label: '业务管理' },
+  { key: 'finance', label: '财务管理' },
+  { key: 'analytics', label: '数据分析' },
+  { key: 'settings', label: '系统设置' },
 ];
 
 const mobileNavItems = [
@@ -106,28 +114,50 @@ export default function Layout({ children }: LayoutProps) {
           {/* 导航菜单 */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
-              {filteredNavItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.path);
+              {navGroups.map((group, groupIndex) => {
+                // 获取当前分组的菜单项
+                const groupItems = filteredNavItems.filter(item => item.group === group.key);
+                
+                // 如果当前分组没有菜单项，不显示
+                if (groupItems.length === 0) return null;
+                
                 return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                      active
-                        ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
+                  <div key={group.key}>
+                    {/* 分组标题（第一个分组不显示分隔线） */}
+                    {groupIndex > 0 && <div className="my-4 border-t border-sidebar-border" />}
+                    <div className="px-3 py-2 text-xs font-semibold text-sidebar-foreground/60">
+                      {group.label}
+                    </div>
+                    
+                    {/* 分组内的菜单项 */}
+                    {groupItems.map((item) => {
+                      const Icon = item.icon;
+                      const active = isActive(item.path);
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                            active
+                              ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                              : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 );
               })}
 
               {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
                 <>
                   <div className="my-4 border-t border-sidebar-border" />
+                  <div className="px-3 py-2 text-xs font-semibold text-sidebar-foreground/60">
+                    管理员
+                  </div>
                   <Link
                     to="/admin"
                     className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
@@ -190,29 +220,51 @@ export default function Layout({ children }: LayoutProps) {
                 </div>
                 <nav className="flex-1 overflow-y-auto p-4">
                   <div className="space-y-1">
-                    {filteredNavItems.map((item) => {
-                      const Icon = item.icon;
-                      const active = isActive(item.path);
+                    {navGroups.map((group, groupIndex) => {
+                      // 获取当前分组的菜单项
+                      const groupItems = filteredNavItems.filter(item => item.group === group.key);
+                      
+                      // 如果当前分组没有菜单项，不显示
+                      if (groupItems.length === 0) return null;
+                      
                       return (
-                        <Link
-                          key={item.path}
-                          to={item.path}
-                          onClick={closeMobileMenu}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
-                            active
-                              ? 'bg-accent text-accent-foreground'
-                              : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                          }`}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {item.label}
-                        </Link>
+                        <div key={group.key}>
+                          {/* 分组标题（第一个分组不显示分隔线） */}
+                          {groupIndex > 0 && <div className="my-4 border-t" />}
+                          <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                            {group.label}
+                          </div>
+                          
+                          {/* 分组内的菜单项 */}
+                          {groupItems.map((item) => {
+                            const Icon = item.icon;
+                            const active = isActive(item.path);
+                            return (
+                              <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={closeMobileMenu}
+                                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                                  active
+                                    ? 'bg-accent text-accent-foreground'
+                                    : 'text-foreground hover:bg-accent hover:text-accent-foreground'
+                                }`}
+                              >
+                                <Icon className="h-4 w-4" />
+                                {item.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
                       );
                     })}
 
                     {profile?.role === 'admin' && (
                       <>
                         <div className="my-4 border-t" />
+                        <div className="px-3 py-2 text-xs font-semibold text-muted-foreground">
+                          管理员
+                        </div>
                         <Link
                           to="/admin"
                           onClick={closeMobileMenu}
