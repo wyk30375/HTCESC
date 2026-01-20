@@ -1014,7 +1014,7 @@ export default function Vehicles() {
                       if (vehicle.is_fire) conditionBadges.push('火烧');
                       
                       return (
-                      <TableRow key={vehicle.id}>
+                        <TableRow key={vehicle.id}>
                         <TableCell className="font-medium">{vehicle.vin_last_six}</TableCell>
                         <TableCell>{vehicle.plate_number}</TableCell>
                         <TableCell className="whitespace-nowrap">{vehicle.brand} {vehicle.model}</TableCell>
@@ -1118,8 +1118,8 @@ export default function Vehicles() {
                           </div>
                         </TableCell>
                       </TableRow>
-                      );
-                    })}
+                    );
+                  })}
                   </TableBody>
                 </Table>
               </div>
