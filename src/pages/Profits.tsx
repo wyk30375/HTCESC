@@ -426,18 +426,15 @@ export default function Profits() {
                 });
               });
 
-              // 找出实现利润最高的员工，给予奖金池激励
+              // 注意：奖金池不再分配给销售冠军，仅用于统计
+              // 找出实现利润最高的员工（用于统计展示）
               const employeesArray = Array.from(employeeShares.values());
               const topProfitEmployee = employeesArray.reduce((max, current) => 
                 current.totalProfit > max.totalProfit ? current : max
               , employeesArray[0]);
 
-              if (topProfitEmployee && topProfitEmployee.totalProfit > 0) {
-                // 计算奖金池余额（月度汇总中的奖金池金额）
-                const bonusPoolAmount = profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0);
-                topProfitEmployee.bonusPoolReward = bonusPoolAmount;
-                topProfitEmployee.total += bonusPoolAmount;
-              }
+              // 计算奖金池余额（仅用于统计展示，不分配给员工）
+              const bonusPoolAmount = profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0);
 
               // 转换为数组并按总计降序排序
               const sortedEmployees = employeesArray.sort(
@@ -458,7 +455,6 @@ export default function Profits() {
                         <TableHead className="text-right">押车出资分成</TableHead>
                         <TableHead className="text-right">地租分成</TableHead>
                         <TableHead className="text-right">实现利润</TableHead>
-                        <TableHead className="text-right">奖金池激励</TableHead>
                         <TableHead className="text-right">总计</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -467,7 +463,7 @@ export default function Profits() {
                         <TableRow key={employee.profile.id}>
                           <TableCell className="font-medium">
                             {employee.profile.username || employee.profile.email}
-                            {employee.bonusPoolReward > 0 && (
+                            {topProfitEmployee && employee.profile.id === topProfitEmployee.profile.id && employee.totalProfit > 0 && (
                               <Badge variant="default" className="ml-2">
                                 月度冠军
                               </Badge>
@@ -510,15 +506,6 @@ export default function Profits() {
                             )}
                           </TableCell>
                           <TableCell className="text-right">
-                            {employee.bonusPoolReward > 0 ? (
-                              <span className="text-primary font-bold">
-                                ¥{employee.bonusPoolReward.toLocaleString()}
-                              </span>
-                            ) : (
-                              <span className="text-muted-foreground">-</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-right">
                             <span className="font-bold text-lg">
                               ¥{employee.total.toLocaleString()}
                             </span>
@@ -540,9 +527,6 @@ export default function Profits() {
                         <TableCell className="text-right">
                           ¥{sortedEmployees.reduce((sum, e) => sum + e.totalProfit, 0).toLocaleString()}
                         </TableCell>
-                        <TableCell className="text-right text-primary">
-                          ¥{sortedEmployees.reduce((sum, e) => sum + e.bonusPoolReward, 0).toLocaleString()}
-                        </TableCell>
                         <TableCell className="text-right text-lg">
                           ¥{sortedEmployees.reduce((sum, e) => sum + e.total, 0).toLocaleString()}
                         </TableCell>
@@ -552,6 +536,37 @@ export default function Profits() {
                 </div>
               );
             })()}
+          </CardContent>
+        </Card>
+
+        {/* 奖金池统计卡片 */}
+        <Card>
+          <CardHeader>
+            <CardTitle>月度奖金池统计</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                <div>
+                  <p className="text-sm text-muted-foreground">本月奖金池总额</p>
+                  <p className="text-2xl font-bold text-primary">
+                    ¥{profitDetails.reduce((sum, detail) => sum + detail.bonusPoolShare, 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-muted-foreground">说明</p>
+                  <p className="text-sm">每笔销售利润的 10% 进入奖金池</p>
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <p className="font-medium mb-2">💡 奖金池说明：</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>奖金池金额仅用于统计，不自动分配给员工</li>
+                  <li>可用于车行运营费用支出或其他用途</li>
+                  <li>具体使用方式由车行管理者决定</li>
+                </ul>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -575,7 +590,7 @@ export default function Profits() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline">月奖金池</Badge>
-              <span>10% 利润进入月奖金池，月底分配给销售冠军</span>
+              <span>10% 利润进入月奖金池，仅用于统计</span>
             </div>
             <p className="text-muted-foreground mt-2">
               💡 总利润 = 成交价 - 总成本（购车款 + 整备费 + 过户费 + 杂费）+ 贷款返利

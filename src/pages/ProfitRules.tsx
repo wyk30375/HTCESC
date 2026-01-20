@@ -240,7 +240,7 @@ export default function ProfitRules() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  进入月奖金池的比例，月度销售冠军获得奖金池余额
+                  进入月奖金池的比例，仅用于统计
                 </p>
               </div>
 
