@@ -1,38 +1,48 @@
 // Service Worker for PWA
-const CACHE_NAME = 'used-car-management-v2-20260120'; // 更新版本号强制刷新
+const CACHE_NAME = 'used-car-management-v3-20260120-1355'; // 再次更新版本号强制刷新
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
 ];
 
-// 安装事件
+// 安装事件 - 立即激活
 self.addEventListener('install', (event) => {
+  console.log('🔧 Service Worker 安装中...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
+        console.log('📦 打开缓存');
         return cache.addAll(urlsToCache);
       })
+      .then(() => {
+        console.log('✅ 缓存已添加');
+        // 立即激活，不等待
+        return self.skipWaiting();
+      })
   );
-  self.skipWaiting();
 });
 
-// 激活事件
+// 激活事件 - 清除所有旧缓存
 self.addEventListener('activate', (event) => {
+  console.log('🚀 Service Worker 激活中...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // 删除所有旧缓存，包括不同版本的
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
+            console.log('🗑️ 删除旧缓存:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      console.log('✅ 所有旧缓存已清除');
+      // 立即接管所有页面
+      return self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
 // 拦截请求
