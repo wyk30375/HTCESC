@@ -419,27 +419,27 @@ export default function CustomerView() {
                     <div className="flex items-center gap-2 text-sm">
                       <Car className="h-4 w-4 text-muted-foreground" />
                       <span className="text-muted-foreground">车牌号：</span>
-                      <span className="font-medium">{selectedVehicle.license_plate || '暂无'}</span>
+                      <span className="font-medium">{selectedVehicle.plate_number || '暂无'}</span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    {selectedVehicle.color && (
+                    {selectedVehicle.exterior_color && (
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-muted-foreground">颜色：</span>
-                        <span className="font-medium">{selectedVehicle.color}</span>
+                        <span className="font-medium">{selectedVehicle.exterior_color}</span>
                       </div>
                     )}
                     {selectedVehicle.displacement && (
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-muted-foreground">排量：</span>
-                        <span className="font-medium">{selectedVehicle.displacement}</span>
+                        <span className="font-medium">{selectedVehicle.displacement}L</span>
                       </div>
                     )}
-                    {selectedVehicle.transmission && (
+                    {selectedVehicle.transmission_type && (
                       <div className="flex items-center gap-2 text-sm">
                         <span className="text-muted-foreground">变速箱：</span>
-                        <span className="font-medium">{selectedVehicle.transmission}</span>
+                        <span className="font-medium">{selectedVehicle.transmission_type}</span>
                       </div>
                     )}
                   </div>
