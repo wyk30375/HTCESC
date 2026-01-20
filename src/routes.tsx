@@ -33,6 +33,8 @@ import Appointment from '@/pages/Appointment';
 import AboutUs from '@/pages/AboutUs';
 import Contact from '@/pages/Contact';
 import GarageServices from '@/pages/GarageServices';
+import FeedbackCenter from '@/pages/FeedbackCenter';
+import PlatformFeedback from '@/pages/PlatformFeedback';
 
 export interface RouteConfig {
   path: string;
@@ -74,6 +76,8 @@ export {
   AboutUs,
   Contact,
   GarageServices,
+  FeedbackCenter,
+  PlatformFeedback,
 };
 
 export const routes: RouteConfig[] = [
@@ -126,6 +130,16 @@ export const routes: RouteConfig[] = [
     path: '/statistics',
     component: Statistics,
     title: '统计分析',
+  },
+  {
+    path: '/feedback',
+    component: FeedbackCenter,
+    title: '反馈中心',
+  },
+  {
+    path: '/platform-feedback',
+    component: PlatformFeedback,
+    title: '反馈管理',
   },
   {
     path: '/admin',

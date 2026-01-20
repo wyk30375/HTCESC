@@ -28,9 +28,12 @@ import {
   Settings,
   Building2,
   Crown,
+  MessageSquare,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { feedbackApi } from '@/db/api';
+import { Badge } from '@/components/ui/badge';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -44,6 +47,7 @@ const navItems = [
   { path: '/expenses', label: '费用管理', icon: Receipt, roles: ['admin', 'employee'], group: 'finance' },
   { path: '/profits', label: '利润分配', icon: PieChart, roles: ['admin', 'employee'], group: 'finance' },
   { path: '/statistics', label: '统计分析', icon: BarChart3, roles: ['admin', 'employee'], group: 'analytics' },
+  { path: '/feedback', label: '反馈中心', icon: MessageSquare, roles: ['admin'], group: 'support' },
   { path: '/profit-rules', label: '提成规则', icon: Settings, roles: ['admin'], group: 'settings' },
   { path: '/dealership-settings', label: '车行信息', icon: Building2, roles: ['admin'], group: 'settings' },
   { path: '/membership', label: '会员中心', icon: Crown, roles: ['admin'], group: 'settings' },
@@ -54,6 +58,7 @@ const navGroups = [
   { key: 'business', label: '业务管理' },
   { key: 'finance', label: '财务管理' },
   { key: 'analytics', label: '数据分析' },
+  { key: 'support', label: '客服支持' },
   { key: 'settings', label: '系统设置' },
 ];
 
@@ -67,6 +72,23 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // 加载未读消息数量
+  useEffect(() => {
+    const loadUnreadCount = async () => {
+      try {
+        const count = await feedbackApi.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('加载未读消息数量失败:', error);
+      }
+    };
+    loadUnreadCount();
+    // 每30秒刷新一次
+    const interval = setInterval(loadUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -147,7 +169,12 @@ export default function Layout({ children }: LayoutProps) {
                           }`}
                         >
                           <Icon className="h-4 w-4" />
-                          {item.label}
+                          <span className="flex-1">{item.label}</span>
+                          {item.path === '/feedback' && unreadCount > 0 && (
+                            <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                              {unreadCount}
+                            </Badge>
+                          )}
                         </Link>
                       );
                     })}
@@ -254,7 +281,12 @@ export default function Layout({ children }: LayoutProps) {
                                 }`}
                               >
                                 <Icon className="h-4 w-4" />
-                                {item.label}
+                                <span className="flex-1">{item.label}</span>
+                                {item.path === '/feedback' && unreadCount > 0 && (
+                                  <Badge variant="destructive" className="h-5 min-w-5 px-1 text-xs">
+                                    {unreadCount}
+                                  </Badge>
+                                )}
                               </Link>
                             );
                           })}

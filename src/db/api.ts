@@ -12,6 +12,9 @@ import type {
   MonthlyBonus,
   EmployeeRoleType,
   ProfitRule,
+  Feedback,
+  FeedbackSenderType,
+  FeedbackMessageType,
 } from '@/types/types';
 
 // ==================== 辅助函数 ====================
@@ -806,5 +809,108 @@ export const profitRulesApi = {
       .maybeSingle();
     if (error) throw error;
     return data;
+  },
+};
+
+// ==================== 反馈对话 API ====================
+export const feedbackApi = {
+  // 获取所有反馈（车行端：仅自己车行，平台端：所有车行）
+  async getAll() {
+    const { data, error } = await supabase
+      .from('feedback')
+      .select('*, dealership:dealerships(*)')
+      .is('parent_id', null)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []) as Feedback[];
+  },
+
+  // 获取单个反馈及其回复
+  async getById(id: string) {
+    const { data, error } = await supabase
+      .from('feedback')
+      .select('*, dealership:dealerships(*), replies:feedback!parent_id(*)')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data as Feedback | null;
+  },
+
+  // 获取未读消息数量
+  async getUnreadCount() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 0;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, dealership_id')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!profile) return 0;
+
+    let query = supabase
+      .from('feedback')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'unread');
+
+    // 车行管理员只看平台发来的未读消息
+    if (profile.role === 'admin') {
+      query = query
+        .eq('dealership_id', profile.dealership_id)
+        .eq('sender_type', 'platform');
+    }
+    // 平台管理员看所有车行发来的未读消息
+    else if (profile.role === 'super_admin') {
+      query = query.eq('sender_type', 'dealership');
+    }
+
+    const { count } = await query;
+    return count || 0;
+  },
+
+  // 创建反馈
+  async create(feedback: {
+    dealership_id: string;
+    sender_type: FeedbackSenderType;
+    message_type: FeedbackMessageType;
+    title: string;
+    content: string;
+    parent_id?: string;
+  }) {
+    const { data, error } = await supabase
+      .from('feedback')
+      .insert([feedback])
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data as Feedback;
+  },
+
+  // 标记为已读
+  async markAsRead(id: string) {
+    const { error } = await supabase
+      .from('feedback')
+      .update({ status: 'read' })
+      .eq('id', id);
+    if (error) throw error;
+  },
+
+  // 批量标记为已读
+  async markMultipleAsRead(ids: string[]) {
+    const { error } = await supabase
+      .from('feedback')
+      .update({ status: 'read' })
+      .in('id', ids);
+    if (error) throw error;
+  },
+
+  // 删除反馈
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('feedback')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
   },
 };

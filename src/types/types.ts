@@ -335,3 +335,23 @@ export interface ProfitRule {
   created_at: string;
   updated_at: string;
 }
+
+// 反馈对话系统
+export type FeedbackSenderType = 'dealership' | 'platform';
+export type FeedbackMessageType = 'feedback' | 'reminder' | 'reply';
+export type FeedbackStatus = 'unread' | 'read';
+
+export interface Feedback {
+  id: string;
+  dealership_id: string;
+  sender_type: FeedbackSenderType;
+  message_type: FeedbackMessageType;
+  title: string;
+  content: string;
+  parent_id?: string;
+  status: FeedbackStatus;
+  created_at: string;
+  updated_at: string;
+  dealership?: Dealership;
+  replies?: Feedback[];
+}
