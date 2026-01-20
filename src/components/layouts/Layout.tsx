@@ -82,6 +82,12 @@ export default function Layout({ children }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // 调试：输出用户角色信息
+  useEffect(() => {
+    console.log('🔍 [Layout] 当前用户角色:', profile?.role);
+    console.log('🔍 [Layout] 用户信息:', profile);
+  }, [profile]);
+
   // 加载未读消息数量
   useEffect(() => {
     const loadUnreadCount = async () => {

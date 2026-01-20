@@ -35,6 +35,7 @@ import Contact from '@/pages/Contact';
 import GarageServices from '@/pages/GarageServices';
 import FeedbackCenter from '@/pages/FeedbackCenter';
 import PlatformFeedback from '@/pages/PlatformFeedback';
+import RoleDebug from '@/pages/RoleDebug';
 
 export interface RouteConfig {
   path: string;
@@ -78,6 +79,7 @@ export {
   GarageServices,
   FeedbackCenter,
   PlatformFeedback,
+  RoleDebug,
 };
 
 export const routes: RouteConfig[] = [
@@ -150,6 +152,11 @@ export const routes: RouteConfig[] = [
     path: '/user-debug',
     component: UserDebug,
     title: '用户调试',
+  },
+  {
+    path: '/role-debug',
+    component: RoleDebug,
+    title: '角色调试',
   },
   {
     path: '/dealerships',
