@@ -7,9 +7,19 @@ import { miaodaDevPlugin } from "miaoda-sc-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), svgr({
+  plugins: [
+    react({
+      jsxImportSource: 'react',
+    }), 
+    svgr({
       svgrOptions: {
-        icon: true, exportType: 'named', namedExport: 'ReactComponent', }, }), miaodaDevPlugin()],
+        icon: true, 
+        exportType: 'named', 
+        namedExport: 'ReactComponent', 
+      }, 
+    }), 
+    miaodaDevPlugin()
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -20,6 +30,7 @@ export default defineConfig({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       'react-router-dom',
       '@radix-ui/react-tabs',
       '@radix-ui/react-dialog',
@@ -27,7 +38,11 @@ export default defineConfig({
       '@radix-ui/react-label',
       '@radix-ui/react-slot',
       '@radix-ui/react-portal',
+      '@radix-ui/react-primitive',
     ],
+    esbuildOptions: {
+      resolveExtensions: ['.js', '.jsx', '.ts', '.tsx'],
+    },
   },
   build: {
     // 生产构建优化
