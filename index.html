@@ -49,50 +49,34 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          // 强制注销旧的 Service Worker
-          navigator.serviceWorker.getRegistrations().then((registrations) => {
-            registrations.forEach((registration) => {
-              registration.unregister().then(() => {
-                console.log('🗑️ 已注销旧的 Service Worker');
-              });
-            });
-          });
-
-          // 清除所有缓存
-          if ('caches' in window) {
-            caches.keys().then((cacheNames) => {
-              cacheNames.forEach((cacheName) => {
-                caches.delete(cacheName).then(() => {
-                  console.log('🗑️ 已清除缓存:', cacheName);
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('✅ Service Worker 注册成功:', registration.scope);
+              
+              // 检查更新
+              registration.update();
+              
+              // 监听更新
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                console.log('🔄 发现新的 Service Worker');
+                
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // 新的 Service Worker 已安装，但旧的仍在控制页面
+                    console.log('💡 新版本可用，请刷新页面以更新');
+                    // 可以在这里显示一个提示，让用户选择是否刷新
+                  }
+                  
+                  if (newWorker.state === 'activated') {
+                    console.log('✅ Service Worker 已激活');
+                  }
                 });
               });
+            })
+            .catch((error) => {
+              console.log('❌ Service Worker 注册失败:', error);
             });
-          }
-
-          // 延迟注册新的 Service Worker
-          setTimeout(() => {
-            navigator.serviceWorker.register('/sw.js')
-              .then((registration) => {
-                console.log('✅ Service Worker 注册成功:', registration.scope);
-                
-                // 强制更新
-                registration.update();
-                
-                // 监听更新
-                registration.addEventListener('updatefound', () => {
-                  const newWorker = registration.installing;
-                  newWorker.addEventListener('statechange', () => {
-                    if (newWorker.state === 'activated') {
-                      console.log('🔄 Service Worker 已更新，刷新页面...');
-                      window.location.reload();
-                    }
-                  });
-                });
-              })
-              .catch((error) => {
-                console.log('❌ Service Worker 注册失败:', error);
-              });
-          }, 1000);
         });
       }
     </script>
