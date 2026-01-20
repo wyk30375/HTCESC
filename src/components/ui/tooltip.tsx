@@ -3,9 +3,22 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
-const TooltipProvider = TooltipPrimitive.Provider
+// 创建一个空的 TooltipProvider，避免嵌套问题
+// 每个 Tooltip 组件都会自己创建 Provider
+const TooltipProvider = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>
+}
 
-const Tooltip = TooltipPrimitive.Root
+// 自包含的 Tooltip 组件，内部包含 Provider
+const Tooltip = ({ children, ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) => {
+  return (
+    <TooltipPrimitive.Provider delayDuration={0}>
+      <TooltipPrimitive.Root {...props}>
+        {children}
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
+  )
+}
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 
