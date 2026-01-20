@@ -42,7 +42,7 @@ export default function PlatformLayout() {
   const navigation = [
     { name: '车行管理', path: '/platform/dealerships', icon: Building2 },
     { name: '会员管理', path: '/platform/membership', icon: Crown },
-    { name: '反馈管理', path: '/platform-feedback', icon: MessageSquare, badge: unreadCount },
+    { name: '反馈管理', path: '/platform/feedback', icon: MessageSquare, badge: unreadCount },
     { name: '员工管理', path: '/platform/employees', icon: Users },
     { name: '平台统计', path: '/platform/statistics', icon: BarChart3 },
     { name: '系统设置', path: '/platform/settings', icon: Settings },

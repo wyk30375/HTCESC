@@ -19,7 +19,8 @@ import {
   PlatformStatistics, 
   PlatformSettings, 
   PlatformEmployees, 
-  PlatformMembershipManagement 
+  PlatformMembershipManagement,
+  PlatformFeedback
 } from './routes';
 import { Skeleton } from './components/ui/skeleton';
 
@@ -83,11 +84,19 @@ const App = () => {
                     }>
                       <Route path="dealerships" element={<Dealerships />} />
                       <Route path="membership" element={<PlatformMembershipManagement />} />
+                      <Route path="feedback" element={<PlatformFeedback />} />
                       <Route path="employees" element={<PlatformEmployees />} />
                       <Route path="statistics" element={<PlatformStatistics />} />
                       <Route path="settings" element={<PlatformSettings />} />
                       <Route index element={<Navigate to="/platform/dealerships" replace />} />
                     </Route>
+                    
+                    {/* 平台反馈管理的兼容路由（支持旧路径） */}
+                    <Route path="/platform-feedback" element={
+                      <PlatformGuard>
+                        <Navigate to="/platform/feedback" replace />
+                      </PlatformGuard>
+                    } />
                     
                     {/* 车行管理系统（车行管理员/员工） */}
                     <Route
@@ -102,7 +111,8 @@ const App = () => {
                                   r.path !== '/register' && 
                                   r.path !== '/vehicle-list' &&
                                   r.path !== '/customer-view' &&
-                                  r.path !== '/dealerships' // 车行管理页面移到平台后台
+                                  r.path !== '/dealerships' && // 车行管理页面移到平台后台
+                                  r.path !== '/platform-feedback' // 平台反馈管理移到平台后台
                                 )
                                 .map((route) => {
                                   const Component = route.component;
