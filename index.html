@@ -45,40 +45,32 @@
     
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker Registration - 暂时禁用以修复模块加载问题 -->
     <script>
+      // Service Worker 暂时禁用，避免干扰模块加载
+      // 如果之前有注册的 Service Worker，先注销它
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('✅ Service Worker 注册成功:', registration.scope);
-              
-              // 检查更新
-              registration.update();
-              
-              // 监听更新
-              registration.addEventListener('updatefound', () => {
-                const newWorker = registration.installing;
-                console.log('🔄 发现新的 Service Worker');
-                
-                newWorker.addEventListener('statechange', () => {
-                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    // 新的 Service Worker 已安装，但旧的仍在控制页面
-                    console.log('💡 新版本可用，请刷新页面以更新');
-                    // 可以在这里显示一个提示，让用户选择是否刷新
-                  }
-                  
-                  if (newWorker.state === 'activated') {
-                    console.log('✅ Service Worker 已激活');
-                  }
-                });
-              });
-            })
-            .catch((error) => {
-              console.log('❌ Service Worker 注册失败:', error);
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          registrations.forEach((registration) => {
+            registration.unregister().then(() => {
+              console.log('🗑️ 已注销 Service Worker，避免缓存干扰');
             });
+          });
         });
+        
+        // 清除所有缓存
+        if ('caches' in window) {
+          caches.keys().then((cacheNames) => {
+            cacheNames.forEach((cacheName) => {
+              caches.delete(cacheName).then(() => {
+                console.log('🗑️ 已清除缓存:', cacheName);
+              });
+            });
+          });
+        }
       }
+      
+      console.log('✅ Service Worker 已禁用，应用将直接从网络加载所有资源');
     </script>
   </body>
 </html>
