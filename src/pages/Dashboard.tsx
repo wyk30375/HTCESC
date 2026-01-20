@@ -193,6 +193,13 @@ export default function Dashboard() {
               <h3 className="font-semibold">员工管理</h3>
               <p className="text-sm text-muted-foreground">管理员工信息和角色</p>
             </div>
+            <div
+              onClick={() => navigate('/expenses')}
+              className="block rounded-lg border-2 border-primary/20 p-4 hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer"
+            >
+              <h3 className="font-semibold">费用管理</h3>
+              <p className="text-sm text-muted-foreground">记录车行运营费用</p>
+            </div>
           </CardContent>
         </Card>
 
