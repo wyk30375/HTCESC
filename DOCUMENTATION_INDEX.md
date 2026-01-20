@@ -9,6 +9,7 @@
 | [README.md](README.md) | 项目介绍和快速开始 | 首次使用 |
 | [DEPLOYMENT_COMPLETE_GUIDE.md](DEPLOYMENT_COMPLETE_GUIDE.md) | 🔥 系统部署完整指南 | **必读！部署前必看** |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | 部署指南 | 部署到服务器 |
+| [QUICK_FIX.md](QUICK_FIX.md) | ⚡ 快速修复指南 | **遇到错误时优先查看** |
 | [CACHE_CLEAR_GUIDE.md](CACHE_CLEAR_GUIDE.md) | 🔧 清除缓存指南 | 遇到缓存问题时 |
 
 ### 📱 手机App部署
@@ -305,9 +306,9 @@
 | 手机App部署 | 4篇 | ~15,000字 |
 | 线上支付 | 3篇 | ~12,000字 |
 | 系统测试 | 3篇 | ~18,000字 |
-| 故障排除 | 1篇 | ~3,000字 |
+| 故障排除 | 2篇 | ~6,000字 |
 | 项目管理 | 2篇 | ~5,000字 |
-| **总计** | **15篇** | **~73,000字** |
+| **总计** | **16篇** | **~76,000字** |
 
 ---
 
