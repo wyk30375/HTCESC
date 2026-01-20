@@ -3,7 +3,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <!-- Build: 2026-01-20T14:52:00Z - 优化硬刷新提示界面 -->
+    <!-- Build: 2026-01-20T14:56:00Z - 增强错误监听器，捕获 Promise 错误 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     
     <!-- 强制禁用所有缓存 -->
@@ -99,7 +99,7 @@
         }
         
         // 3. 清除 localStorage 中的旧版本标记
-        const currentVersion = '2026-01-20T14:52:00Z';
+        const currentVersion = '2026-01-20T14:56:00Z';
         const lastVersion = localStorage.getItem('app_version');
         
         if (lastVersion && lastVersion !== currentVersion) {
@@ -124,8 +124,9 @@
       
       // 错误监听器：捕获动态导入失败
       window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('Failed to fetch dynamically imported module')) {
-          console.error('❌ 动态模块加载失败:', e.message);
+        const errorMsg = e.message || e.error?.message || '';
+        if (errorMsg.includes('Failed to fetch dynamically imported module')) {
+          console.error('❌ 动态模块加载失败:', errorMsg);
           console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
           
           // 显示硬刷新提示
@@ -138,6 +139,27 @@
           localStorage.removeItem('app_version');
         }
       }, true);
+      
+      // 捕获 Promise 错误（动态导入失败通常是 Promise 错误）
+      window.addEventListener('unhandledrejection', function(e) {
+        const errorMsg = e.reason?.message || e.reason || '';
+        if (errorMsg.toString().includes('Failed to fetch dynamically imported module')) {
+          console.error('❌ 动态模块加载失败 (Promise):', errorMsg);
+          console.warn('⚠️ 检测到旧模块缓存，请硬刷新浏览器');
+          
+          // 显示硬刷新提示
+          const notice = document.getElementById('hard-refresh-notice');
+          if (notice) {
+            notice.style.display = 'block';
+          }
+          
+          // 清除版本标记，强制下次重新检查
+          localStorage.removeItem('app_version');
+          
+          // 阻止错误继续传播
+          e.preventDefault();
+        }
+      });
     </script>
   </body>
 </html>
