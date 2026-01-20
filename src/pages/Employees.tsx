@@ -724,7 +724,7 @@ export default function Employees() {
     </Tabs>
 
         <Dialog open={dialogOpen} onOpenChange={handleDialogClose}>
-          <DialogContent>
+          <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editingEmployee ? '编辑员工' : '添加员工'}</DialogTitle>
             </DialogHeader>
