@@ -407,6 +407,7 @@ export default function Employees() {
                     <TableHead>手机号</TableHead>
                     <TableHead>登录密码</TableHead>
                     <TableHead>角色</TableHead>
+                    <TableHead>底薪</TableHead>
                     <TableHead>状态</TableHead>
                     <TableHead>入职日期</TableHead>
                     {isAdmin && <TableHead className="text-right">操作</TableHead>}
@@ -428,6 +429,15 @@ export default function Employees() {
                         <Badge variant={employee.role === 'admin' ? 'default' : 'secondary'}>
                           {employee.role === 'admin' ? '管理员' : '员工'}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        {employee.has_base_salary ? (
+                          <span className="text-primary font-medium">
+                            ¥{employee.base_salary?.toLocaleString() || 0}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">无底薪</span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge variant={employee.status === 'active' ? 'default' : 'destructive'}>
@@ -533,6 +543,18 @@ export default function Employees() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">入职日期：</span>
                           <span className="text-sm sm:text-base">{employee.created_at?.split('T')[0] || '-'}</span>
+                        </div>
+
+                        {/* 底薪 */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm sm:text-base text-muted-foreground min-w-[70px]">底薪：</span>
+                          {employee.has_base_salary ? (
+                            <span className="text-sm sm:text-base text-primary font-medium">
+                              ¥{employee.base_salary?.toLocaleString() || 0}
+                            </span>
+                          ) : (
+                            <span className="text-sm sm:text-base text-muted-foreground">无底薪</span>
+                          )}
                         </div>
 
                         {/* 操作按钮 */}
