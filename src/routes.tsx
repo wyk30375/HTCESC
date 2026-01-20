@@ -1,4 +1,5 @@
 import { lazy, type ComponentType } from 'react';
+import VehiclesPage from '@/pages/Vehicles';
 
 export interface RouteConfig {
   path: string;
@@ -9,7 +10,7 @@ export interface RouteConfig {
 // 懒加载页面组件
 export const Dashboard = lazy(() => import('@/pages/Dashboard'));
 export const Employees = lazy(() => import('@/pages/Employees'));
-export const Vehicles = lazy(() => import('@/pages/Vehicles'));
+export const Vehicles = VehiclesPage; // 直接导入,不使用 lazy loading
 export const Sales = lazy(() => import('@/pages/Sales'));
 export const Expenses = lazy(() => import('@/pages/Expenses'));
 export const Profits = lazy(() => import('@/pages/Profits'));
