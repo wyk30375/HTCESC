@@ -2,6 +2,19 @@
 
 ## 🎯 快速开始
 
+### ⚠️ 重要：如何获取秒哒生成的代码？
+
+**秒哒平台生成的代码存储在云端**，您需要先获取代码才能部署。
+
+📘 **查看详细指南**: `MIAODA_DEPLOYMENT_GUIDE.md`
+
+**三种获取方式**：
+1. 通过秒哒平台直接部署（最简单）
+2. 下载代码到本地部署
+3. 导出代码到 Git 仓库（推荐）
+
+---
+
 ### 推荐方式：Vercel 部署（秒哒官方推荐 ⭐）
 
 **5分钟快速上线，完全免费！**
@@ -29,6 +42,33 @@ vercel --prod
 ---
 
 ## 📖 部署文档
+
+### ⚠️ 必读：从秒哒平台获取代码并部署指南
+
+**文件**: `MIAODA_DEPLOYMENT_GUIDE.md`
+
+**重要性**: ⭐⭐⭐⭐⭐（必读）
+
+**适合人群**:
+- 所有使用秒哒平台的用户
+- 第一次部署的用户
+- 不知道如何获取代码的用户
+
+**内容**:
+- ✅ 秒哒平台代码管理说明
+- ✅ 方案一：通过秒哒平台直接部署（最简单）
+- ✅ 方案二：下载代码到本地部署
+- ✅ 方案三：导出代码到 Git 仓库（推荐）
+- ✅ Supabase 数据库配置
+- ✅ 环境变量获取方法
+- ✅ 常见问题解答（10+ 个问题）
+
+**查看**:
+```bash
+cat MIAODA_DEPLOYMENT_GUIDE.md
+```
+
+---
 
 ### 0. Git 仓库配置与自动部署指南（推荐）
 
@@ -310,64 +350,104 @@ https://your-domain.com/dealerships
 
 ## 🎯 推荐阅读顺序
 
-### 新手用户
+### 新手用户（必读）
 
-1. 📗 `QUICK_DEPLOY.md` - 快速上手（5分钟部署）
-2. 📘 `VERCEL_DEPLOYMENT.md` - 深入了解 Vercel
-3. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
-4. 📕 `DEPLOYMENT_GUIDE.md` - 了解其他选项
+1. 📕 `MIAODA_DEPLOYMENT_GUIDE.md` - **必读**：了解如何从秒哒获取代码
+2. 📗 `QUICK_DEPLOY.md` - 快速上手（5分钟部署）
+3. 📘 `VERCEL_DEPLOYMENT.md` - 深入了解 Vercel
+4. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
+5. 📔 `DEPLOYMENT_GUIDE.md` - 了解其他选项
 
 ### 有经验用户
 
-1. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
-2. 📘 `VERCEL_DEPLOYMENT.md` - Vercel 最佳实践
-3. 📕 `DEPLOYMENT_GUIDE.md` - 对比所有方案
+1. 📕 `MIAODA_DEPLOYMENT_GUIDE.md` - **必读**：了解如何从秒哒获取代码
+2. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
+3. 📘 `VERCEL_DEPLOYMENT.md` - Vercel 最佳实践
+4. 📔 `DEPLOYMENT_GUIDE.md` - 对比所有方案
 
 ### 企业用户
 
-1. 📙 `GIT_SETUP_GUIDE.md` - 团队协作工作流
-2. 📕 `DEPLOYMENT_GUIDE.md` - 了解所有部署方式
-3. 📘 `VERCEL_DEPLOYMENT.md` - Vercel Pro 版功能
+1. 📕 `MIAODA_DEPLOYMENT_GUIDE.md` - **必读**：了解如何从秒哒获取代码
+2. 📙 `GIT_SETUP_GUIDE.md` - 团队协作工作流
+3. 📔 `DEPLOYMENT_GUIDE.md` - 了解所有部署方式
+4. 📘 `VERCEL_DEPLOYMENT.md` - Vercel Pro 版功能
 
 ---
 
 ## 🎉 开始部署
 
-选择适合您的部署方式：
-
-### 方式一：Git 自动部署（最推荐）⭐
+### ⚠️ 第一步：了解如何获取代码（必读）
 
 ```bash
-# 查看 Git 配置指南
+# 查看秒哒平台代码获取指南
+cat MIAODA_DEPLOYMENT_GUIDE.md
+```
+
+这个文档会告诉您：
+- 如何从秒哒平台获取代码
+- 三种部署方案的详细步骤
+- 如何获取 Supabase 配置
+- 常见问题解答
+
+---
+
+### 方式一：秒哒平台直接部署（最简单）⭐
+
+适合第一次部署的用户
+
+1. 登录秒哒平台
+2. 进入项目页面
+3. 点击"部署"按钮
+4. 选择 Vercel
+5. 等待部署完成
+
+---
+
+### 方式二：下载代码后 Git 自动部署（推荐）⭐
+
+适合长期使用和团队协作
+
+```bash
+# 1. 从秒哒平台下载代码
+# 2. 查看 Git 配置指南
 cat GIT_SETUP_GUIDE.md
 
-# 或直接开始
+# 3. 初始化 Git 并推送到 GitHub
 git init
 git add .
 git commit -m "初始提交：恏淘车二手车运营管理平台"
 # 然后按照指南推送到 GitHub/GitLab
 ```
 
-### 方式二：快速部署（5分钟）
+---
+
+### 方式三：下载代码后快速部署（5分钟）
+
+适合快速测试
 
 ```bash
-# 查看快速部署指南
+# 1. 从秒哒平台下载代码
+# 2. 查看快速部署指南
 cat QUICK_DEPLOY.md
 
-# 或直接开始
+# 3. 或直接开始
 npm install -g vercel
 vercel login
 vercel
 ```
 
-### 方式三：详细了解 Vercel
+---
+
+### 方式四：详细了解 Vercel
 
 ```bash
 # 查看 Vercel 详细指南
 cat VERCEL_DEPLOYMENT.md
 ```
 
-### 方式四：对比所有方案
+---
+
+### 方式五：对比所有方案
 
 ```bash
 # 查看完整部署指南
