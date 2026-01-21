@@ -1,7 +1,7 @@
 {
-  "name": "二手车销售管理系统",
-  "short_name": "车行管理",
-  "description": "专业的二手车销售管理平台，支持车辆管理、销售管理、财务管理等功能",
+  "name": "恏淘车二手车运营管理平台",
+  "short_name": "恏淘车",
+  "description": "恏淘车专业的二手车运营管理平台，支持车辆管理、销售管理、财务管理等功能",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

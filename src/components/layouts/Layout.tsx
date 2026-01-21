@@ -438,7 +438,7 @@ export default function Layout({ children }: LayoutProps) {
               />
             ) : (
               <h1 className="text-xl font-bold text-primary-foreground">
-                二手车销售管理系统
+                恏淘车
               </h1>
             )}
           </div>

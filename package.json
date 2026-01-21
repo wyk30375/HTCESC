@@ -1,8 +1,9 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "haotaocar-management-platform",
   "private": true,
   "version": "1.0.1",
   "type": "module",
+  "description": "恏淘车二手车运营管理平台",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
