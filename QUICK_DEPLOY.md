@@ -1,86 +1,99 @@
-# 🚀 快速部署指南
+# 快速部署指南 - 5分钟上线
 
-## 最简单的部署方式（推荐）
+## 最快部署方式：Vercel（推荐）
 
-### 使用一键部署脚本
+### 步骤 1：准备环境变量（1分钟）
 
-```bash
-./deploy.sh
-```
-
-脚本会自动完成：
-1. ✅ 环境检查
-2. ✅ 依赖安装
-3. ✅ 代码检查
-4. ✅ 项目构建
-5. ✅ 选择部署平台
-
----
-
-## 手动部署步骤
-
-### 1. Vercel 部署（最推荐）
+在项目根目录创建 `.env.production` 文件：
 
 ```bash
-# 安装 Vercel CLI
-npm install -g vercel
-
-# 登录 Vercel
-vercel login
-
-# 部署到生产环境
-vercel --prod
-```
-
-**优势**：
-- ✅ 零配置
-- ✅ 自动 HTTPS
-- ✅ 全球 CDN
-- ✅ 免费额度充足
-
-### 2. Netlify 部署
-
-```bash
-# 安装 Netlify CLI
-npm install -g netlify-cli
-
-# 登录 Netlify
-netlify login
-
-# 部署到生产环境
-netlify deploy --prod
-```
-
----
-
-## 环境变量配置
-
-在部署平台（Vercel/Netlify）的环境变量设置中添加：
-
-```
-VITE_SUPABASE_URL=你的Supabase项目URL
-VITE_SUPABASE_ANON_KEY=你的Supabase匿名密钥
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 VITE_APP_ID=app-8u0242wc45c1
 VITE_API_ENV=production
 ```
 
+### 步骤 2：安装 Vercel CLI（1分钟）
+
+```bash
+npm install -g vercel
+```
+
+### 步骤 3：登录 Vercel（1分钟）
+
+```bash
+vercel login
+```
+
+### 步骤 4：部署（2分钟）
+
+```bash
+# 在项目根目录执行
+vercel
+
+# 按提示操作，全部选择默认即可
+```
+
+### 步骤 5：配置环境变量并重新部署
+
+```bash
+# 添加环境变量
+vercel env add VITE_SUPABASE_URL
+vercel env add VITE_SUPABASE_ANON_KEY
+vercel env add VITE_APP_ID
+vercel env add VITE_API_ENV
+
+# 生产部署
+vercel --prod
+```
+
+### 完成！🎉
+
+部署成功后会显示访问地址：
+```
+✅ Production: https://your-project.vercel.app
+```
+
 ---
 
-## 部署文件说明
+## 访问地址
 
-- `vercel.json` - Vercel 部署配置
-- `netlify.toml` - Netlify 部署配置
-- `deploy.sh` - 一键部署脚本
-- `.env.production.template` - 生产环境变量模板
-- `DEPLOYMENT.md` - 完整部署文档
-- `DEPLOYMENT_CHECKLIST.md` - 部署检查清单
+- **管理后台**: https://your-project.vercel.app/
+- **客户展示**: https://your-project.vercel.app/customer-view
+- **内部通报**: https://your-project.vercel.app/internal-report
 
 ---
 
-## 需要帮助？
+## 配置自定义域名（可选）
 
-查看完整文档：[DEPLOYMENT.md](./DEPLOYMENT.md)
+1. 访问 Vercel Dashboard: https://vercel.com/dashboard
+2. 选择项目 → Settings → Domains
+3. 添加您的域名
+4. 按照提示配置 DNS
 
 ---
 
-**祝您部署顺利！🎉**
+## 常见问题
+
+**Q: 部署后页面空白？**
+A: 检查环境变量是否正确配置
+
+**Q: 如何更新？**
+A: 运行 `vercel --prod` 即可
+
+**Q: 如何查看日志？**
+A: 访问 Vercel Dashboard → 选择项目 → Deployments
+
+---
+
+## 需要详细指南？
+
+查看完整部署文档：`DEPLOYMENT_GUIDE.md`
+
+---
+
+## 技术支持
+
+- Vercel 文档: https://vercel.com/docs
+- Supabase 文档: https://supabase.com/docs
+- 项目文档: 查看项目中的其他 .md 文件

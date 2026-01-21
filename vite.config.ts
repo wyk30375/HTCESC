@@ -7,19 +7,11 @@ import { miaodaDevPlugin } from "miaoda-sc-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
+  plugins: [react({
       jsxImportSource: 'react',
-    }), 
-    svgr({
+    }), svgr({
       svgrOptions: {
-        icon: true, 
-        exportType: 'named', 
-        namedExport: 'ReactComponent', 
-      }, 
-    }), 
-    miaodaDevPlugin()
-  ],
+        icon: true, exportType: 'named', namedExport: 'ReactComponent', }, }), miaodaDevPlugin()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
