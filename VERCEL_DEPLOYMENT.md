@@ -157,13 +157,22 @@ vercel domains add www.haotaocar.com
 
 ## 🔄 更新部署
 
-### 方式一：自动部署（推荐）
+### 方式一：自动部署（推荐）⭐
 
 如果您的代码托管在 Git 仓库（GitHub/GitLab/Bitbucket）：
 
 1. 在 Vercel Dashboard 中连接您的 Git 仓库
 2. 每次 `git push` 后自动部署
 3. 无需手动操作
+
+**详细配置指南**: 查看 `GIT_SETUP_GUIDE.md` 了解如何配置 Git 自动部署
+
+**优势**:
+- ✅ 完全自动化 - 推送代码即部署
+- ✅ 版本控制 - 完整的代码历史
+- ✅ 预览部署 - 每个分支独立预览
+- ✅ 团队协作 - 多人开发更方便
+- ✅ 快速回滚 - 一键回滚到任意版本
 
 ### 方式二：手动部署
 
@@ -394,15 +403,21 @@ vercel env add VARIABLE_NAME development
 
 ## 🎓 最佳实践
 
-### 1. 使用 Git 自动部署
+### 1. 使用 Git 自动部署（强烈推荐）⭐
 
 ```bash
-# 连接 GitHub 仓库
-vercel --prod
+# 连接 GitHub 仓库实现自动部署
+# 详细步骤请查看 GIT_SETUP_GUIDE.md
 
-# 选择 GitHub 仓库
-# 之后每次 git push 自动部署
+# 优势：
+# ✅ 推送代码自动部署
+# ✅ 完整的版本控制
+# ✅ 团队协作更方便
+# ✅ 预览部署功能
+# ✅ 快速回滚
 ```
+
+**详细配置**: 查看 `GIT_SETUP_GUIDE.md`
 
 ### 2. 设置部署保护
 
@@ -466,6 +481,10 @@ vercel --prod
 ### 恏淘车支持
 
 - 📖 **项目文档**: 查看项目中的其他 .md 文件
+- 📙 **Git 自动部署**: `GIT_SETUP_GUIDE.md`
+- 📗 **快速部署**: `QUICK_DEPLOY.md`
+- 📕 **完整部署指南**: `DEPLOYMENT_GUIDE.md`
+- 📘 **部署文档导航**: `DEPLOYMENT_INDEX.md`
 - 🔧 **Supabase 文档**: https://supabase.com/docs
 
 ---
@@ -506,8 +525,8 @@ vercel --prod
 ### 下一步
 
 1. ✅ 完成部署
-2. ✅ 配置自定义域名
-3. ✅ 连接 Git 仓库实现自动部署
+2. ✅ 配置 Git 自动部署（查看 `GIT_SETUP_GUIDE.md`）⭐
+3. ✅ 配置自定义域名
 4. ✅ 配置 Supabase 允许的 URL
 5. ✅ 测试所有功能
 
@@ -516,5 +535,7 @@ vercel --prod
 **祝您部署顺利！🚀**
 
 如有问题，请查看：
+- Git 自动部署指南：`GIT_SETUP_GUIDE.md`（推荐）
 - 完整部署指南：`DEPLOYMENT_GUIDE.md`
 - 快速部署指南：`QUICK_DEPLOY.md`
+- 部署文档导航：`DEPLOYMENT_INDEX.md`

@@ -30,6 +30,31 @@ vercel --prod
 
 ## 📖 部署文档
 
+### 0. Git 仓库配置与自动部署指南（推荐）
+
+**文件**: `GIT_SETUP_GUIDE.md`
+
+**适合人群**:
+- 想要实现自动部署的用户
+- 需要版本控制的用户
+- 团队协作开发的用户
+
+**内容**:
+- ✅ 为什么使用 Git 自动部署
+- ✅ GitHub + Vercel 自动部署（推荐）
+- ✅ GitLab + Vercel 自动部署
+- ✅ 配置 Vercel 自动部署
+- ✅ 日常开发工作流程
+- ✅ 团队协作最佳实践
+- ✅ 常见问题解答
+
+**查看**:
+```bash
+cat GIT_SETUP_GUIDE.md
+```
+
+---
+
 ### 1. 快速部署指南（推荐新手）
 
 **文件**: `QUICK_DEPLOY.md`
@@ -287,20 +312,22 @@ https://your-domain.com/dealerships
 
 ### 新手用户
 
-1. 📗 `QUICK_DEPLOY.md` - 快速上手
+1. 📗 `QUICK_DEPLOY.md` - 快速上手（5分钟部署）
 2. 📘 `VERCEL_DEPLOYMENT.md` - 深入了解 Vercel
-3. 📙 `DEPLOYMENT_GUIDE.md` - 了解其他选项
+3. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
+4. 📕 `DEPLOYMENT_GUIDE.md` - 了解其他选项
 
 ### 有经验用户
 
-1. 📘 `VERCEL_DEPLOYMENT.md` - Vercel 最佳实践
-2. 📙 `DEPLOYMENT_GUIDE.md` - 对比所有方案
+1. 📙 `GIT_SETUP_GUIDE.md` - 配置 Git 自动部署（推荐）
+2. 📘 `VERCEL_DEPLOYMENT.md` - Vercel 最佳实践
+3. 📕 `DEPLOYMENT_GUIDE.md` - 对比所有方案
 
 ### 企业用户
 
-1. 📙 `DEPLOYMENT_GUIDE.md` - 了解所有部署方式
-2. 📘 `VERCEL_DEPLOYMENT.md` - Vercel Pro 版功能
-3. 自建服务器部署方案
+1. 📙 `GIT_SETUP_GUIDE.md` - 团队协作工作流
+2. 📕 `DEPLOYMENT_GUIDE.md` - 了解所有部署方式
+3. 📘 `VERCEL_DEPLOYMENT.md` - Vercel Pro 版功能
 
 ---
 
@@ -308,7 +335,20 @@ https://your-domain.com/dealerships
 
 选择适合您的部署方式：
 
-### 方式一：快速部署（推荐）
+### 方式一：Git 自动部署（最推荐）⭐
+
+```bash
+# 查看 Git 配置指南
+cat GIT_SETUP_GUIDE.md
+
+# 或直接开始
+git init
+git add .
+git commit -m "初始提交：恏淘车二手车运营管理平台"
+# 然后按照指南推送到 GitHub/GitLab
+```
+
+### 方式二：快速部署（5分钟）
 
 ```bash
 # 查看快速部署指南
@@ -320,14 +360,14 @@ vercel login
 vercel
 ```
 
-### 方式二：详细了解 Vercel
+### 方式三：详细了解 Vercel
 
 ```bash
 # 查看 Vercel 详细指南
 cat VERCEL_DEPLOYMENT.md
 ```
 
-### 方式三：对比所有方案
+### 方式四：对比所有方案
 
 ```bash
 # 查看完整部署指南
