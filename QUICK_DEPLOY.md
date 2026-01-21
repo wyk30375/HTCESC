@@ -1,6 +1,12 @@
 # 快速部署指南 - 5分钟上线
 
-## 最快部署方式：Vercel（推荐）
+## 最快部署方式：Vercel（秒哒官方推荐 ⭐）
+
+> **为什么选择 Vercel？**
+> - ✅ 秒哒官方推荐的部署方式
+> - ✅ 100GB 免费带宽/月
+> - ✅ 自动 HTTPS + 全球 CDN
+> - ✅ 5分钟即可上线
 
 ### 步骤 1：准备环境变量（1分钟）
 
@@ -88,7 +94,8 @@ A: 访问 Vercel Dashboard → 选择项目 → Deployments
 
 ## 需要详细指南？
 
-查看完整部署文档：`DEPLOYMENT_GUIDE.md`
+- 📘 **Vercel 详细部署指南**：`VERCEL_DEPLOYMENT.md`（秒哒官方推荐）
+- 📗 **完整部署指南**：`DEPLOYMENT_GUIDE.md`（包含所有部署方式）
 
 ---
 
